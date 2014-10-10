@@ -18,8 +18,8 @@ public:
     int getFile()const;
     int getPlayer() const;
     std::string getType() const;
-    bool checkMove(int r, int f, const char b[8][8]);
-    void movePiece(int r, int f, char b[8][8]);
+    bool checkMove(int destR, int destF) const;
+    void movePiece(int destR, int destF);
     void print() const;
     
 private:
@@ -36,22 +36,21 @@ public:
     Board() //default constructor
     {
         initializePieces();
-        initializeBoard();
+        updateBoard();
     }
 
     void initializePieces();
-    void initializeBoard();
     void updateBoard();
     Piece& getPiece(int r, int f);
     int getPieceIndex(int r, int f);
-    bool checkMove(int i, int sourceR, int sourceF,
-                   int destR, int destF) const;
-    void movePiece(int i, int r, int f);
-    void capturePiece(int r, int f);
+    bool checkMove(int i, int destR, int destF) const;
+    void movePiece(int i, int destR, int destF);
+    std::string capturePiece(int r, int f);
     void printBoard() const;
+    int getPieceSize() const;
     
 private:
-    char board[8][8];
+    std::string board[8][8];
     std::vector< Piece > p;
     
 };
