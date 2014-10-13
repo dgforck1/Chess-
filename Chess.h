@@ -10,7 +10,7 @@ public:
     //constructors
     Piece() {}; 
     Piece(int p, std::string t, int r, int f) :
-        rank(r), file(f), player(p), type(t)
+        rank(r), file(f), player(p), type(t), moved(false)
     {};
 
     //methods
@@ -18,13 +18,15 @@ public:
     int getFile()const;
     int getPlayer() const;
     std::string getType() const;
-    bool checkMove(int destR, int destF) const;
-    void movePiece(int destR, int destF);
+    bool checkMove(int destR, int destF, std::string B[][8],
+                   std::vector< Piece > p) const;
+    void movePiece(int destR, int destF, std::string B[][8]);
     void print() const;
     
 private:
     //members
     int rank, file, player;
+    bool moved;
     std::string type;
 };
 
@@ -43,7 +45,7 @@ public:
     void updateBoard();
     Piece& getPiece(int r, int f);
     int getPieceIndex(int r, int f);
-    bool checkMove(int i, int destR, int destF) const;
+    bool checkMove(int i, int destR, int destF);    
     void movePiece(int i, int destR, int destF);
     std::string capturePiece(int r, int f);
     void printBoard() const;

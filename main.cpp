@@ -105,7 +105,7 @@ bool test_piece()
     }
 
     
-    p2.movePiece(0, 0);
+    /*p2.movePiece(0, 0);
     testr = p2.getRank();
     testf = p2.getFile();
 
@@ -119,7 +119,7 @@ bool test_piece()
         std::cout << "    "
                   << "Piece movePiece failed" << std::endl;
         pass = false;
-    }
+        }*/
     
 
     return pass;
