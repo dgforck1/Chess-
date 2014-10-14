@@ -240,6 +240,8 @@ bool Piece::checkMove(int destR, int destF, std::string B[][8],
         }
         else if(type == "K") //white king
         {
+            std::cout << "<<<<< it's a king\n";
+            
             if(destR - rank >= -1 && destR - rank <= 1)
             {
                 if(destF - file >= -1 && destF - file <= 1)
@@ -261,11 +263,11 @@ bool Piece::checkMove(int destR, int destF, std::string B[][8],
             
             //castle
             if(!moved)
-            {
+            {                
                 if(destR == rank)
-                {
+                {                    
                     if(destF == file - 2) //queen side castle
-                    {
+                    {                        
                         int targetRookIndex = -1;
 
                         //find the rook
