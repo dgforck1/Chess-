@@ -7,7 +7,8 @@
 bool test_piece();
 bool test_board();
 bool test_moving_pieces();
-bool test_king_castling();
+bool test_kingside_castling();
+bool test_queenside_castling();
 bool test_pawn_enpassant();
 
 int main()
@@ -42,16 +43,23 @@ int main()
         std::cout << "Moving Pieces test failed" << std::endl;
     }
         
-    if(test_king_castling())
+    if(test_kingside_castling())
     {
-        std::cout << "King castling passed" << std::endl;
+        std::cout << "Kingside castling passed" << std::endl;
     }
     else
     {
-        std::cout << "King castling failed" << std::endl;
+        std::cout << "Kingside castling failed" << std::endl;
     }
 
-
+    if(test_queenside_castling())
+    {
+        std::cout << "Queenside castling passed" << std::endl;
+    }
+    else
+    {
+        std::cout << "Queenside castling failed" << std::endl;
+    }
 
     
     return 0;
@@ -586,17 +594,14 @@ bool test_moving_pieces()
 }
 
 
-bool test_king_castling()
+bool test_kingside_castling()
 {
-bool pass = true;
+    bool pass = true;
     Board b = Board();    
     int workingPiece = b.getPieceIndex(0, 4); //get white king
     
     int destR = 0, destF = 6;
-
-    std::cout << "Testing Castling"
-              << std::endl;
-
+   
     
     //move obstructing pieces
     b.capturePiece(0, 5);
@@ -605,7 +610,6 @@ bool pass = true;
 /*    b.updateBoard();
       b.printBoard();*/
     
-    //check castling king-side
     if(b.checkMove(workingPiece, destR, destF)) //check that move is valid
     {
         int targetCapturePiece = b.getPieceIndex(destR, destF);
@@ -613,8 +617,8 @@ bool pass = true;
         if(targetCapturePiece == -1)
         {
             b.movePiece(workingPiece, destR, destF);
-            b.updateBoard();
-            b.printBoard();
+            /*b.updateBoard();
+              b.printBoard();*/
 
             Piece p = b.getPiece(workingPiece);
 
@@ -655,3 +659,78 @@ bool pass = true;
 
     return pass;
 }
+
+
+
+
+
+
+
+
+bool test_queenside_castling()
+{
+    bool pass = true;
+    Board b = Board();    
+    int workingPiece = b.getPieceIndex(0, 4); //get white king
+    
+    int destR = 0, destF = 2;
+   
+    
+    //move obstructing pieces
+    b.capturePiece(0, 3);
+    b.capturePiece(0, 2);
+    b.capturePiece(0, 1);
+
+    /*b.updateBoard();
+      b.printBoard();*/
+    
+    if(b.checkMove(workingPiece, destR, destF)) //check that move is valid
+    {
+        int targetCapturePiece = b.getPieceIndex(destR, destF);
+
+        if(targetCapturePiece == -1)
+        {
+            b.movePiece(workingPiece, destR, destF);
+            /*b.updateBoard();
+              b.printBoard();*/
+
+            Piece p = b.getPiece(workingPiece);
+
+            if(p.getRank() == destR && p.getFile() == destF)
+            {
+                std::cout << "    "
+                          << "Castling queen-side passed"
+                          << std::endl;
+            }
+            else
+            {
+                std::cout << "    "
+                          << "Castling queen-side failed "
+                          << "- dest rank and file"
+                          << std::endl;
+                
+                pass = false;
+            }
+        }
+        else
+        {
+            std::cout << "    "
+                      << "Castling queen-side failed "
+                      << "- target capture piece"
+                      << std::endl;
+            
+            pass = false;
+        }        
+    }
+    else
+    {
+        std::cout << "    "
+                  << "Castling queen-side failed"
+                  << std::endl;
+        
+        pass = false;
+    }
+
+    return pass;
+}
+

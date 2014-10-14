@@ -199,9 +199,7 @@ bool Piece::checkMove(int destR, int destF, std::string B[][8],
                         return true;
                     }
                 }
-            }
-            
-            
+            }                        
         }
         else if(type == "Q") //white queen
         {
@@ -239,9 +237,7 @@ bool Piece::checkMove(int destR, int destF, std::string B[][8],
             }
         }
         else if(type == "K") //white king
-        {
-            std::cout << "<<<<< it's a king\n";
-            
+        {            
             if(destR - rank >= -1 && destR - rank <= 1)
             {
                 if(destF - file >= -1 && destF - file <= 1)
@@ -288,8 +284,48 @@ bool Piece::checkMove(int destR, int destF, std::string B[][8],
 
                         if(!p[targetRookIndex].getMoved())
                         {
-                            //todo:  ensure nothing between K and R
-                            return true;
+                            //ensure nothing between K and R
+                            int a = -1;
+                            
+                            for(int i = 0; i < p.size(); i++)
+                            {
+                                int tempr = p[i].getRank();
+                                
+                                if(tempr == 0)
+                                {
+                                    int tempf = p[i].getFile();
+                                    
+                                    if(tempf == 3)
+                                    {
+                                        a = i;
+                                    }
+                                }
+                            }
+                            
+                            if(a == -1)
+                            {
+                                int b = -1;
+                                
+                                for(int i = 0; i < p.size(); i++)
+                                {
+                                    int tempr = p[i].getRank();
+                                    
+                                    if(tempr == 0)
+                                    {
+                                        int tempf = p[i].getFile();
+                                        
+                                        if(tempf == 1)
+                                        {
+                                            b = i;
+                                        }
+                                    }
+                                }
+                                
+                                if(b == -1)
+                                {                            
+                                    return true;
+                                }       
+                            }
                         }
                     }
 
@@ -297,7 +333,7 @@ bool Piece::checkMove(int destR, int destF, std::string B[][8],
                     {
                         int targetRookIndex = -1;
 
-                        //find the rook
+                        //find the rook                        
                         for(int i = 0; i < p.size(); i++)
                         {
                             int tempr = p[i].getRank();
@@ -314,9 +350,29 @@ bool Piece::checkMove(int destR, int destF, std::string B[][8],
                         }
 
                         if(!p[targetRookIndex].getMoved())
-                        {
-                            //todo:  ensure nothing between K and R
-                            return true;
+                        {                            
+                            //ensure nothing between K and R
+                            int a = -1;
+
+                            for(int i = 0; i < p.size(); i++)
+                            {
+                                int tempr = p[i].getRank();
+                                
+                                if(tempr == 0)
+                                {
+                                    int tempf = p[i].getFile();
+                                    
+                                    if(tempf == 5)
+                                    {
+                                        a = i;
+                                    }
+                                }
+                            }
+                            
+                            if(a == -1)
+                            {
+                                return true;
+                            }
                         }
                     }
                 }
