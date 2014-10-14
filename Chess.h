@@ -17,10 +17,11 @@ public:
     int getRank() const;
     int getFile()const;
     int getPlayer() const;
+    bool getMoved() const;
     std::string getType() const;
     bool checkMove(int destR, int destF, std::string B[][8],
                    std::vector< Piece > p) const;
-    void movePiece(int destR, int destF, std::string B[][8]);
+    void movePiece(int destR, int destF);
     void print() const;
     
 private:
@@ -44,6 +45,7 @@ public:
     void initializePieces();
     void updateBoard();
     Piece& getPiece(int r, int f);
+    Piece& getPiece(int i);
     int getPieceIndex(int r, int f);
     bool checkMove(int i, int destR, int destF);    
     void movePiece(int i, int destR, int destF);

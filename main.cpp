@@ -6,11 +6,12 @@
 
 bool test_piece();
 bool test_board();
+bool test_moving_pieces();
 
 int main()
 {
     //test cases
-    std::cout << "Chess Test cases: " << std::endl;
+    std::cout << "Chess Test cases: " << std::endl << std::endl;
 
     if(test_piece())
     {
@@ -28,6 +29,15 @@ int main()
     else
     {
         std::cout << "Board Tests failed" << std::endl;
+    }
+
+    if(test_moving_pieces())
+    {
+        std::cout << "Moving Pieces test  passed" << std::endl;
+    }
+    else
+    {
+        std::cout << "Moving Pieces test failed" << std::endl;
     }
     
     return 0;
@@ -102,24 +112,7 @@ bool test_piece()
         std::cout << "    "
                   << "Piece getType failed" << std::endl;
         pass = false;
-    }
-
-    
-    /*p2.movePiece(0, 0);
-    testr = p2.getRank();
-    testf = p2.getFile();
-
-    if(testr == 0 && testf == 0)
-    {
-        std::cout << "    "
-                  << "Piece movePiece passed" << std::endl;
-    }
-    else
-    {
-        std::cout << "    "
-                  << "Piece movePiece failed" << std::endl;
-        pass = false;
-        }*/
+    }    
     
 
     return pass;
@@ -163,37 +156,7 @@ bool test_board()
         std::cout << "    "
                   << "Board getPieceIndex function failed" << std::endl;
         pass = false;
-    }
-
-    
-    bool checkMove = b->checkMove(i, 0, 0);
-
-    if(checkMove)
-    {
-        std::cout << "    "
-                  << "Board checkMove function passed" << std::endl;
-    }
-    else
-    {
-        std::cout << "    "
-                  << "Board checkMove function failed" << std::endl;
-        pass = false;
-    }
-
-    
-    b->movePiece(i, 0, 0);
-    
-    if(p.getRank() == 0 && p.getFile() == 0)
-    {
-        std::cout << "    "
-                  << "Board movePiece function passed" << std::endl;
-    }
-    else
-    {
-        std::cout << "    "
-                  << "Board movePiece function failed" << std::endl;
-        pass = false;
-    }
+    }       
 
     
     int size = b->getPieceSize();
@@ -215,3 +178,245 @@ bool test_board()
     
     return pass;
 }
+
+
+bool test_moving_pieces()
+{
+    bool pass = true;
+    Board b = Board();    
+    int workingPiece = b.getPieceIndex(1, 0); //get left most white pawn
+    
+    int destR = 2, destF = 0;
+
+    std::cout << "    "
+              << "Testing White's moves"
+              << std::endl;
+
+
+    
+    //check moving left most white pawn one square
+    if(b.checkMove(workingPiece, destR, destF)) //check that move is valid
+    {
+        int targetCapturePiece = b.getPieceIndex(destR, destF);
+
+        if(targetCapturePiece == -1)
+        {
+            b.movePiece(workingPiece, destR, destF);
+            /*b.updateBoard();
+              b.printBoard();*/
+
+            Piece p = b.getPiece(workingPiece);
+
+            if(p.getRank() == destR && p.getFile() == destF)
+            {
+                std::cout << "        "
+                          << "Moving pawn one square passed"
+                          << std::endl;
+            }
+            else
+            {
+                std::cout << "        "
+                          << "Moving pawn one square failed "
+                          << "- dest rank and file"
+                          << std::endl;
+                
+                pass = false;
+            }
+        }
+        else
+        {
+            std::cout << "        "
+                      << "Moving pawn one square failed "
+                      << "- target capture piece"
+                      << std::endl;
+            
+            pass = false;
+        }        
+    }
+    else
+    {
+        std::cout << "        "
+                  << "Moving pawn one square test failed"
+                  << std::endl;
+        
+        pass = false;
+    }
+
+
+    workingPiece = b.getPieceIndex(1, 1); //get second white pawn    
+    destR = 3;
+    destF = 1;
+
+    
+    //check moving second white pawn two squares
+    if(b.checkMove(workingPiece, destR, destF)) //check that move is valid
+    {
+        int targetCapturePiece = b.getPieceIndex(destR, destF);
+
+        if(targetCapturePiece == -1)
+        {
+            b.movePiece(workingPiece, destR, destF);
+            b.updateBoard();
+            b.printBoard();
+
+            Piece p = b.getPiece(workingPiece);
+
+            if(p.getRank() == destR && p.getFile() == destF)
+            {
+                std::cout << "        "
+                          << "Moving pawn two squares passed"
+                          << std::endl;
+            }
+            else
+            {
+                std::cout << "        "
+                          << "Moving pawn two squares failed "
+                          << "- dest rank and file"
+                          << std::endl;
+                
+                pass = false;
+            }
+        }
+        else
+        {
+            std::cout << "        "
+                      << "Moving pawn two squares failed "
+                      << "- target capture piece"
+                      << std::endl;
+            
+            pass = false;
+        }        
+    }
+    else
+    {
+        std::cout << "        "
+                  << "Moving pawn two squares test failed"
+                  << std::endl;
+        
+        pass = false;
+    }
+    
+
+    workingPiece = b.getPieceIndex(0, 0); //get first white rook
+    
+    destR = 1;
+    destF = 0;
+
+    
+    //check moving white rook
+    if(b.checkMove(workingPiece, destR, destF)) //check that move is valid
+    {
+        int targetCapturePiece = b.getPieceIndex(destR, destF);
+
+        if(targetCapturePiece == -1)
+        {
+            b.movePiece(workingPiece, destR, destF);
+            b.updateBoard();
+            b.printBoard();
+
+            Piece p = b.getPiece(workingPiece);
+
+            if(p.getRank() == destR && p.getFile() == destF)
+            {
+                std::cout << "        "
+                          << "Moving rook passed"
+                          << std::endl;
+            }
+            else
+            {
+                std::cout << "        "
+                          << "Moving rook failed "
+                          << "- dest rank and file"
+                          << std::endl;
+                
+                pass = false;
+            }
+        }
+        else
+        {
+            std::cout << "        "
+                      << "Moving rook failed "
+                      << "- target capture piece"
+                      << std::endl;
+            
+            pass = false;
+        }        
+    }
+    else
+    {
+        std::cout << "        "
+                  << "Moving rook failed"
+                  << std::endl;
+        
+        pass = false;
+    }
+
+
+    workingPiece = b.getPieceIndex(0, 1); //get first white knight    
+    destR = 2;
+    destF = 2;
+
+    
+    //check moving white knight
+    if(b.checkMove(workingPiece, destR, destF)) //check that move is valid
+    {
+        int targetCapturePiece = b.getPieceIndex(destR, destF);
+
+        if(targetCapturePiece == -1)
+        {
+            b.movePiece(workingPiece, destR, destF);
+            b.updateBoard();
+            b.printBoard();
+
+            Piece p = b.getPiece(workingPiece);
+
+            if(p.getRank() == destR && p.getFile() == destF)
+            {
+                std::cout << "        "
+                          << "Moving knight passed"
+                          << std::endl;
+            }
+            else
+            {
+                std::cout << "        "
+                          << "Moving knight failed "
+                          << "- dest rank and file"
+                          << std::endl;
+                
+                pass = false;
+            }
+        }
+        else
+        {
+            std::cout << "        "
+                      << "Moving knight failed "
+                      << "- target capture piece"
+                      << std::endl;
+            
+            pass = false;
+        }        
+    }
+    else
+    {
+        std::cout << "    "
+                  << "Moving knight failed"
+                  << std::endl;
+        
+        pass = false;
+    }
+
+
+
+
+
+
+
+
+
+    
+
+    return pass;
+}
+
+
+

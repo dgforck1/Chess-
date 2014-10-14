@@ -266,11 +266,56 @@ bool Piece::checkMove(int destR, int destF, std::string B[][8],
                 {
                     if(destF == file - 2) //queen side castle
                     {
-                        
+                        int targetRookIndex = -1;
+
+                        //find the rook
+                        for(int i = 0; i < p.size(); i++)
+                        {
+                            int tempr = p[i].getRank();
+                            
+                            if(tempr == 0)
+                            {
+                                int tempf = p[i].getFile();
+                                
+                                if(tempf == 0)
+                                {
+                                    targetRookIndex = i;
+                                }
+                            }
+                        }
+
+                        if(!p[targetRookIndex].getMoved())
+                        {
+                            //todo:  ensure nothing between K and R
+                            return true;
+                        }
                     }
 
-                    if(destF == file + 2) //kind side castle
+                    if(destF == file + 2) //king side castle
                     {
+                        int targetRookIndex = -1;
+
+                        //find the rook
+                        for(int i = 0; i < p.size(); i++)
+                        {
+                            int tempr = p[i].getRank();
+                            
+                            if(tempr == 0)
+                            {
+                                int tempf = p[i].getFile();
+                                
+                                if(tempf == 7)
+                                {
+                                    targetRookIndex = i;
+                                }
+                            }
+                        }
+
+                        if(!p[targetRookIndex].getMoved())
+                        {
+                            //todo:  ensure nothing between K and R
+                            return true;
+                        }
                     }
                 }
             }
@@ -284,7 +329,13 @@ bool Piece::checkMove(int destR, int destF, std::string B[][8],
 }
 
 
-void Piece::movePiece(int destR, int destF, std::string B[][8])
+bool Piece::getMoved() const
+{
+    return moved;
+}
+
+
+void Piece::movePiece(int destR, int destF)
 {    
     rank = destR;
     file = destF;
@@ -363,6 +414,19 @@ Piece& Board::getPiece(int r, int f)
 }
 
 
+Piece& Board::getPiece(int i)
+{
+    if(i < p.size() && i >= 0)
+    {
+    return p[i];
+    }
+    else
+    {
+        //todo:  throw error if piece not found
+    }
+}
+
+
 int Board::getPieceIndex(int r, int f)
 {
     for(int i = 0; i < p.size(); i++)
@@ -394,10 +458,14 @@ bool Board::checkMove(int i, int destR, int destF)
 
 void Board::movePiece(int i, int destR, int destF)
 {
-
-
-    
-    //p[i].movePiece(destR, destF);
+    if(destR >=0 && destR < 8 && destF >= 0 && destF < 8)
+    {
+        p[i].movePiece(destR, destF);
+    }
+    else
+    {
+        //todo: throw out of bounds error
+    }
 }
 
 
