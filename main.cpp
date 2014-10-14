@@ -36,29 +36,29 @@ int main()
 
     if(test_moving_pieces())
     {
-        std::cout << "Moving Pieces test passed" << std::endl;
+        std::cout << "Moving White Pieces test passed" << std::endl;
     }
     else
     {
-        std::cout << "Moving Pieces test failed" << std::endl;
+        std::cout << "Moving White Pieces test failed" << std::endl;
     }
         
     if(test_kingside_castling())
     {
-        std::cout << "Kingside castling passed" << std::endl;
+        std::cout << "White Kingside castling passed" << std::endl;
     }
     else
     {
-        std::cout << "Kingside castling failed" << std::endl;
+        std::cout << "White Kingside castling failed" << std::endl;
     }
 
     if(test_queenside_castling())
     {
-        std::cout << "Queenside castling passed" << std::endl;
+        std::cout << "White Queenside castling passed" << std::endl;
     }
     else
     {
-        std::cout << "Queenside castling failed" << std::endl;
+        std::cout << "White Queenside castling failed" << std::endl;
     }
 
     
@@ -659,12 +659,6 @@ bool test_kingside_castling()
 
     return pass;
 }
-
-
-
-
-
-
 
 
 bool test_queenside_castling()
