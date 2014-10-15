@@ -15,9 +15,7 @@ bool test_moving_black_pieces();
 
 
 int main()
-{
-    ChessMain();
-    
+{       
     //test cases
     std::cout << "Chess Test cases: " << std::endl << std::endl;
 
@@ -77,6 +75,8 @@ int main()
         std::cout << "Moving Black Pieces test failed" << std::endl;
     }
 
+
+    ChessMain();
     
     return 0;
 }
