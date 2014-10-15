@@ -1,7 +1,13 @@
 #ifndef CHESSGAME_H
 #define CHESSGAME_H
 
-void GameMain();
+
+//sdl libraries
+#include "Includes.h"
+#include "Constants.h"
+#include "compgeom.h"
+
+int ChessMain(Surface);
 
 
 

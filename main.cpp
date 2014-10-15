@@ -1,7 +1,22 @@
+//standard libraries
 #include <iostream>
+#include <cmath>
+#include <vector>
 #include <string>
-#include <iomanip>
+#include <fstream>
+#include <ctime>
+#include <cmath>
+#include <cstdlib>
+#include <sstream>
 
+//sdl libraries
+#include "Includes.h"
+#include "Constants.h"
+#include "compgeom.h"
+#include "Surface.h"
+#include "Event.h"
+
+//custom libraries
 #include "Chess.h"
 #include "ChessGame.h"
 
@@ -15,7 +30,8 @@ bool test_moving_black_pieces();
 
 
 int main()
-{       
+{
+    /*
     //test cases
     std::cout << "Chess Test cases: " << std::endl << std::endl;
 
@@ -74,9 +90,11 @@ int main()
     {
         std::cout << "Moving Black Pieces test failed" << std::endl;
     }
-
+    */
 
     ChessMain();
+            
+
     
     return 0;
 }
