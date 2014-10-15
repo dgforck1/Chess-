@@ -1,8 +1,9 @@
 #include <iostream>
-#include "Chess.h"
 #include <string>
 #include <iomanip>
 
+#include "Chess.h"
+#include "ChessGame.h"
 
 bool test_piece();
 bool test_board();
@@ -11,12 +12,12 @@ bool test_white_kingside_castling();
 bool test_white_queenside_castling();
 bool test_white_pawn_enpassant();
 bool test_moving_black_pieces();
-bool test_black_kingside_castling();
-bool test_black_queenside_castling();
-bool test_black_pawn_enpassant();
+
 
 int main()
 {
+    ChessMain();
+    
     //test cases
     std::cout << "Chess Test cases: " << std::endl << std::endl;
 
@@ -1161,139 +1162,5 @@ bool test_moving_black_pieces()
     return pass;
 }
 
-/*
-bool test_white_kingside_castling()
-{
-    bool pass = true;
-    Board b = Board();    
-    int workingPiece = b.getPieceIndex(0, 4); //get white king
-    
-    int destR = 0, destF = 6;
-   
-    
-    //move obstructing pieces
-    b.capturePiece(0, 5);
-    b.capturePiece(0, 6);
 
-/*    b.updateBoard();
-      b.printBoard();
-    
-    if(b.checkMove(workingPiece, destR, destF)) //check that move is valid
-    {
-        int targetCapturePiece = b.getPieceIndex(destR, destF);
-
-        if(targetCapturePiece == -1)
-        {
-            b.movePiece(workingPiece, destR, destF);
-            /*b.updateBoard();
-              b.printBoard();
-
-            Piece p = b.getPiece(workingPiece);
-
-            if(p.getRank() == destR && p.getFile() == destF)
-            {
-                std::cout << "    "
-                          << "Castling king-side passed"
-                          << std::endl;
-            }
-            else
-            {
-                std::cout << "    "
-                          << "Castling king-side failed "
-                          << "- dest rank and file"
-                          << std::endl;
-                
-                pass = false;
-            }
-        }
-        else
-        {
-            std::cout << "    "
-                      << "Castling king-side failed "
-                      << "- target capture piece"
-                      << std::endl;
-            
-            pass = false;
-        }        
-    }
-    else
-    {
-        std::cout << "    "
-                  << "Castling king-side failed"
-                  << std::endl;
-        
-        pass = false;
-    }
-
-    return pass;
-}
-*/
-/*
-bool test_white_queenside_castling()
-{
-    bool pass = true;
-    Board b = Board();    
-    int workingPiece = b.getPieceIndex(0, 4); //get white king
-    
-    int destR = 0, destF = 2;
-   
-    
-    //move obstructing pieces
-    b.capturePiece(0, 3);
-    b.capturePiece(0, 2);
-    b.capturePiece(0, 1);
-
-    /*b.updateBoard();
-      b.printBoard();
-    
-    if(b.checkMove(workingPiece, destR, destF)) //check that move is valid
-    {
-        int targetCapturePiece = b.getPieceIndex(destR, destF);
-
-        if(targetCapturePiece == -1)
-        {
-            b.movePiece(workingPiece, destR, destF);
-            /*b.updateBoard();
-              b.printBoard();
-
-            Piece p = b.getPiece(workingPiece);
-
-            if(p.getRank() == destR && p.getFile() == destF)
-            {
-                std::cout << "    "
-                          << "Castling queen-side passed"
-                          << std::endl;
-            }
-            else
-            {
-                std::cout << "    "
-                          << "Castling queen-side failed "
-                          << "- dest rank and file"
-                          << std::endl;
-                
-                pass = false;
-            }
-        }
-        else
-        {
-            std::cout << "    "
-                      << "Castling queen-side failed "
-                      << "- target capture piece"
-                      << std::endl;
-            
-            pass = false;
-        }        
-    }
-    else
-    {
-        std::cout << "    "
-                  << "Castling queen-side failed"
-                  << std::endl;
-        
-        pass = false;
-    }
-
-    return pass;
-}
-*/
 
