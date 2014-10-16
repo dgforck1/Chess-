@@ -42,7 +42,9 @@ void ChessMain()
     Image BB = Image("images/BlackBishop.png");
     Image BQ = Image("images/BlackQueen.png");
     Image BK = Image("images/BlackKing.png");
-
+    Image WPS = Image("images/WhitePawn-Small.png");
+    Image BPS = Image("images/BlackPawn-Small.png");
+    
     std::vector< std::string > CapturedWhite;
     std::vector< std::string > CapturedBlack;
     
@@ -109,19 +111,22 @@ void ChessMain()
 
                 if(b.checkMove(workingPieceIndex, tempy, tempx))
                 {
-                    /*if(b.getPieceIndex(tempy, tempx) >= 0)
+                    if(b.getPieceIndex(tempy, tempx) >= 0)
                     {
-                        
-                        
-                        Captured.push_back(b.capturePiece(tempy, tempx));
+                        Piece tempP = b.getPiece(tempy, tempx);
 
-                        std::cout << "<<<< captured: ";
-                        for(int i = 0; i < Captured.size(); i++)
+                        //todo: fix weird capture bug
+                        if(tempP.getPlayer() == 0)
                         {
-                            std::cout << Captured[i] << " ";
+                            CapturedWhite.push_back(
+                                b.capturePiece(tempy, tempx));
                         }
-                        std::cout << std::endl;
-                        }*/
+                        else
+                        {
+                            CapturedBlack.push_back(
+                                b.capturePiece(tempy, tempx));
+                        }                        
+                    }
                     
                     b.movePiece(workingPieceIndex, tempy, tempx);
 
@@ -244,6 +249,16 @@ void ChessMain()
                     s.put_image(BK, Rect(tempx, tempy, 50, 50));
                 }
             }
+        }
+        s.put_image(WPS, Rect(250, 120, 25, 25));
+        s.put_image(BPS, Rect(625, 120, 25, 25));
+        if(playerTurn == 0)
+        {
+            s.put_circle(250, 125, 5, GREEN);
+        }
+        else
+        {
+            s.put_circle(650, 125, 5, GREEN);
         }
         s.unlock();
         s.flip();

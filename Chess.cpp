@@ -39,6 +39,11 @@ bool Piece::checkMove(int destR, int destF, std::string B[][8],
     {
         return false;
     }
+
+    if(destR == rank && destF == file) //same square as piece
+    {
+        return false;
+    }
     
     int targetPieceIndex = -1; //index of the piece that is at the dest square
     
