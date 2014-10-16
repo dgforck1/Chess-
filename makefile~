@@ -21,6 +21,3 @@ push:
 
 commit:
 	git commit -a
-
-add:
-	git add -A
