@@ -13,3 +13,11 @@ clean:
 c:
 	rm a.out
 
+pull:
+	git pull
+
+push:
+	git push https://github.com/dgforck1/Chess-
+
+commit:
+	git commit -a
