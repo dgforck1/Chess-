@@ -842,11 +842,20 @@ void Board::movePiece(int i, int destR, int destF)
 
 std::string Board::capturePiece(int r, int f)
 {
+    
     int i = getPieceIndex(r, f);
-    std::string ret = p[i].getType();
-    p.erase(p.begin() + i);
 
-    return ret;
+    if(i >= 0)
+    {
+        std::string ret = p[i].getType();
+        p.erase(p.begin() + i);
+        
+        return ret;
+    }
+    else
+    {
+        return "";
+    }
 }
 
 void Board::printBoard() const

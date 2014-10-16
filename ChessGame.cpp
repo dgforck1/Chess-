@@ -21,38 +21,37 @@ void ChessMain()
     Mouse mouse;
 
     int mousex = -1,
-        mousey = -1;
-    int workingPieceIndex = -1;
+        mousey = -1,
+        workingPieceIndex = -1;
     bool clicked = false,
         released = false;
 
-    Rect boardRect = Rect(250, 150, 400, 400);
-    Rect blackRect = Rect(0, 0, 50, 50);
+    Rect boardRect = Rect(250, 150, 400, 400),
+        blackRect = Rect(0, 0, 50, 50);
     Board b = Board();
-    
-    
+        
     Image WP = Image("images/WhitePawn.png");
     Image WR = Image("images/WhiteRook.png");
     Image WN = Image("images/WhiteKnight.png");
     Image WB = Image("images/WhiteBishop.png");
     Image WQ = Image("images/WhiteQueen.png");
-    Image WK = Image("images/WhiteKing.png");
-    
+    Image WK = Image("images/WhiteKing.png");    
     Image BP = Image("images/BlackPawn.png");
     Image BR = Image("images/BlackRook.png");
-
     Image BN = Image("images/BlackKnight.png");
     Image BB = Image("images/BlackBishop.png");
     Image BQ = Image("images/BlackQueen.png");
     Image BK = Image("images/BlackKing.png");
+
+    std::vector< std::string > CapturedWhite;
+    std::vector< std::string > CapturedBlack;
     
-    
+    int playerTurn = 0;
     
     while(1)
     {
         if(event.poll())
-        {
-        
+        {        
             if(event.type() == QUIT) break;
             else
             {
@@ -60,33 +59,18 @@ void ChessMain()
                 {
                     mouse.update(event);                    
                     mousex = mouse.x();
-                    mousey = mouse.y();
-
-                    /*std::cout << "<<<< mouse click coords, x: "
-                              << mousex
-                              << " y: "
-                              << mousey
-                              << std::endl;*/
-                    
+                    mousey = mouse.y();                                        
                     clicked = true;
                 }
                 else if(event.type() == MOUSEBUTTONUP)
                 {
                     mouse.update(event);
                     mousex = mouse.x();
-                    mousey = mouse.y();
-
-                    /*std::cout << "<<<< mouse release coords, x: "
-                              << mousex
-                              << " y: "
-                              << mousey
-                              << std::endl;*/
-                    
+                    mousey = mouse.y();                                       
                     released = true;
                 }
             }
         }
-
 
 
         if(RectClicked(mousex, mousey, boardRect))  //player operating on board
@@ -101,6 +85,17 @@ void ChessMain()
                 tempy = 7 - tempy;
                                 
                 workingPieceIndex = b.getPieceIndex(tempy, tempx);
+
+                if(workingPieceIndex >= 0)
+                {
+                    Piece tempP = b.getPiece(workingPieceIndex);
+                    
+                    if(tempP.getPlayer()  != playerTurn)
+                    {
+                        //not the current player's piece
+                        workingPieceIndex = -1;                    
+                    }
+                }
             }
             
             if(released)
@@ -114,14 +109,31 @@ void ChessMain()
 
                 if(b.checkMove(workingPieceIndex, tempy, tempx))
                 {
-                    //std::cout << "<<<< valid move!" << std::endl;
-                    //b.capturePiece(tempy, tempx);
+                    /*if(b.getPieceIndex(tempy, tempx) >= 0)
+                    {
+                        
+                        
+                        Captured.push_back(b.capturePiece(tempy, tempx));
+
+                        std::cout << "<<<< captured: ";
+                        for(int i = 0; i < Captured.size(); i++)
+                        {
+                            std::cout << Captured[i] << " ";
+                        }
+                        std::cout << std::endl;
+                        }*/
+                    
                     b.movePiece(workingPieceIndex, tempy, tempx);
-                }
-                else
-                {
-                    std::cout << "<<<< invalid move!" << std::endl;
-                }
+
+                    if(playerTurn == 0)
+                    {
+                        playerTurn = 1;
+                    }
+                    else
+                    {
+                        playerTurn = 0;
+                    }
+                }                
                 
                 //reset variables
                 workingPieceIndex = -1;
@@ -147,7 +159,7 @@ void ChessMain()
         
         //draw all the things
         s.lock();
-        s.fill(BLACK);
+        s.fill(GRAY);
         s.put_rect(boardRect, WHITE);
         //draw squares
         for(int i = boardRect.x; i < boardRect.x + boardRect.w ; i+= 50)
