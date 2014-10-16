@@ -41,15 +41,16 @@ public:
 class Game
 {
 public:
+    // the constructor will always need a player, that will be player 1
     Game(Client & p1)
     {
         players.push_back(p1);
     }
 
-    void addSpectator (Client & s);
     // add spectator
-    // add player
-    // the constructor will always need a player, that will be player 1
+    void addSpectator (Client & s);
+    // add player, if there are already 2 players add a spectator instead
+    void addPlayer (Client & p);
     
 private:
     //Client player1;

@@ -299,3 +299,17 @@ bool RectClicked(int mX, int mY, Rect& r)
 }
 
 
+// add spectator
+void Game::addSpectator (Client & s)
+{
+    spectators.push_back(s);
+}
+
+// add player, if there are already 2 players add a spectator instead
+void Game::addPlayer (Client & p)
+{
+    if (players.size() > 1)
+        addSpectator(p);
+    else
+        players.push_back(p);
+}
