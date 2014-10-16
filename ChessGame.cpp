@@ -28,8 +28,15 @@ void ChessMain()
 
     Rect boardRect = Rect(250, 150, 400, 400);
     Rect blackRect = Rect(0, 0, 50, 50);
-
     Board b = Board();
+    
+    
+    Image WP = Image("images/WhitePawn.png");
+    Image BP = Image("images/BlackPawn.png");
+    Image WR = Image("images/WhiteRook.png");
+    Image BR = Image("images/BlackRook.png");
+    
+    
     
     while(1)
     {
@@ -85,8 +92,6 @@ void ChessMain()
                 tempy /= 50;                
                 tempy = 7 - tempy;
 
-
-
                 
                 
                 workingPieceIndex = b.getPieceIndex(tempy, tempx);
@@ -129,6 +134,7 @@ void ChessMain()
         s.lock();
         s.fill(BLACK);
         s.put_rect(boardRect, WHITE);
+        //draw squares
         for(int i = boardRect.x; i < boardRect.x + boardRect.w ; i+= 50)
         {
             for(int n = boardRect.y; n < boardRect.y + boardRect.h; n+= 50)
@@ -145,7 +151,48 @@ void ChessMain()
             }
             toggle *= -1;
         }
-        
+        //draw pieces
+        /*std::cout << "<<< board pieces size: " << b.getPieceSize()
+                  << std::endl;
+        */
+        for(int i = 0; i < b.getPieceSize(); i++)
+        {            
+            //std::cout << "<<<< draw pieces: i: " << i << std::endl;         
+            Piece tempP = b.getPiece(i);
+
+            int tempx = boardRect.x;
+            int tempy = boardRect.y;
+            
+//            tempx *= 50;
+//            tempy *= 50;
+
+            
+            tempx += tempP.getFile() * 50;
+            tempy += ((7 - tempP.getRank()) * 50);
+            
+            if(tempP.getPlayer() == 0)
+            {
+                if(tempP.getType() == "P")
+                {                    
+                    s.put_image(WP, Rect(tempx, tempy, 50, 50));
+                }
+                else if(tempP.getType() == "R")
+                {                    
+                    s.put_image(WR, Rect(tempx, tempy, 50, 50));
+                }
+            }
+            else if(tempP.getPlayer() == 1)
+            {
+                if(tempP.getType() == "P")
+                {                    
+                    s.put_image(BP, Rect(tempx, tempy, 50, 50));
+                }
+                else if(tempP.getType() == "R")
+                {                    
+                    s.put_image(BR, Rect(tempx, tempy, 50, 50));
+                }
+            }
+        }
         s.unlock();
         s.flip();
         
