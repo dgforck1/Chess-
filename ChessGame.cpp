@@ -32,9 +32,19 @@ void ChessMain()
     
     
     Image WP = Image("images/WhitePawn.png");
-    Image BP = Image("images/BlackPawn.png");
     Image WR = Image("images/WhiteRook.png");
+    Image WN = Image("images/WhiteKnight.png");
+    Image WB = Image("images/WhiteBishop.png");
+    Image WQ = Image("images/WhiteQueen.png");
+    Image WK = Image("images/WhiteKing.png");
+    
+    Image BP = Image("images/BlackPawn.png");
     Image BR = Image("images/BlackRook.png");
+
+    Image BN = Image("images/BlackKnight.png");
+    Image BB = Image("images/BlackBishop.png");
+    Image BQ = Image("images/BlackQueen.png");
+    Image BK = Image("images/BlackKing.png");
     
     
     
@@ -83,8 +93,18 @@ void ChessMain()
         {
             if(clicked && workingPieceIndex == -1)
             {
-
-
+                //convert mouse coords to board coords (rank and file)
+                int tempx = mousex - boardRect.x;
+                int tempy = mousey - boardRect.y;
+                tempx /= 50;
+                tempy /= 50;                
+                tempy = 7 - tempy;
+                                
+                workingPieceIndex = b.getPieceIndex(tempy, tempx);
+            }
+            
+            if(released)
+            {                
                 //convert mouse coords to board coords (rank and file)
                 int tempx = mousex - boardRect.x;
                 int tempy = mousey - boardRect.y;
@@ -92,21 +112,16 @@ void ChessMain()
                 tempy /= 50;                
                 tempy = 7 - tempy;
 
-                
-                
-                workingPieceIndex = b.getPieceIndex(tempy, tempx);
-
-                //for testing only:
-                Piece tempP = b.getPiece(workingPieceIndex);
-                std::cout << "<<<< piece type: " << tempP.getType()
-                          << " player: " << tempP.getPlayer()
-                          << std::endl;
-            }
-            
-            if(released)
-            {
-/*                std::cout << "<<<< this is where they wanna go, validate!"
-                  << std::endl;*/
+                if(b.checkMove(workingPieceIndex, tempy, tempx))
+                {
+                    //std::cout << "<<<< valid move!" << std::endl;
+                    //b.capturePiece(tempy, tempx);
+                    b.movePiece(workingPieceIndex, tempy, tempx);
+                }
+                else
+                {
+                    std::cout << "<<<< invalid move!" << std::endl;
+                }
                 
                 //reset variables
                 workingPieceIndex = -1;
@@ -152,19 +167,12 @@ void ChessMain()
             toggle *= -1;
         }
         //draw pieces
-        /*std::cout << "<<< board pieces size: " << b.getPieceSize()
-                  << std::endl;
-        */
         for(int i = 0; i < b.getPieceSize(); i++)
         {            
-            //std::cout << "<<<< draw pieces: i: " << i << std::endl;         
             Piece tempP = b.getPiece(i);
 
             int tempx = boardRect.x;
-            int tempy = boardRect.y;
-            
-//            tempx *= 50;
-//            tempy *= 50;
+            int tempy = boardRect.y;            
 
             
             tempx += tempP.getFile() * 50;
@@ -180,6 +188,22 @@ void ChessMain()
                 {                    
                     s.put_image(WR, Rect(tempx, tempy, 50, 50));
                 }
+                else if(tempP.getType() == "N")
+                {                    
+                    s.put_image(WN, Rect(tempx, tempy, 50, 50));
+                }
+                else if(tempP.getType() == "B")
+                {                    
+                    s.put_image(WB, Rect(tempx, tempy, 50, 50));
+                }
+                else if(tempP.getType() == "Q")
+                {                    
+                    s.put_image(WQ, Rect(tempx, tempy, 50, 50));
+                }
+                else if(tempP.getType() == "K")
+                {                    
+                    s.put_image(WK, Rect(tempx, tempy, 50, 50));
+                }
             }
             else if(tempP.getPlayer() == 1)
             {
@@ -190,6 +214,22 @@ void ChessMain()
                 else if(tempP.getType() == "R")
                 {                    
                     s.put_image(BR, Rect(tempx, tempy, 50, 50));
+                }
+                else if(tempP.getType() == "N")
+                {                    
+                    s.put_image(BN, Rect(tempx, tempy, 50, 50));
+                }
+                else if(tempP.getType() == "B")
+                {                    
+                    s.put_image(BB, Rect(tempx, tempy, 50, 50));
+                }
+                else if(tempP.getType() == "Q")
+                {                    
+                    s.put_image(BQ, Rect(tempx, tempy, 50, 50));
+                }
+                else if(tempP.getType() == "K")
+                {                    
+                    s.put_image(BK, Rect(tempx, tempy, 50, 50));
                 }
             }
         }

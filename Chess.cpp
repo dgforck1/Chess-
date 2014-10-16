@@ -381,34 +381,6 @@ bool Piece::checkMove(int destR, int destF, std::string B[][8],
     }
     else if(player == 1) //black
     {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         if(type == "P") //black pawn
         {
             //moves that can be made at any time:
