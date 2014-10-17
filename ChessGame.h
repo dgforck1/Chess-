@@ -1,11 +1,13 @@
 #ifndef CHESSGAME_H
 #define CHESSGAME_H
 
+#include <vector>
 
 //sdl libraries
 #include "Includes.h"
 #include "Constants.h"
 #include "compgeom.h"
+#include "SDL_net.h"
 
 //////////////////////////////////////////////////////////////////////////////
 // Start Client States
@@ -28,10 +30,9 @@ void ChessMain();
 class Client
 {
 public:    
-    Client(TCPsocket s = NULL, std::string n = "",
-           bool i = false, bool a = false)
-        : sock(s), name(n), ingame(i), active(a)
-    {}
+    Client(TCPsocket s = NULL, std::string n = "", bool a = false)
+        : sock(s), name(n), active(a)
+    {};
     
 	TCPsocket sock;
 	std::string name;
@@ -57,7 +58,7 @@ private:
     //Client player2;
     std::vector<Client> players;
     std::vector<Client> spectators;
-}
+};
 
 
 
