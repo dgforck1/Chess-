@@ -92,7 +92,10 @@ int main()
     }
     */
 
-    ChessMain();
+
+    //need some way to determine who is white and who is black
+    // 0 = white, 1 = black
+    ChessMain(0);
             
 
     

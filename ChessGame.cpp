@@ -14,7 +14,7 @@ const int MYWIDTH = 900, MYHEIGHT = 650;
 
 bool RectClicked(int mX, int mY, Rect&);
 
-void ChessMain()
+void ChessMain(int player)
 {
     Surface s(MYWIDTH, MYHEIGHT);
     Event event;
@@ -50,6 +50,7 @@ void ChessMain()
     
     int playerTurn = 0;
     
+    
     while(1)
     {
         if(event.poll())
@@ -74,78 +75,82 @@ void ChessMain()
             }
         }
 
-
-        if(RectClicked(mousex, mousey, boardRect))  //player operating on board
-        {
-            if(clicked && workingPieceIndex == -1)
+        //if(playerTurn == player)
+            //only cares if it's the current player's turn
+        //{
+            if(RectClicked(mousex, mousey, boardRect))
+                //player operating on board
             {
-                //convert mouse coords to board coords (rank and file)
-                int tempx = mousex - boardRect.x;
-                int tempy = mousey - boardRect.y;
-                tempx /= 50;
-                tempy /= 50;                
-                tempy = 7 - tempy;
-                                
-                workingPieceIndex = b.getPieceIndex(tempy, tempx);
-
-                if(workingPieceIndex >= 0)
+                if(clicked && workingPieceIndex == -1)
                 {
-                    Piece tempP = b.getPiece(workingPieceIndex);
+                    //convert mouse coords to board coords (rank and file)
+                    int tempx = mousex - boardRect.x;
+                    int tempy = mousey - boardRect.y;
+                    tempx /= 50;
+                    tempy /= 50;                
+                    tempy = 7 - tempy;
                     
-                    if(tempP.getPlayer()  != playerTurn)
+                    workingPieceIndex = b.getPieceIndex(tempy, tempx);
+                    
+                    if(workingPieceIndex >= 0)
                     {
-                        //not the current player's piece
-                        workingPieceIndex = -1;                    
+                        Piece tempP = b.getPiece(workingPieceIndex);
+                        
+                        if(tempP.getPlayer()  != playerTurn)
+                        {
+                            //not the current player's piece
+                            workingPieceIndex = -1;                    
+                        }
                     }
                 }
-            }
-            
-            if(released)
-            {                
-                //convert mouse coords to board coords (rank and file)
-                int tempx = mousex - boardRect.x;
-                int tempy = mousey - boardRect.y;
-                tempx /= 50;
-                tempy /= 50;                
-                tempy = 7 - tempy;
-
-                if(b.checkMove(workingPieceIndex, tempy, tempx))
-                {
-                    if(b.getPieceIndex(tempy, tempx) >= 0)
+                
+                if(released)
+                {                
+                    //convert mouse coords to board coords (rank and file)
+                    int tempx = mousex - boardRect.x;
+                    int tempy = mousey - boardRect.y;
+                    tempx /= 50;
+                    tempy /= 50;                
+                    tempy = 7 - tempy;
+                    
+                    if(b.checkMove(workingPieceIndex, tempy, tempx))
                     {
-                        Piece tempP = b.getPiece(tempy, tempx);
-
-                        //todo: fix weird capture bug
-                        if(tempP.getPlayer() == 0)
+                        if(b.getPieceIndex(tempy, tempx) >= 0)
                         {
-                            CapturedWhite.push_back(
-                                b.capturePiece(tempy, tempx));
+                            Piece tempP = b.getPiece(tempy, tempx);
+                            
+                            //todo: fix weird capture bug
+                            if(tempP.getPlayer() == 0)
+                            {
+                                CapturedWhite.push_back(
+                                    b.capturePiece(tempy, tempx));
+                            }
+                            else
+                            {
+                                CapturedBlack.push_back(
+                                    b.capturePiece(tempy, tempx));
+                            }                        
+                        }
+                        
+                        b.movePiece(workingPieceIndex, tempy, tempx);
+                        
+                        if(playerTurn == 0)
+                        {
+                            playerTurn = 1;
                         }
                         else
                         {
-                            CapturedBlack.push_back(
-                                b.capturePiece(tempy, tempx));
-                        }                        
-                    }
+                            playerTurn = 0;
+                        }
+                    }                
                     
-                    b.movePiece(workingPieceIndex, tempy, tempx);
-
-                    if(playerTurn == 0)
-                    {
-                        playerTurn = 1;
-                    }
-                    else
-                    {
-                        playerTurn = 0;
-                    }
-                }                
-                
-                //reset variables
-                workingPieceIndex = -1;
-                clicked = false;
-                released = false;
+                    //reset variables
+                    workingPieceIndex = -1;
+                    clicked = false;
+                    released = false;
+                }
             }
-        }
+            //}
 
 
         //reset mouse variables
@@ -270,18 +275,12 @@ void ChessMain()
     
     
     
-    //detect mouse click
-    //get mouse coords
-    //get board coords
-    //get piece
-    //detect mouse release
-    //get mouse coords
-    //get board coords
-    //validate move
-    //capture piece, if applicable
-    //move piece
-    //toggle player move
+    //todo:
     //decrement clock, if applicable
+    //print captured pieces
+    //track moves
+    //print moves
+    
 }
 
 
