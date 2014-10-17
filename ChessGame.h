@@ -28,8 +28,8 @@ void ChessMain();
 class Client
 {
 public:    
-    Client(TCPsocket s=NULL, std::string n="",
-           bool i=false, bool a=false)
+    Client(TCPsocket s = NULL, std::string n = "",
+           bool i = false, bool a = false)
         : sock(s), name(n), ingame(i), active(a)
     {}
     
