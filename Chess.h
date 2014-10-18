@@ -50,6 +50,7 @@ public:
     bool checkMove(int i, int destR, int destF);    
     void movePiece(int i, int destR, int destF);
     std::string capturePiece(int r, int f);
+    std::string capturePiece(int i);
     void printBoard() const;
     int getPieceSize() const;
     

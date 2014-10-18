@@ -5,8 +5,11 @@
 //piece implementation
 void Piece::print() const
 {
-    std::cout << rank << " " << file << " " << player << " "
-              << type << std::endl;
+        std::cout << "player: " << player
+              << " rank: " << rank
+              << " file: " << file
+              << " type: " << type
+              << " moved: " << moved;
 }
 
 int Piece::getRank() const
@@ -697,8 +700,7 @@ bool Piece::checkMove(int destR, int destF, std::string B[][8],
                     }
                 }
             }
-        }
-        
+        }        
     }
     
     return false;
@@ -712,10 +714,16 @@ bool Piece::getMoved() const
 
 
 void Piece::movePiece(int destR, int destF)
-{    
+{
+    if(!moved)
+    {
+        moved = true;
+    }
+    
     rank = destR;
     file = destF;
 }
+
 
 
 //board implementation
@@ -805,6 +813,11 @@ Piece& Board::getPiece(int i)
 
 int Board::getPieceIndex(int r, int f)
 {
+    std::cout << "<<<< searching for index: "
+              << " target rank: " << r
+              << " target file: " << f
+              << std::endl;
+    
     for(int i = 0; i < p.size(); i++)
     {
         int tempr = p[i].getRank();
@@ -815,6 +828,11 @@ int Board::getPieceIndex(int r, int f)
 
             if(tempf == f)
             {
+                std::cout << "<<<< obtained the index: "
+                          << " rank: " << p[i].getRank()
+                          << " file: " << p[i].getFile()
+                          << " i: " << i
+                          << std::endl;
                 return i;
             }
         }
@@ -846,8 +864,7 @@ void Board::movePiece(int i, int destR, int destF)
 
 
 std::string Board::capturePiece(int r, int f)
-{
-    
+{    
     int i = getPieceIndex(r, f);
 
     if(i >= 0)
@@ -862,6 +879,25 @@ std::string Board::capturePiece(int r, int f)
         return "";
     }
 }
+
+
+std::string Board::capturePiece(int i)
+{
+    std::cout << "    "
+              << "capturing this piece: i: " << i
+              << std::endl;
+    
+    p[i].print();    
+    std::cout << std::endl;
+    
+    
+        
+    std::string ret = p[i].getType();
+    p.erase(p.begin() + i);
+        
+    return ret;    
+}
+
 
 void Board::printBoard() const
 {

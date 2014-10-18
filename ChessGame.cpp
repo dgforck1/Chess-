@@ -91,8 +91,8 @@ void ChessMain(int player)
         //if(playerTurn == player)
             //only cares if it's the current player's turn
         //{
-            if(RectClicked(mousex, mousey, boardRect))
-                //player operating on board
+            //player operating on board
+            if(RectClicked(mousex, mousey, boardRect))                
             {
                 if(clicked && workingPieceIndex == -1)
                 {
@@ -107,7 +107,11 @@ void ChessMain(int player)
                     
                     if(workingPieceIndex >= 0)
                     {
+                        std::cout << "<<<< working piece: ";
                         Piece tempP = b.getPiece(workingPieceIndex);
+
+                        tempP.print();
+                        std::cout << std::endl;
                         
                         if(tempP.getPlayer()  != playerTurn)
                         {
@@ -128,24 +132,53 @@ void ChessMain(int player)
                     
                     if(b.checkMove(workingPieceIndex, tempy, tempx))
                     {
+                        std::cout << "<<<< tempy: " << tempy
+                                  << " tempx: " << tempx
+                                  << std::endl;
+                        
                         if(b.getPieceIndex(tempy, tempx) >= 0)
                         {
+                            int temp = b.getPieceIndex(tempy, tempx);
+                            
+                            std::cout << "<<<< piece to capture: ";
                             Piece tempP = b.getPiece(tempy, tempx);
+
+                            tempP.print();
+                            std::cout << std::endl;
                             
                             //todo: fix weird capture bug
                             if(tempP.getPlayer() == 0)
                             {
                                 CapturedWhite.push_back(
-                                    b.capturePiece(tempy, tempx));
+                                    //b.capturePiece(tempy, tempx)
+                                    b.capturePiece(temp)
+                                    );
                             }
                             else
                             {
-                                CapturedBlack.push_back(
-                                    b.capturePiece(tempy, tempx));
-                            }                        
+                                CapturedBlack.push_back(               
+                                    //b.capturePiece(tempy, tempx)
+                                    b.capturePiece(temp)
+                                    );
+                            }
+
+                            
+                            /*std::cout << "<<<< printing all pieces\n";
+                            for(int n = 0; n < b.getPieceSize(); n++)
+                            {
+                                std::cout << "    n: " << n;
+                                Piece tP = b.getPiece(n);
+                                
+                                tP.print();
+                                
+                                std::cout << std::endl;
+                                }*/
                         }
                         
                         b.movePiece(workingPieceIndex, tempy, tempx);
+
+                        //b.updateBoard();
+                        //b.printBoard();
                         
                         if(playerTurn == 0)
                         {
