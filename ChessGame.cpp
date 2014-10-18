@@ -212,6 +212,7 @@ void ChessMain(int player)
 
 
         int toggle = -1;
+        int x = 0, y = 0;
         
         //draw all the things
         s.lock();
@@ -312,58 +313,74 @@ void ChessMain(int player)
             s.put_circle(650, 125, 5, GREEN);
         }
         s.put_rect(capRect, WHITE);
+        //draw captured white pieces
+        x = 25;
+        y = 150;
         for(int i = 0; i < CapturedWhite.size(); i++)
         {
             if(CapturedWhite[i] == "P")
             {
-                s.put_image(WPS, Rect((i * 25), 0, 25, 25));
+                s.put_image(WPS, Rect(x + (i * 25), y, 25, 25));
             }
             else if(CapturedWhite[i] == "R")
             {
-                s.put_image(WRS, Rect((i * 25), 0, 25, 25));
+                s.put_image(WRS, Rect(x + (i * 25), y, 25, 25));
             }
             else if(CapturedWhite[i] == "N")
             {
-                s.put_image(WNS, Rect((i * 25), 0, 25, 25));
+                s.put_image(WNS, Rect(x + (i * 25), y, 25, 25));
             }
             else if(CapturedWhite[i] == "B")
             {
-                s.put_image(WBS, Rect((i * 25), 0, 25, 25));
+                s.put_image(WBS, Rect(x + (i * 25), y, 25, 25));
             }
             else if(CapturedWhite[i] == "Q")
             {
-                s.put_image(WQS, Rect((i * 25), 0, 25, 25));
+                s.put_image(WQS, Rect(x + (i * 25), y, 25, 25));
             }
             else if(CapturedWhite[i] == "K")
             {
-                s.put_image(WKS, Rect((i * 25), 0, 25, 25));
+                s.put_image(WKS, Rect(x + (i * 25), y, 25, 25));
+            }
+            if(x + (i * 25) >= 200)
+            {
+                x -= ((i * 25) + 25);
+                y += 25;
             }
         }
+        //draw captured black pieces
+        x = 25;
+        y = 350;
         for(int i = 0; i < CapturedBlack.size(); i++)
         {
             if(CapturedBlack[i] == "P")
             {
-                s.put_image(BPS, Rect((i * 25), 27, 25, 25));
+                s.put_image(BPS, Rect(x + (i * 25), y, 25, 25));
             }
             else if(CapturedWhite[i] == "R")
             {
-                s.put_image(BRS, Rect((i * 25), 27, 25, 25));
+                s.put_image(BRS, Rect(x + (i * 25), y, 25, 25));
             }
             else if(CapturedWhite[i] == "N")
             {
-                s.put_image(BNS, Rect((i * 25), 27, 25, 25));
+                s.put_image(BNS, Rect(x + (i * 25), y, 25, 25));
             }
             else if(CapturedWhite[i] == "B")
             {
-                s.put_image(BBS, Rect((i * 25), 27, 25, 25));
+                s.put_image(BBS, Rect(x + (i * 25), y, 25, 25));
             }
             else if(CapturedWhite[i] == "Q")
             {
-                s.put_image(BQS, Rect((i * 25), 27, 25, 25));
+                s.put_image(BQS, Rect(x + (i * 25), y, 25, 25));
             }
             else if(CapturedWhite[i] == "K")
             {
-                s.put_image(BKS, Rect((i * 25), 27, 25, 25));
+                s.put_image(BKS, Rect(x + (i * 25), y, 25, 25));
+            }
+            if(x + (i * 25) >= 200)
+            {
+                x -= ((i * 25) + 25);
+                y += 25;
             }
         }
         s.unlock();

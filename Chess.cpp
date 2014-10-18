@@ -888,10 +888,9 @@ std::string Board::capturePiece(int i)
               << std::endl;
     
     p[i].print();    
-    std::cout << std::endl;
-    
-    
-        
+    std::cout << std::endl;       
+
+    //why are you broken?!?!?!?!?
     std::string ret = p[i].getType();
     p.erase(p.begin() + i);
         
