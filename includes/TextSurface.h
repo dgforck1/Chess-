@@ -13,7 +13,8 @@
 class TextSurface
 {
 public:
-	/*TextSurface( char str[]="Hello, World!", char fontfamily[]="arial.ttf", int size=12, int R=255, int G=255, int B=255 )
+	/*TextSurface( char str[]="Hello, World!", char fontfamily[]="arial.ttf",
+                 int size=12, int R=255, int G=255, int B=255 )
 	{
 		atexit( TTF_Quit );
 		if ( TTF_Init() != 0 )
@@ -27,6 +28,7 @@ public:
 		text = TTF_RenderText_Solid( font, str, color );
 		TTF_CloseFont( font );
         }*/
+
 
     TextSurface(const char* str="Hello, World!", char fontfamily[]="arial.ttf",
                  int size=12, int R=255, int G=255, int B=255 )
@@ -43,7 +45,6 @@ public:
 		text = TTF_RenderText_Solid( font, str, color );
 		TTF_CloseFont( font );
 	}
-    
 
 	~TextSurface()
 	{

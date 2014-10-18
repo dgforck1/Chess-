@@ -31,7 +31,8 @@ void ChessMain(int player)
 
     Rect boardRect = Rect(250, 150, 400, 400),
         blackRect = Rect(0, 0, 50, 50),
-        capRect = Rect(25, 150, 200, 400);
+        capRect = Rect(25, 150, 200, 400),
+        movRect = Rect(675, 150, 200, 400);
     Board b = Board();
         
     Image WP = Image("images/WhitePawn.png");
@@ -191,10 +192,7 @@ void ChessMain(int player)
                                 );
                         }
                         
-                        b.movePiece(workingPieceIndex, tempy, tempx);
-
-                        //b.updateBoard();
-                        //b.printBoard();
+                        b.movePiece(workingPieceIndex, tempy, tempx);         
                         
                         if(playerTurn == 0)
                         {
@@ -205,12 +203,7 @@ void ChessMain(int player)
                             playerTurn = 0;
                         }
 
-                        //print the moves
-                        std::cout << "<<<<moves: " << std::endl;
-                        for(int i = 0; i < Moves.size(); i++)
-                        {
-                            std::cout << Moves[i] << std::endl;
-                        }
+
                     }                
                     
                     //reset variables
@@ -239,11 +232,17 @@ void ChessMain(int player)
 
         int toggle = -1;
         int x = 0, y = 0;
+
+
         
         //draw all the things
         s.lock();
         s.fill(GRAY);
         s.put_rect(boardRect, WHITE);
+        s.put_rect(movRect, WHITE);
+        s.put_rect(capRect, WHITE);
+        s.put_image(WPS, Rect(250, 120, 25, 25));
+        s.put_image(BPS, Rect(625, 120, 25, 25));
         //draw squares
         for(int i = boardRect.x; i < boardRect.x + boardRect.w ; i+= 50)
         {
@@ -328,8 +327,8 @@ void ChessMain(int player)
                 }
             }
         }
-        s.put_image(WPS, Rect(250, 120, 25, 25));
-        s.put_image(BPS, Rect(625, 120, 25, 25));
+
+        //draw turn indicator
         if(playerTurn == 0)
         {
             s.put_circle(250, 125, 5, GREEN);
@@ -338,7 +337,7 @@ void ChessMain(int player)
         {
             s.put_circle(650, 125, 5, GREEN);
         }
-        s.put_rect(capRect, WHITE);
+        
         //draw captured white pieces
         x = 25;
         y = 150;
@@ -409,6 +408,28 @@ void ChessMain(int player)
                 y += 25;
             }
         }
+        //print moves
+        x = 675;
+        y = 150;
+        for(int i = 0; i < Moves.size(); i++)
+        {
+            TextSurface ts = TextSurface(
+                Moves[i].c_str(), "fonts/FreeSans.ttf", 16, 0, 0, 0);
+
+            s.put_text(ts, x, y);
+            if(i % 2 == 1)
+            {
+                x = 675;
+                y += 25;
+            }
+            else
+            {
+                x += 100;
+            }
+            /*s.put_text("blah", 0, H, 0, 0, 0,
+              "fonts/FreeSans.ttf", 16);*/
+        }
+        
         s.unlock();
         s.flip();
         
