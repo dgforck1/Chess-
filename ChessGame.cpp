@@ -14,6 +14,8 @@
 const int MYWIDTH = 900, MYHEIGHT = 650;
 
 bool RectClicked(int mX, int mY, Rect&);
+std::string MoveString(bool captured, std::string type, int rank, int file,
+    int sourceF);
 
 void ChessMain(int player)
 {
@@ -60,6 +62,7 @@ void ChessMain(int player)
     
     std::vector< std::string > CapturedWhite;
     std::vector< std::string > CapturedBlack;
+    std::vector< std::string > Moves;
     
     int playerTurn = 0;    
     
@@ -107,11 +110,11 @@ void ChessMain(int player)
                     
                     if(workingPieceIndex >= 0)
                     {
-                        std::cout << "<<<< working piece: ";
+                        //std::cout << "<<<< working piece: ";
                         Piece tempP = b.getPiece(workingPieceIndex);
 
-                        tempP.print();
-                        std::cout << std::endl;
+                        /*tempP.print();
+                          std::cout << std::endl;*/
                         
                         if(tempP.getPlayer()  != playerTurn)
                         {
@@ -129,35 +132,41 @@ void ChessMain(int player)
                     tempx /= 50;
                     tempy /= 50;                
                     tempy = 7 - tempy;
+                    Piece wp = b.getPiece(workingPieceIndex);
                     
                     if(b.checkMove(workingPieceIndex, tempy, tempx))
                     {
-                        std::cout << "<<<< tempy: " << tempy
+                        std::string temp;
+                        
+                        /*std::cout << "<<<< tempy: " << tempy
                                   << " tempx: " << tempx
-                                  << std::endl;
+                                  << std::endl;*/
                         
                         if(b.getPieceIndex(tempy, tempx) >= 0)
                         {
                             int temp = b.getPieceIndex(tempy, tempx);
                             
-                            std::cout << "<<<< piece to capture: ";
+                            /*std::cout << "<<<< piece to capture: ";*/
                             Piece tempP = b.getPiece(tempy, tempx);
 
-                            tempP.print();
-                            std::cout << std::endl;
+                            Moves.push_back(
+                                MoveString(true, wp.getType(),
+                                           tempy, tempx, wp.getFile())
+                                );
+
+                            /*tempP.print();
+                            std::cout << std::endl;*/
                             
                             //todo: fix weird capture bug
                             if(tempP.getPlayer() == 0)
                             {
-                                CapturedWhite.push_back(
-                                    //b.capturePiece(tempy, tempx)
+                                CapturedWhite.push_back(                     
                                     b.capturePiece(temp)
                                     );
                             }
                             else
                             {
                                 CapturedBlack.push_back(               
-                                    //b.capturePiece(tempy, tempx)
                                     b.capturePiece(temp)
                                     );
                             }
@@ -174,6 +183,13 @@ void ChessMain(int player)
                                 std::cout << std::endl;
                                 }*/
                         }
+                        else
+                        {
+                            Moves.push_back(
+                                MoveString(false, wp.getType(),
+                                           tempy, tempx, wp.getFile())
+                                );
+                        }
                         
                         b.movePiece(workingPieceIndex, tempy, tempx);
 
@@ -187,6 +203,13 @@ void ChessMain(int player)
                         else
                         {
                             playerTurn = 0;
+                        }
+
+                        //print the moves
+                        std::cout << "<<<<moves: " << std::endl;
+                        for(int i = 0; i < Moves.size(); i++)
+                        {
+                            std::cout << Moves[i] << std::endl;
                         }
                     }                
                     
@@ -209,6 +232,9 @@ void ChessMain(int player)
         {
             mousey = -1;
         }
+
+
+        
 
 
         int toggle = -1;
@@ -429,4 +455,110 @@ void Game::addPlayer (Client & p)
         addSpectator(p);
     else
         players.push_back(p);
+}
+
+//build the move string
+std::string MoveString(bool captured, std::string type, int rank, int file,
+    int sourceF)
+{
+    std::string temp;
+
+    if(type != "P")
+    {
+        temp.append(type);
+    }
+
+    if(captured)
+    {
+        if(type == "P")
+        {
+            switch(sourceF)
+            {
+                case 0:
+                    temp.append("a");
+                    break;
+                case 1:
+                    temp.append("b");
+                    break;
+                case 2:
+                    temp.append("c");
+                    break;
+                case 3:
+                    temp.append("d");
+                    break;
+                case 4:
+                    temp.append("e");
+                    break;
+                case 5:
+                    temp.append("f");
+                    break;
+                case 6:
+                    temp.append("g");
+                    break;
+                case 7:
+                    temp.append("h");
+                    break;
+            }
+        }
+        
+        temp.append("x");
+    }
+
+    switch(file)
+    {
+        case 0:
+            temp.append("a");
+            break;
+        case 1:
+            temp.append("b");
+            break;
+        case 2:
+            temp.append("c");
+            break;
+        case 3:
+            temp.append("d");
+            break;
+        case 4:
+            temp.append("e");
+            break;
+        case 5:
+            temp.append("f");
+            break;
+        case 6:
+            temp.append("g");
+            break;
+        case 7:
+            temp.append("h");
+            break;
+    }
+    
+    switch(rank)
+    {
+        case 0:
+            temp.append("1");
+            break;
+        case 1:
+            temp.append("2");
+            break;
+        case 2:
+            temp.append("3");
+            break;
+        case 3:
+            temp.append("4");
+            break;
+        case 4:
+            temp.append("5");
+            break;
+        case 5:
+            temp.append("6");
+            break;
+        case 6:
+            temp.append("7");
+            break;
+        case 7:
+            temp.append("8");
+            break;
+    }
+    
+    return temp;
 }
