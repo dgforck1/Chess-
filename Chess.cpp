@@ -777,7 +777,7 @@ void Board::updateBoard()
 }
 
 
-Piece& Board::getPiece(int r, int f)
+Piece Board::getPiece(int r, int f)
 {
     for(int i = 0; i < p.size(); i++)
     {
@@ -798,7 +798,7 @@ Piece& Board::getPiece(int r, int f)
 }
 
 //todo: try removing reference, so copy the piece instead
-Piece& Board::getPiece(int i)
+Piece Board::getPiece(int i)
 {
     if(i < p.size() && i >= 0)
     {
@@ -812,12 +812,7 @@ Piece& Board::getPiece(int i)
 
 
 int Board::getPieceIndex(int r, int f)
-{
-    /* std::cout << "<<<< searching for index: "
-              << " target rank: " << r
-              << " target file: " << f
-              << std::endl;*/
-    
+{    
     for(int i = 0; i < p.size(); i++)
     {
         int tempr = p[i].getRank();
@@ -827,12 +822,7 @@ int Board::getPieceIndex(int r, int f)
             int tempf = p[i].getFile();
 
             if(tempf == f)
-            {
-                /*std::cout << "<<<< obtained the index: "
-                          << " rank: " << p[i].getRank()
-                          << " file: " << p[i].getFile()
-                          << " i: " << i
-                          << std::endl;*/
+            {                
                 return i;
             }
         }
@@ -882,11 +872,7 @@ std::string Board::capturePiece(int r, int f)
 
 
 std::string Board::capturePiece(int i)
-{
-/*    std::cout << "    "
-              << "capturing this piece: i: " << i
-              << std::endl;*/
-    
+{    
     //p[i].print();    
     //std::cout << std::endl;       
 
