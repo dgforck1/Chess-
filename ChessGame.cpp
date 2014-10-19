@@ -25,7 +25,9 @@ void ChessMain(int player)
 
     int mousex = -1,
         mousey = -1,
-        workingPieceIndex = -1;
+        workingPieceIndex = -1,
+        scrollstart = 2,
+        scrollend = 31;
     bool clicked = false,
         released = false;
 
@@ -46,8 +48,7 @@ void ChessMain(int player)
     Image BN = Image("images/BlackKnight.png");
     Image BB = Image("images/BlackBishop.png");
     Image BQ = Image("images/BlackQueen.png");
-    Image BK = Image("images/BlackKing.png");
-    
+    Image BK = Image("images/BlackKing.png");    
     Image WPS = Image("images/WhitePawn-Small.png");
     Image BPS = Image("images/BlackPawn-Small.png");
     Image WRS = Image("images/WhiteRook-Small.png");
@@ -60,6 +61,8 @@ void ChessMain(int player)
     Image BBS = Image("images/BlackBishop-Small.png");
     Image BQS = Image("images/BlackQueen-Small.png");
     Image BKS = Image("images/BlackKing-Small.png");
+    Image SUP = Image("images/ScrollUp.png");
+    Image SDW = Image("images/ScrollDown.png");
     
     std::vector< std::string > CapturedWhite;
     std::vector< std::string > CapturedBlack;
@@ -391,26 +394,34 @@ void ChessMain(int player)
             }
         }
         //print moves
-        x = 675;
-        y = 150;
-        for(int i = 0; i < Moves.size(); i++)
+        if(Moves.size() >= 31)
         {
-            TextSurface ts = TextSurface(
-                Moves[i].c_str(), "fonts/FreeSans.ttf", 16, 0, 0, 0);
-
-            s.put_text(ts, x, y);
-            if(i % 2 == 1)
-            {
-                x = 675;
-                y += 25;
-            }
-            else
-            {
-                x += 100;
-            }
-            /*s.put_text("blah", 0, H, 0, 0, 0,
-              "fonts/FreeSans.ttf", 16);*/
+            
         }
+        else
+        {
+            x = 675;
+            y = 150;
+            for(int i = 0; i < Moves.size(); i++)
+            {
+                TextSurface ts = TextSurface(
+                    Moves[i].c_str(), "fonts/FreeSans.ttf", 16, 0, 0, 0);
+                
+                s.put_text(ts, x, y);
+                if(i % 2 == 1)
+                {
+                    x = 675;
+                    y += 25;
+                }
+                else
+                {
+                    x += 100;
+                }
+                
+            }
+        }
+
+        
         
         s.unlock();
         s.flip();
