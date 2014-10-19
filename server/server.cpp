@@ -68,9 +68,9 @@ void make(int);
 void joinSpectate(int);
 void joinPlay(int);
 void load(int);
-// void draw();
-// void nope();
-// void exitProgram();
+// void draw(int c);
+// void nope(int c);
+void exitProgram(int c);
 
 
 
@@ -106,6 +106,7 @@ public:
     {
         players.push_back(p1);
         started = false;
+        draw = false;
     }
     
     // add spectator
@@ -223,6 +224,7 @@ private:
     std::vector<Client*> players;
     std::vector<Client*> spectators;
     bool started;
+    bool draw;
 };
 
 
@@ -668,12 +670,23 @@ void load(int c)
     }
     
 }
-void draw()
+void draw(int c)
 {}
-void nope()
+void nope(int c)
 {}
-void exitProgram()
-{}
+void exitProgram(int c)
+{
+    for (int i = 0; i < mainMenu.size(); i++)
+    {
+        if (mainMenu[i] == &(clients[c]))
+        {
+            mainMenu.erase(mainMenu.begin() + i);
+            SDLNet_TCP_Close(clients[c].sock);
+            clients.erase(clients.begin() + c);
+            break;
+        }
+    }
+}
 
 int main(int argc, char **argv)
 {
