@@ -24,3 +24,6 @@ commit:
 
 add:
 	git add -A
+
+g:	main.cpp
+	g++ *.cpp src/*.cpp src/*.c `sdl-config --cflags --libs` -lSDL_image -lSDL_mixer -lSDL_ttf -Iincludes -g

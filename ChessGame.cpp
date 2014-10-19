@@ -137,26 +137,19 @@ void ChessMain(int player)
                     
                     if(b.checkMove(workingPieceIndex, tempy, tempx))
                     {
-                        std::string temp;
-                        
-                        /*std::cout << "<<<< tempy: " << tempy
-                                  << " tempx: " << tempx
-                                  << std::endl;*/
+                        std::string temp;                                    
                         
                         if(b.getPieceIndex(tempy, tempx) >= 0)
                         {
                             int temp = b.getPieceIndex(tempy, tempx);
                             
-                            /*std::cout << "<<<< piece to capture: ";*/
+                            
                             Piece tempP = b.getPiece(tempy, tempx);
 
                             Moves.push_back(
                                 MoveString(true, wp.getType(),
                                            tempy, tempx, wp.getFile())
                                 );
-
-                            /*tempP.print();
-                            std::cout << std::endl;*/
                             
                             //todo: fix weird capture bug
                             if(tempP.getPlayer() == 0)
@@ -171,18 +164,7 @@ void ChessMain(int player)
                                     b.capturePiece(temp)
                                     );
                             }
-
-                            
-                            /*std::cout << "<<<< printing all pieces\n";
-                            for(int n = 0; n < b.getPieceSize(); n++)
-                            {
-                                std::cout << "    n: " << n;
-                                Piece tP = b.getPiece(n);
-                                
-                                tP.print();
-                                
-                                std::cout << std::endl;
-                                }*/
+                                                        
                         }
                         else
                         {

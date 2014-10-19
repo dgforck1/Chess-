@@ -12,6 +12,7 @@ public:
     Piece(int p, std::string t, int r, int f) :
         rank(r), file(f), player(p), type(t), moved(false)
     {};
+    
 
     //methods
     int getRank() const;
@@ -23,6 +24,7 @@ public:
                    std::vector< Piece > p) const;
     void movePiece(int destR, int destF);
     void print() const;
+    
     
 private:
     //members
@@ -44,8 +46,8 @@ public:
 
     void initializePieces();
     void updateBoard();
-    Piece& getPiece(int r, int f);
-    Piece& getPiece(int i);
+    Piece getPiece(int r, int f);
+    Piece getPiece(int i);
     int getPieceIndex(int r, int f);
     bool checkMove(int i, int destR, int destF);    
     void movePiece(int i, int destR, int destF);
@@ -53,6 +55,8 @@ public:
     std::string capturePiece(int i);
     void printBoard() const;
     int getPieceSize() const;
+
+    
     
 private:
     std::string board[8][8];
