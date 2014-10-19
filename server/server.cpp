@@ -9,6 +9,8 @@
 //         ALTERNATIVELY: keep it as it is and write another function that 
 //                        sends the win message to the other player and call 
 //                        that from removeFromGame
+//       -make a way for the system to send messages to the users
+//        really just need a format for the messages and specify what they do
 //############################################################################
 
 
@@ -62,14 +64,14 @@ void send_all(std::string);
 void send_client(int, std::string);
 std::string generate_string_for_clients();// not filled/working
 void parse(std::string, int);
-void move(std::string, int);
+void move(std::string &, int);
 void quitGame(int);
 void make(int);
 void joinSpectate(int);
 void joinPlay(int);
-void load(int);
-// void draw(int c);
-// void nope(int c);
+void load(std::string &, int);
+void draw(std::string &, int c);
+void nope(std::string &, int c);
 void exitProgram(int c);
 
 
@@ -108,7 +110,10 @@ public:
         started = false;
         draw = false;
     }
-    
+
+    bool getDraw()
+    {return draw;}
+
     // add spectator
     void addSpectator (Client * s)
     {
@@ -160,6 +165,23 @@ public:
         {
             send_message(move, spectators[i]->sock);
         }
+    }
+
+    void sendDrawOffer(std::string & d, Client * sender)
+    {
+        for (int i = 0; i < players.size(); i++)
+        {
+            if (players[i] == sender)
+                continue;
+            send_message(d, players[i]->sock);
+        }
+        draw = true;
+    }
+
+    void sendRefuseDraw(std::string & d, Client * sender)
+    {
+        this->sendDrawOffer(d, sender);
+        draw = false;
     }
 
     // returns true if there is a player with the specified name in the game
@@ -217,6 +239,28 @@ public:
             spectators[i]->location = 2;
         }
         started = true;
+    }
+
+    void endGame()
+    {
+        for (int i = 0; i < players.size(); i++)
+        {
+            int j = find_client(players[i]->sock);
+            // send draw message to both players, have them dealwith it on the their end
+            // to finish up and go to main menu
+            // thought here, just re-send draw
+            // clients will watch for a draw after they send one
+            // if they recieve one then they know the game is a draw and they should
+            // get over themselves
+            quitGame(j);
+        }
+        for (int i = 0; i < spectators.size(); i++)
+        {
+            int j = find_client(spectators[i]->sock);
+            // send draw message to all spectators, have them dealwith it on the their end
+            // to finish up and go to main menu
+            quitGame(j);
+        }
     }
 private:
     //Client player1;
@@ -544,7 +588,7 @@ void parse(std::string i, int sender)
     }
 }
 
-void move(std::string message, int s)
+void move(std::string & message, int s)
 {
     std::string sender = clients[s].name;
     for (int i = 0; i < gamesInProgress.size(); i++)
@@ -670,10 +714,39 @@ void load(int c)
     }
     
 }
-void draw(int c)
-{}
-void nope(int c)
-{}
+void draw(std::string & message, int c)
+{
+    Client * sender = &(clients[c]);
+    for (int i = 0; i < gamesInProgress.size(); i++)
+    {
+        if (gamesInProgress[i]->isPlayerA(sender))
+        {
+            if (gamesInProgress[i]->getDraw())
+            {
+                gamesInProgress[i]->endGame();
+                gamesInProgress.erase(gamesInProgress.begin() + i);
+                break;
+            }
+            else
+            {
+                gamesInProgress[i]->sendDrawOffer(message,sender);
+                break;
+            }
+        }
+    }
+}
+void nope(std::string & message, int c)
+{
+    Client * sender = &(clients[c]);
+    for (int i = 0; i < gamesInProgress.size(); i++)
+    {
+        if (gamesInProgress[i]->isPlayerA(sender))
+        {
+            gamesInProgress[i]->sendRefuseDraw(message,sender);
+            break;
+        }
+    }
+}
 void exitProgram(int c)
 {
     for (int i = 0; i < mainMenu.size(); i++)
