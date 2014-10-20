@@ -216,22 +216,32 @@ int main(int argc, char **argv)
 		to_server = "";
 		if (keypressed[UPARROW])
         {
-			to_server = "1";
+			to_server = "draw";
 			send_message(to_server, sock);
 		}
 		else if (keypressed[DOWNARROW])
         {
-			to_server = "2";
+			to_server = "quit";
+			send_message(to_server, sock);
+		}
+		else if (keypressed[TAB])
+        {
+			to_server = "load";
+			send_message(to_server, sock);
+		}
+		else if (keypressed[SPACE])
+        {
+			to_server = "nope";
 			send_message(to_server, sock);
 		}
 		else if (keypressed[LEFTARROW])
         {
-			to_server = "3";
+			to_server = "make";
 			send_message(to_server, sock);
 		}
 		else if (keypressed[RIGHTARROW])
         {
-			to_server = "4";
+			to_server = "exit";
 			send_message(to_server, sock);
 		}
 

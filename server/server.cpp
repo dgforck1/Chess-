@@ -132,11 +132,11 @@ public:
 
     // checks players and spectators, if it finds a client who matches the specified address
     // it removes them from the vector and returns true.
-    bool removeFromGame(Client * p)
+    bool removeFromGame(std::string & p)
     {
         for (int i = 0; i < players.size(); i++)
         {
-            if (players[i] == p)
+            if (players[i]->name == p)
             {
                 players.erase(players.begin() + i);
                 return true;
@@ -144,7 +144,7 @@ public:
         }
         for (int i = 0; i < spectators.size(); i++)
         {
-            if (spectators[i] == p)
+            if (spectators[i]->name == p)
             {
                 spectators.erase(spectators.begin() + i);
                 return true;
@@ -168,18 +168,18 @@ public:
         }
     }
 
-    void sendDrawOffer(std::string & d, Client * sender)
+    void sendDrawOffer(std::string & d, std::string & sender)
     {
         for (int i = 0; i < players.size(); i++)
         {
-            if (players[i] == sender)
+            if (players[i]->name == sender)
                 continue;
             send_message(d, players[i]->sock);
         }
         draw = true;
     }
 
-    void sendRefuseDraw(std::string & d, Client * sender)
+    void sendRefuseDraw(std::string & d, std::string & sender)
     {
         this->sendDrawOffer(d, sender);
         draw = false;
@@ -196,17 +196,6 @@ public:
         return false;
     }
 
-    // returns true if there is a player with the specified address in the game
-    bool isPlayerA(Client * c)
-    {
-        for (int i = 0; i < players.size(); i++)
-        {
-            if (players[i] == c)
-                return true;
-        }
-        return false;
-    }
-
     // returns true if there is a spectator with the specified name in the game
     bool isSpectatorN(std::string & n)
     {
@@ -218,17 +207,7 @@ public:
         return false;
     }
 
-    // returns true if there is a spectator with the specified address in the game
-    bool isSpectatorA(Client * c)
-    {
-        for (int i = 0; i < spectators.size(); i++)
-        {
-            if (spectators[i] == c)
-                return true;
-        }
-        return false;
-    }
-
+    
     void startGame()
     {
         for (int i = 0; i < players.size(); i++)
@@ -244,27 +223,27 @@ public:
 
     void endGame()
     {
+        std::string message = (draw ? "draw" : "wins"); 
         for (int i = 0; i < players.size(); i++)
         {
             int j = find_client(players[i]->sock);
-            // send draw message to both players, have them dealwith it on the their end
-            // to finish up and go to main menu
-            // thought here, just re-send draw
-            // clients will watch for a draw after they send one
-            // if they recieve one then they know the game is a draw and they should
-            // get over themselves
-            send_message("draw", players[i]->sock);
+            send_message(message, players[i]->sock);
             quitGame(j);
         }
         for (int i = 0; i < spectators.size(); i++)
         {
             int j = find_client(spectators[i]->sock);
-            // send draw message to all spectators, have them dealwith it on the their end
-            // to finish up and go to main menu
-            send_message("draw", spectators[i]->sock);
+            send_message(message, spectators[i]->sock);
             quitGame(j);
         }
     }
+
+    int numPlayers()
+    {return players.size();}
+    std::vector<Client*> getPlayers()
+    {return players;}
+    std::vector<Client*> getSpectators()
+    {return spectators;}
 private:
     std::vector<Client*> players;
     std::vector<Client*> spectators;
@@ -282,8 +261,8 @@ const int MAXLEN = 1024;
 //////////////////////////////////////////////////////////////////////////////
 // Global Variables.
 //////////////////////////////////////////////////////////////////////////////
-std::vector<Client> clients;
-std::vector<Game> games;
+std::vector<Client*> clients;
+std::vector<Game*> games;
 std::vector<Client*> mainMenu;      // location 0
 std::vector<Client*> reviewing;     // location 1
 std::vector<Game*> gamesInProgress; // location 2
@@ -345,7 +324,7 @@ int send_message(std::string msg, TCPsocket sock)
 int find_client(TCPsocket sock)
 {
 	for(int i = 0; i < num_clients; i++)
-		if(clients[i].sock == sock)
+		if(clients[i]->sock == sock)
 			return(i);
 
     return -1;
@@ -357,7 +336,7 @@ int find_client(TCPsocket sock)
 int find_client_name(std::string name)
 {
 	for(int i=0; i < num_clients;i++)
-		if (clients[i].name == name)
+		if (clients[i]->name == name)
 			return i;
 		
 	return -1;
@@ -382,15 +361,15 @@ void handle_login(TCPsocket sock, std::string name)
         return;
     }
     
-    if (clients[cindex].active)
+    if (clients[cindex]->active)
     {
         send_message("Duplicate Nickname... bye bye!", sock);
         SDLNet_TCP_Close(sock);
         return;
     }
 
-    clients[cindex].sock = sock;
-    clients[cindex].active = true;
+    clients[cindex]->sock = sock;
+    clients[cindex]->active = true;
     return;
 }
 
@@ -398,14 +377,11 @@ void handle_login(TCPsocket sock, std::string name)
 // Add a client to the list of clients
 void add_client(TCPsocket sock, std::string name)
 {	
-	Client c;
+	Client * c = new Client(sock, name, true, 0);
 
-	c.name = name;
-	c.sock = sock;
-	c.active = true;
-
+	
 	clients.push_back(c);
-    mainMenu.push_back(&c);
+    mainMenu.push_back(c);
 
 	num_clients++;
 
@@ -424,14 +400,14 @@ void add_client(TCPsocket sock, std::string name)
 // closes the socket of a disconnected client
 void handle_disconnect(int i)
 {
-	std::string name=clients[i].name;
+	std::string name=clients[i]->name;
 
 	if(i<0 || i>=num_clients)
 		return;
 	
 	// close the old socket, even if it's dead... 
-	SDLNet_TCP_Close(clients[i].sock);
-    clients[i].active = false;
+	SDLNet_TCP_Close(clients[i]->sock);
+    clients[i]->active = false;
     //std::cout << "Removed client # " << i << std::endl;
     //std::cin.ignore();
 }
@@ -440,7 +416,7 @@ void handle_disconnect(int i)
 // Reconnects a client 
 void reconnect_client(std::string name)
 {
-    clients[find_client_name(name)].active = true;
+    clients[find_client_name(name)]->active = true;/////////////////////////////////TODO
     // pass for now
 }
 
@@ -460,8 +436,8 @@ SDLNet_SocketSet create_sockset()
 	}
 	SDLNet_TCP_AddSocket(set, server);
 	for(int i=0; i < num_clients; i++)
-        if (clients[i].active)
-            SDLNet_TCP_AddSocket(set, clients[i].sock);
+        if (clients[i]->active)
+            SDLNet_TCP_AddSocket(set, clients[i]->sock);
 	return(set);
 }
 
@@ -474,11 +450,11 @@ void send_all(std::string buf)
     
     for (int i = 0; i < num_clients; i++)
 	{
-		if(!send_message(buf, clients[i].sock))
+		if(!send_message(buf, clients[i]->sock))
         {
             std::cout << "errr what ";
             handle_disconnect(i);
-            std::cout << clients[i].active << std::endl;
+            std::cout << clients[i]->active << std::endl;
         }
 	}
 }
@@ -490,7 +466,7 @@ void send_client(int i, std::string buf)
 	if (buf == "")
         return;
 
-	send_message(buf, clients[i].sock);
+	send_message(buf, clients[i]->sock);
 }
 
 
@@ -555,14 +531,17 @@ void parse(std::string i, int sender)
     std::cout << command << '\t' << i << std::endl;    
     if (command == "move")
     {
+        std::cout << "got a move" << std::endl;
         move(i, sender);
     }
     else if (command == "quit")
     {
+        std::cout << "got a quit" << std::endl;
         quitGame(sender);
     }
     else if (command == "make")
     {
+        std::cout << "got a make" << std::endl;
         make(sender);
     }
     else if (command == "join")
@@ -570,34 +549,40 @@ void parse(std::string i, int sender)
         char target = i[4];
         if (target = 's')
         {
+        std::cout << "got a joins" << std::endl;
             joinSpectate(sender);
         }
         if (target = 'p')
         {
+        std::cout << "got a joinp" << std::endl;
             joinPlay(sender);
         }
     }
     else if (command == "load")
     {
+        std::cout << "got a load" << std::endl;
         load(sender);
     }
     else if (command == "draw")
     {
+        std::cout << "got a draw" << std::endl;
         draw(i, sender);
     }
     else if (command == "nope")
     {
+        std::cout << "got a nope" << std::endl;
         nope(i, sender);
     }
     else if (command == "exit")
     {
+        std::cout << "got a exit" << std::endl;
         exitProgram(sender);
     }
 }
 
 void move(std::string & message, int s)
 {
-    std::string sender = clients[s].name;
+    std::string sender = clients[s]->name;
     for (int i = 0; i < gamesInProgress.size(); i++)
     {
         if (gamesInProgress[i]->isPlayerN(sender))
@@ -610,48 +595,101 @@ void move(std::string & message, int s)
 
 void quitGame(int s)
 {
-    std::string sender = clients[s].name;
-    Client * u = &(clients[s]);
-    switch (clients[s].location)
+    std::cout << "\tIn quitGame(int " << s << ")" << std::endl;
+    std::string sender = clients[s]->name;
+    switch (clients[s]->location)
     {
         case 1:
-            clients[s].location = 0;
+            std::cout << "\t\tIn quitGame case 1" << std::endl;
+            clients[s]->location = 0;
             for (int i = 0; i < reviewing.size(); i++)
             {
-                if (reviewing[i] == u)
+                if (reviewing[i]->name == sender)
                 {
                     reviewing.erase(reviewing.begin() + i);
                     break;
                 }
             }
-            mainMenu.push_back(&clients[s]);
+            mainMenu.push_back(clients[s]);
             break;
         case 2:
-            clients[s].location = 0;
+            std::cout << "\t\tIn quitGame case 2" << std::endl;
             for (int i = 0; i < gamesInProgress.size(); i++)
             {
-                if (gamesInProgress[i]->isPlayerA(u))
+                if (gamesInProgress[i]->isPlayerN(sender))
                 {
-                    gamesInProgress[i]->removeFromGame(u);
+                    if (gamesInProgress[i]->numPlayers() - 1 != 0)
+                    {
+                        clients[s]->location = 0;
+                        gamesInProgress[i]->removeFromGame(sender);
+                        std::string msg = "wins";
+                        gamesInProgress[i]->sendMove(msg, sender);
+                        mainMenu.push_back(clients[s]);
+                    }
+                    else
+                    {
+                        if (gamesInProgress[i]->isPlayerN(sender))
+                        {
+                            std::vector<Client*> temp = gamesInProgress[i]->getSpectators();
+                            for (int j = 0; j < temp.size(); j++)
+                            {
+                                temp[j]->location = 0;
+                                gamesInProgress[i]->removeFromGame(temp[j]->name);
+                                mainMenu.push_back(temp[j]);
+                            }
+                            clients[s]->location = 0;
+                            gamesInProgress[i]->removeFromGame(sender);
+                            mainMenu.push_back(clients[s]);
+                            delete gamesInProgress[i];
+                            gamesInProgress.erase(gamesInProgress.begin() + i);
+                        }
+                        else
+                        {
+                            clients[s]->location = 0;
+                            gamesInProgress[i]->removeFromGame(sender);
+                            mainMenu.push_back(clients[s]);
+                        }
+                    }
                     break;
                 }
             }
-            mainMenu.push_back(&clients[s]);
             break;
         case 3:
-            clients[s].location = 0;
+            std::cout << "\t\tIn quitGame case 3" << std::endl;
             for (int i = 0; i < gamesWaiting.size(); i++)
             {
-                if (gamesWaiting[i]->isPlayerA(u))
+                std::cout << "\t\t\tIn for loop run " << i << std::endl;
+                if (gamesWaiting[i]->isPlayerN(sender))
                 {
-                    gamesWaiting[i]->removeFromGame(u);
+                    std::cout << "\t\t\t\tIn if #1" << std::endl;
+                    if (gamesWaiting[i]->isPlayerN(sender))
+                    {
+                        std::cout << "\t\t\t\t\tIn if #1.1" << std::endl;
+                        std::vector<Client*> temp = gamesWaiting[i]->getSpectators();
+                        for (int j = 0; j < temp.size(); j++)
+                        {
+                            temp[j]->location = 0;
+                            gamesWaiting[i]->removeFromGame(temp[j]->name);
+                            mainMenu.push_back(temp[j]);
+                        }
+                        clients[s]->location = 0;
+                        gamesWaiting[i]->removeFromGame(sender);
+                        mainMenu.push_back(clients[s]);
+                        delete gamesWaiting[i];
+                        gamesWaiting.erase(gamesWaiting.begin() + i);
+                    }
+                    else
+                    {
+                        clients[s]->location = 0;
+                        gamesInProgress[i]->removeFromGame(sender);
+                        mainMenu.push_back(clients[s]);
+                    }
                     break;
                 }
             }
-            mainMenu.push_back(&clients[s]);
             break;
         default:
-            std::cout << "Aww shit, ERROR, ERROR, ERROR - " << clients[s].location
+            std::cout << "Aww shit, ERROR, ERROR, ERROR - " << clients[s]->location
                       << " is not a recognized location, kindly go fuck yourself."
                       << std::endl;
             SDLNet_Quit();
@@ -662,14 +700,17 @@ void quitGame(int s)
 
 void make(int c)
 {
-    Game temp = &(clients[c]);
+    std::string sender = clients[c]->name;
+    Game * temp = new Game(clients[c]);
     games.push_back(temp);
-    gamesWaiting.push_back(&temp);
+    gamesWaiting.push_back(temp);
 
-    clients[c].location = 3;
+    clients[c]->location = 3;
     for (int i = 0; i < mainMenu.size(); i++)
     {
-        if (mainMenu[i] == &(clients[c]))
+//        std::cout << '\t' << mainMenu[i]->name << std::endl;
+        std::cout << '\t' << clients[c]->name << std::endl;
+        if (mainMenu[i]->name == sender)
         {
             mainMenu.erase(mainMenu.begin() + i);
             break;
@@ -679,28 +720,30 @@ void make(int c)
 
 void joinSpectate(int c)
 {
+    std::string sender = clients[c]->name;
     int g = rand() % gamesInProgress.size();
-    gamesInProgress[g]->addSpectator(&(clients[c]));
+    gamesInProgress[g]->addSpectator(clients[c]);
     for (int i = 0; i < mainMenu.size(); i++)
     {
-        if (mainMenu[i] == &(clients[c]))
+        if (mainMenu[i]->name == sender)
         {
             mainMenu.erase(mainMenu.begin() + i);
-            clients[c].location = 2;
+            clients[c]->location = 2;
             break;
         }
     }
 }
 void joinPlay(int c)
 {
+    std::string sender = clients[c]->name;
     int g = rand() % gamesWaiting.size();
-    gamesWaiting[g]->addPlayer(&(clients[c]));
+    gamesWaiting[g]->addPlayer(clients[c]);
     gamesWaiting[g]->startGame();
     gamesInProgress.push_back(gamesWaiting[g]);
     gamesWaiting.erase(gamesWaiting.begin() + g);
     for (int i = 0; i < mainMenu.size(); i++)
     {
-        if (mainMenu[i] == &(clients[c]))
+        if (mainMenu[i]->name == sender)
         {
             mainMenu.erase(mainMenu.begin() + i);
             break;
@@ -709,13 +752,14 @@ void joinPlay(int c)
 }
 void load(int c)
 {
-    reviewing.push_back(&(clients[c]));
+    std::string sender = clients[c]->name;
+    reviewing.push_back(clients[c]);
     for (int i = 0; i < mainMenu.size(); i++)
     {
-        if (mainMenu[i] == &(clients[c]))
+        if (mainMenu[i]->name == sender)
         {
             mainMenu.erase(mainMenu.begin() + i);
-            clients[c].location = 1;
+            clients[c]->location = 1;
             break;
         }
     }
@@ -723,10 +767,10 @@ void load(int c)
 }
 void draw(std::string & message, int c)
 {
-    Client * sender = &(clients[c]);
+    std::string sender = clients[c]->name;
     for (int i = 0; i < gamesInProgress.size(); i++)
     {
-        if (gamesInProgress[i]->isPlayerA(sender))
+        if (gamesInProgress[i]->isPlayerN(sender))
         {
             if (gamesInProgress[i]->getDraw())
             {
@@ -744,10 +788,10 @@ void draw(std::string & message, int c)
 }
 void nope(std::string & message, int c)
 {
-    Client * sender = &(clients[c]);
+    std::string sender = clients[c]->name;
     for (int i = 0; i < gamesInProgress.size(); i++)
     {
-        if (gamesInProgress[i]->isPlayerA(sender))
+        if (gamesInProgress[i]->isPlayerN(sender))
         {
             gamesInProgress[i]->sendRefuseDraw(message,sender);
             break;
@@ -756,13 +800,16 @@ void nope(std::string & message, int c)
 }
 void exitProgram(int c)
 {
+    std::string sender = clients[c]->name;
     for (int i = 0; i < mainMenu.size(); i++)
     {
-        if (mainMenu[i] == &(clients[c]))
+        if (mainMenu[i]->name == sender)
         {
             mainMenu.erase(mainMenu.begin() + i);
-            SDLNet_TCP_Close(clients[c].sock);
+            SDLNet_TCP_Close(clients[c]->sock);
+            delete clients[c];
             clients.erase(clients.begin() + c);
+            num_clients--;
             break;
         }
     }
@@ -826,7 +873,7 @@ int main(int argc, char **argv)
 		SDL_Quit();
 		exit(4);
 	}
-
+	
 	while(1)
 	{
 		int numready;
@@ -868,21 +915,34 @@ int main(int argc, char **argv)
 		{
 			std::cout << '\t' << i << std::endl;
 			message = "";
-            if (clients[i].active)
+            if (clients[i]->active)
             {
-                if(SDLNet_SocketReady(clients[i].sock))
+                if(SDLNet_SocketReady(clients[i]->sock))
                 {
                     //---------------------------------------------------------
                     // GET DATA FROM CLIENT
                     //---------------------------------------------------------
-                    message = recv_message(clients[i].sock);
-                    
+                    std::cout << "clients.size()         : " << clients.size() << '\n'
+                              << "games.size()           : " << games.size() << '\n'
+                              << "mainMenu.size()        : " << mainMenu.size() << '\n'
+                              << "reviewing.size()       : " << reviewing.size() << '\n'
+                              << "gamesInProgress.size() : " << gamesInProgress.size() << '\n'
+                              << "gamesWaiting.size()    : " << gamesWaiting.size() << std::endl;
+                    message = recv_message(clients[i]->sock);
+                    std::cout << message << std::endl;
                     if(message > "") 
                     {
                         parse(message, i);
                     }
                     
                     numready--;
+                    std::cout << "clients.size()         : " << clients.size() << '\n'
+                              << "games.size()           : " << games.size() << '\n'
+                              << "mainMenu.size()        : " << mainMenu.size() << '\n'
+                              << "reviewing.size()       : " << reviewing.size() << '\n'
+                              << "gamesInProgress.size() : " << gamesInProgress.size() << '\n'
+                              << "gamesWaiting.size()    : " << gamesWaiting.size() << std::endl;
+                    
                 }
             }
         }
