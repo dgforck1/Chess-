@@ -489,17 +489,12 @@ void ChessMain(int player)
         s.unlock();
         s.flip();
         
-        delay(10);
-
-        //mayhaps call networking stuffs here?
+        delay(10);        
     }
     
         
     //todo:
     //decrement clock, if applicable
-    //print captured pieces
-    //track moves
-    //print moves    
 }
 
 
