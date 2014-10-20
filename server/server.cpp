@@ -69,7 +69,7 @@ void quitGame(int);
 void make(int);
 void joinSpectate(int);
 void joinPlay(int);
-void load(std::string &, int);
+void load(int);
 void draw(std::string &, int c);
 void nope(std::string &, int c);
 void exitProgram(int c);
@@ -252,6 +252,7 @@ public:
             // clients will watch for a draw after they send one
             // if they recieve one then they know the game is a draw and they should
             // get over themselves
+            send_message("draw", players[i]->sock);
             quitGame(j);
         }
         for (int i = 0; i < spectators.size(); i++)
@@ -259,12 +260,11 @@ public:
             int j = find_client(spectators[i]->sock);
             // send draw message to all spectators, have them dealwith it on the their end
             // to finish up and go to main menu
+            send_message("draw", spectators[i]->sock);
             quitGame(j);
         }
     }
 private:
-    //Client player1;
-    //Client player2;
     std::vector<Client*> players;
     std::vector<Client*> spectators;
     bool started;
@@ -569,22 +569,28 @@ void parse(std::string i, int sender)
         char target = i[4];
         if (target = 's')
         {
+            joinSpectate(sender);
         }
         if (target = 'p')
         {
+            joinPlay(sender);
         }
     }
     else if (command == "load")
     {
+        load(sender);
     }
     else if (command == "draw")
     {
+        draw(i, sender);
     }
     else if (command == "nope")
     {
+        nope(i, sender);
     }
     else if (command == "exit")
     {
+        exitProgram(sender);
     }
 }
 
