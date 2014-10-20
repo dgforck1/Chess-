@@ -1,12 +1,15 @@
 #include <iostream>
-#include <string>
 #include "Chess.h"
+#include <string>
 
 //piece implementation
 void Piece::print() const
 {
-    std::cout << rank << " " << file << " " << player << " "
-              << type << std::endl;
+        std::cout << "player: " << player
+              << " rank: " << rank
+              << " file: " << file
+              << " type: " << type
+              << " moved: " << moved;
 }
 
 int Piece::getRank() const
@@ -697,8 +700,7 @@ bool Piece::checkMove(int destR, int destF, std::string B[][8],
                     }
                 }
             }
-        }
-        
+        }        
     }
     
     return false;
@@ -712,10 +714,16 @@ bool Piece::getMoved() const
 
 
 void Piece::movePiece(int destR, int destF)
-{    
+{
+    if(!moved)
+    {
+        moved = true;
+    }
+    
     rank = destR;
     file = destF;
 }
+
 
 
 //board implementation
@@ -769,7 +777,7 @@ void Board::updateBoard()
 }
 
 
-Piece& Board::getPiece(int r, int f)
+Piece Board::getPiece(int r, int f)
 {
     for(int i = 0; i < p.size(); i++)
     {
@@ -789,12 +797,12 @@ Piece& Board::getPiece(int r, int f)
     //todo:  throw error if piece not found
 }
 
-
-Piece& Board::getPiece(int i)
+//todo: try removing reference, so copy the piece instead
+Piece Board::getPiece(int i)
 {
     if(i < p.size() && i >= 0)
     {
-    return p[i];
+        return p[i];
     }
     else
     {
@@ -804,7 +812,7 @@ Piece& Board::getPiece(int i)
 
 
 int Board::getPieceIndex(int r, int f)
-{
+{    
     for(int i = 0; i < p.size(); i++)
     {
         int tempr = p[i].getRank();
@@ -814,7 +822,7 @@ int Board::getPieceIndex(int r, int f)
             int tempf = p[i].getFile();
 
             if(tempf == f)
-            {
+            {                
                 return i;
             }
         }
@@ -846,8 +854,7 @@ void Board::movePiece(int i, int destR, int destF)
 
 
 std::string Board::capturePiece(int r, int f)
-{
-    
+{    
     int i = getPieceIndex(r, f);
 
     if(i >= 0)
@@ -862,6 +869,20 @@ std::string Board::capturePiece(int r, int f)
         return "";
     }
 }
+
+
+std::string Board::capturePiece(int i)
+{    
+    //p[i].print();    
+    //std::cout << std::endl;       
+
+    //why are you broken?!?!?!?!?
+    std::string ret = p[i].getType();
+    p.erase(p.begin() + i);
+        
+    return ret;    
+}
+
 
 void Board::printBoard() const
 {

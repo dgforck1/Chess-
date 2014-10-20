@@ -40,7 +40,8 @@
 #include "SDL_net.h"
 
 // Our includes
-#include "ChessGame.cpp"
+#include "Chess.h"
+#include "ChessGame.h"
 
 //////////////////////////////////////////////////////////////////////////////
 // END Includes.

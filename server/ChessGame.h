@@ -7,6 +7,7 @@
 #include "Includes.h"
 #include "Constants.h"
 #include "compgeom.h"
+#include "SDL_net.h"
 
 //////////////////////////////////////////////////////////////////////////////
 // Start Client States
@@ -20,12 +21,6 @@
 //////////////////////////////////////////////////////////////////////////////
 
 // random ass fucntion
-void ChessMain();
-
-
-
-
-
-
+void ChessMain(int player);
 
 #endif

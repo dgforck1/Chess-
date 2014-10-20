@@ -23,46 +23,4 @@
 // random ass fucntion
 void ChessMain(int player);
 
-//////////////////////////////////////////////////////////////////////////////
-// Class Definitions
-//////////////////////////////////////////////////////////////////////////////
-
-class Client
-{
-public:    
-    Client(TCPsocket s = NULL, std::string n = "", bool a = false)
-        : sock(s), name(n), active(a)
-    {};
-    
-	TCPsocket sock;
-	std::string name;
-    bool active;
-};
-
-class Game
-{
-public:
-    // the constructor will always need a player, that will be player 1
-    Game(Client & p1)
-    {
-        players.push_back(p1);
-    }
-
-    // add spectator
-    void addSpectator (Client & s);
-    // add player, if there are already 2 players add a spectator instead
-    void addPlayer (Client & p);
-    
-private:
-    //Client player1;
-    //Client player2;
-    std::vector<Client> players;
-    std::vector<Client> spectators;
-};
-
-
-
-
-
-
 #endif
