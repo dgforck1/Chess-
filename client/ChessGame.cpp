@@ -10,16 +10,13 @@
 #include "compgeom.h"
 
 
-
-const int MYWIDTH = 900, MYHEIGHT = 650;
-
 bool RectClicked(int mX, int mY, Rect&);
 std::string MoveString(bool captured, std::string type, int rank, int file,
     int sourceF);
 
 void ChessMain(int player)
 {
-    Surface s(MYWIDTH, MYHEIGHT);
+    Surface s(W, H);
     Event event;
     Mouse mouse;
 
@@ -29,14 +26,19 @@ void ChessMain(int player)
         scrollstart = 2,
         scrollend = 31;
     bool clicked = false,
-        released = false;
+        released = false,
+        scroll = false;
 
     Rect boardRect = Rect(250, 150, 400, 400),
         blackRect = Rect(0, 0, 50, 50),
         capRect = Rect(25, 150, 200, 400),
-        movRect = Rect(675, 150, 200, 400);
+        movRect = Rect(675, 150, 200, 400),
+        supRect = Rect(850, 150, 25, 25),
+        sdwRect = Rect(850, 525, 25, 25);
     Board b = Board();
-        
+
+
+    
     Image WP = Image("images/WhitePawn.png");
     Image WR = Image("images/WhiteRook.png");
     Image WN = Image("images/WhiteKnight.png");
@@ -94,7 +96,7 @@ void ChessMain(int player)
                 }
             }
         }
-
+// here is the first area I'll add to, if havent recieved message then wait
         //if(playerTurn == player)
             //only cares if it's the current player's turn
         //{
@@ -176,6 +178,15 @@ void ChessMain(int player)
                                            tempy, tempx, wp.getFile())
                                 );
                         }
+
+                        if(Moves.size() > 30)
+                        {
+                            scroll = true;
+                            scrollstart = Moves.size() - 30 -
+                                (Moves.size() % 2);
+                            scrollend = Moves.size() -
+                                (Moves.size() % 2);                     
+                        }
                         
                         b.movePiece(workingPieceIndex, tempy, tempx);         
                         
@@ -197,6 +208,41 @@ void ChessMain(int player)
                     released = false;
                 }
             }
+            else
+            {
+                if(scroll)
+                {
+                    if(RectClicked(mousex, mousey, supRect))
+                    {
+                        if(scrollstart > 0)
+                        {
+                            scrollstart -= 2;
+                            scrollend -= 2;
+                        }
+                        
+                        std::cout << "<<<<scrolling!"
+                              << " start: " << scrollstart
+                              << " end: " << scrollend
+                              << std::endl;
+                    }
+
+                    if(RectClicked(mousex, mousey, sdwRect))
+                    {
+                        if(scrollend < Moves.size() - 1)
+                        {
+                            scrollstart += 2;
+                            scrollend += 2;
+                        }
+                        
+                        std::cout << "<<<<scrolling!"
+                              << " start: " << scrollstart
+                              << " end: " << scrollend
+                              << std::endl;
+                    }
+                    
+                }
+            }
+                
             //}
 
 
@@ -210,10 +256,7 @@ void ChessMain(int player)
         {
             mousey = -1;
         }
-
-
         
-
 
         int toggle = -1;
         int x = 0, y = 0;
@@ -394,10 +437,31 @@ void ChessMain(int player)
             }
         }
         //print moves
-        if(Moves.size() >= 31)
+        if(scroll)
         {
+            x = 675;
+            y = 150;
             
-        }
+            for(int i = scrollstart; i <= scrollend; i++)
+            {
+                TextSurface ts = TextSurface(
+                    Moves[i].c_str(), "fonts/FreeSans.ttf", 16, 0, 0, 0);
+                
+                s.put_text(ts, x, y);
+                if(i % 2 == 1)
+                {
+                    x = 675;
+                    y += 25;
+                }
+                else
+                {
+                    x += 100;
+                }
+            }
+
+            s.put_image(SUP, supRect);
+            s.put_image(SDW, sdwRect);
+        }        
         else
         {
             x = 675;
@@ -416,29 +480,18 @@ void ChessMain(int player)
                 else
                 {
                     x += 100;
-                }
-                
+                }                
             }
-        }
-
-        
-        
+        }                
         s.unlock();
         s.flip();
         
-        delay(10);
-
-        //mayhaps call networking stuffs here?
+        delay(10);        
     }
     
-    
-    
+        
     //todo:
     //decrement clock, if applicable
-    //print captured pieces
-    //track moves
-    //print moves
-    
 }
 
 

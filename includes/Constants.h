@@ -2,8 +2,8 @@
 #define CONSTANTS_H
 
 // Constants for whole surface
-const int W = 640;
-const int H = 480;
+const int W = 900;
+const int H = 650;
 
 #endif
 

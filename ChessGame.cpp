@@ -10,16 +10,13 @@
 #include "compgeom.h"
 
 
-
-const int MYWIDTH = 900, MYHEIGHT = 650;
-
 bool RectClicked(int mX, int mY, Rect&);
 std::string MoveString(bool captured, std::string type, int rank, int file,
     int sourceF);
 
 void ChessMain(int player)
 {
-    Surface s(MYWIDTH, MYHEIGHT);
+    Surface s(W, H);
     Event event;
     Mouse mouse;
 
@@ -99,7 +96,7 @@ void ChessMain(int player)
                 }
             }
         }
-
+// here is the first area I'll add to, if havent recieved message then wait
         //if(playerTurn == player)
             //only cares if it's the current player's turn
         //{
