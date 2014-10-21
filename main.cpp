@@ -30,15 +30,15 @@ int main()
 {
     //bool RectClicked(int mX, int mY, Rect&);
     
-    int player;
+    int player = 0;
     //need some way to determine who is white and who is black
     // 0 = white, 1 = black
 
-    player = Welcome();
+    /*player = Welcome();
     if(player > -1)
-    {
+    {*/
         ChessMain(player);
-    }
+        //}
     
     
     return 0;
@@ -49,7 +49,7 @@ int Welcome()
 {
     int ret = -1;
 
-    Surface s(900, 650);
+    Surface sm(900, 650);
     Event event;
     Mouse mouse;
 
@@ -117,23 +117,25 @@ int Welcome()
 
 
         
-        s.lock();
-        s.fill(GRAY);
-        s.put_text(welcomes, 100, 0);
-        s.put_text("Play as White", 275, 400, 0, 0, 0,
+        sm.lock();
+        sm.fill(GRAY);
+        sm.put_text(welcomes, 100, 0);
+        sm.put_text("Play as White", 275, 400, 0, 0, 0,
                    "fonts/FreeSerif.ttf", 24);
-        s.put_text("Play as Black", 275, 475, 0, 0, 0,
+        sm.put_text("Play as Black", 275, 475, 0, 0, 0,
                    "fonts/FreeSerif.ttf", 24);
-        s.put_text("Exit Game", 275, 550, 0, 0, 0,
+        sm.put_text("Exit Game", 275, 550, 0, 0, 0,
                    "fonts/FreeSerif.ttf", 24);
-        s.put_rect(playWhite, WHITE);
-        s.put_rect(playBlack, BLACK);
-        s.put_rect(exitGame, RED);
-        s.unlock();
-        s.flip();
+        sm.put_rect(playWhite, WHITE);
+        sm.put_rect(playBlack, BLACK);
+        sm.put_rect(exitGame, RED);
+        sm.unlock();
+        sm.flip();
         
         delay(10);
     }
+
+    
     
     return ret;
 }
