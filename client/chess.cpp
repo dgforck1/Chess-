@@ -859,8 +859,224 @@ bool Board::checkmate(int player)// player is the person checking their enemy fo
     bool inCheck = putsKingInCheck(player, board, p);
     if (inCheck)
     {
-        std::vector<int> threats = findThreats(player, board, p);
+        int kingRank, kingFile, kingi;
+        for (int i = 0; i < t2.size(); i++)
+        {
+            if (t2[i].getType() == "K")
+            {
+                kingRank = t2[i].getRank();
+                kingFile = t2[i].getFile();
+                kingi = i;
+                break;
+            }
+        }
+        // // find dodge
+//         for (int i = 0; i < 8; i++)
+//         {
+//             int destR, destF;
+//             switch(i)
+//             {
+//                 case 0: destR = kingr; destF = kingf + 1; break;
+//                 case 1: destR = kingr; destF = kingf - 1; break;
+//                 case 2: destR = kingr + 1; destF = kingf + 1; break;
+//                 case 3: destR = kingr + 1; destF = kingf - 1; break;
+//                 case 4: destR = kingr - 1; destF = kingf + 1; break;
+//                 case 5: destR = kingr - 1; destF = kingf - 1; break;
+//                 case 6: destR = kingr + 1; destF = kingf; break;
+//                 case 7: destR = kingr - 1; destF = kingf; break;
+//             }
+//             // get a temporary board and list of pieces where the move was made
+//             // so we can see if that would put the player's king in check
+//             std::vector<Piece> t3 = p;
+//             t3[kingi].movePiece(destR, destF);
+//             std::string t4 [8][8];
+//             for (int i = 0; i < 8; i++)
+//             {
+//                 for (int j = 0; j < 8; j++)
+//                 {
+//                     t4[j][i] = " ";
+//                 }
+//             }
+//             for (int i = 0; i < p.size(); i++)
+//             {
+//                 t4[t3[i].getRank()][t3[i].getFile()] = t3[i].getType();
+//             }
+            
+//             if (!putsKingInCheck(player, t4, t3))
+//             {return false;}
+//         }
+
+//         // find the threats
+//         std::vector<int> threats = findThreats(player, board, p);
+//         if (threats.size() > 1)
+//         {
+            // find ways to block the threats
+        // for loop running from 0 - 7 on rank with king fixed file
+        for (int i = kingRank - 1; i > -1; i--)
+        {
+            if (board[i][kingFile] != " ")
+            {
+                int pindex = findPiece(i, kingFile, p);
+                if (p[pindex].getPlayer() == player)
+                    break;
+                else
+                {
+                    if (p[pindex].checkMove2(kingRank, kingFile, board, p))
+                        return true;
+                }
+            }
+        }
+        for (int i = kingRank + 1; i < 8; i++)
+        {
+            if (board[i][kingFile] != " ")
+            {
+                int pindex = findPiece(i, kingFile, p);
+                if (p[pindex].getPlayer() == player)
+                    break;
+                else
+                {
+                    if (p[pindex].checkMove2(kingRank, kingFile, board, p))
+                        return true;
+                }
+            }
+        }
         
+        // for loop running from 0 - 7 on file with king fixed rank
+        for (int i = kingFile - 1; i > -1; i--)
+        {
+            if (board[kingRank][i] != " ")
+            {
+                int pindex = findPiece(kingRank, i, p);
+                if (p[pindex].getPlayer() == player)
+                    break;
+                else
+                {
+                    if (p[pindex].checkMove2(kingRank, kingFile, board, p))
+                        return true;
+                }
+            }
+        }
+        for (int i = kingFile + 1; i < 8; i++)
+        {
+            if (board[kingRank][i] != " ")
+            {
+                int pindex = findPiece(kingRank, i, p);
+                if (p[pindex].getPlayer() == player)
+                    break;
+                else
+                {
+                    if (p[pindex].checkMove2(kingRank, kingFile, board, p))
+                        return true;
+                }
+            }
+        }
+        // while loop running on positive diagonal in positive direction
+        int tr = kingRank + 1;
+        int ty = kingFile + 1;
+        while(tr < 8 && ty < 8)
+        {
+            if (board[tr][ty] != " ")
+            {
+                int pindex = findPiece(tr, ty, p);
+                if (p[pindex].getPlayer() == player)
+                    break;
+                else
+                {
+                    if (p[pindex].checkMove2(kingRank, kingFile, board, p))
+                        return true;
+                }
+            }
+            tr++;
+            ty++;
+        }
+        // while loop running on positive diagonal in negative direction
+        tr = kingRank - 1;
+        ty = kingFile - 1;
+        while(tr > -1 && ty > -1)
+        {
+            if (board[tr][ty] != " ")
+            {
+                int pindex = findPiece(tr, ty, p);
+                if (p[pindex].getPlayer() == player)
+                    break;
+                else
+                {
+                    if (p[pindex].checkMove2(kingRank, kingFile, board, p))
+                        return true;
+                }
+            }
+            tr--;
+            ty--;
+        }
+        // while loop running on negative diagonal in positive direction
+        tr = kingRank + 1;
+        ty = kingFile - 1;
+        while(tr < 8 && ty > -1)
+        {
+            if (board[tr][ty] != " ")
+            {
+                int pindex = findPiece(tr, ty, p);
+                if (p[pindex].getPlayer() == player)
+                    break;
+                else
+                {
+                    if (p[pindex].checkMove2(kingRank, kingFile, board, p))
+                        return true;
+                }
+            }
+            tr++;
+            ty--;
+        }
+        // while loop running on negative diagonal in negative direction
+        tr = kingRank - 1;
+        ty = kingFile + 1;
+        while(tr > -1 && ty < 8)
+        {
+            if (board[tr][ty] != " ")
+            {
+                int pindex = findPiece(tr, ty, p);
+                if (p[pindex].getPlayer() == player)
+                    break;
+                else
+                {
+                    if (p[pindex].checkMove2(kingRank, kingFile, board, p))
+                        return true;
+                }
+            }
+            tr--;
+            ty++;
+        }
+        return false;
+//    }
+//         else
+//         {
+//             // find ways to kill the threats
+//             for (int i = 0; i < threats.size(); i++)
+//             {
+//                 int threatr = p[threats[i]].getRank();
+//                 int threatf = p[threats[i]].getFile();
+//                 for (int i = 0; i < t2.size(); i++)
+//                 {
+//                     std::vector<Piece> t3 = p;
+//                     t3[getPieceIndex(t2[i].getRank(), t2[i].getFile())].movePiece(threatr, threatf);
+//                     std::string t4 [8][8];
+//                     for (int i = 0; i < 8; i++)
+//                     {
+//                         for (int j = 0; j < 8; j++)
+//                         {
+//                             t4[j][i] = " ";
+//                         }
+//                     }
+//                     for (int i = 0; i < p.size(); i++)
+//                     {
+//                         t4[t3[i].getRank()][t3[i].getFile()] = t3[i].getType();
+//                     }
+                    
+//                     if (!putsKingInCheck(player, t4, t3))
+//                     {return false;}
+//                 }
+//             }
+//         }
     }
     else
         return false;
