@@ -5,15 +5,24 @@
 #include "chess.h"
 
 
+// TO DO:
+//  castleing
+//    long
+//    short
+//  en passant
+//  promotion
+//  checkmate
+
 ///////////////////////////////////////////////////////////////////////////////
 // Function Prototypes
 ///////////////////////////////////////////////////////////////////////////////
 
-bool knightMove(int, int, int, int, std::string board[][8]);
+bool knightMove(int, int, int, int);
 bool rookMove(int, int, int, int, std::string board[][8]);
 bool bishopMove(int, int, int, int, std::string board[][8]);
 bool queenMove(int, int, int, int, std::string board[][8]);
-bool kingMove(int, int, int, int);
+bool kingMove(int, int, int, int, std::string board[][8],
+              std::vector <Piece> p);
 bool putsKingInCheck(int, std::string board[][8], std::vector<Piece> p);
 int findPiece(int, int, std::vector<Piece> p);
 
@@ -117,7 +126,7 @@ bool Piece::checkMove(int destR, int destF, std::string B[][8],
                 // if the piece is a rook see if it is a good move
                 if (type == "R")
                 {
-                    return (rookMove(rank, file, destR, destF) ? true : false);
+                    return (rookMove(rank, file, destR, destF, B) ? true : false);
                 }
                 // if the piece is a knight see if it is a good move
                 if (type == "N")
@@ -127,12 +136,17 @@ bool Piece::checkMove(int destR, int destF, std::string B[][8],
                 // if the piece is a bishop see if it is a good move
                 if (type == "B")
                 {
-                    return (bishopMove(rank, file, destR, destF) ? true : false);
+                    return (bishopMove(rank, file, destR, destF, B) ? true : false);
                 }
                 // if the piece is a queen see if it is a good move
                 if (type == "Q")
                 {
-                    return (queenMove(rank, file, destR, destF) ? true : false);
+                    return (queenMove(rank, file, destR, destF, B) ? true : false);
+                }
+                // if the piece if a king see if ti is a good move
+                if (type == "K")
+                {
+                    return (kingMove(rank, file, destR, destF, B, p) ? true : false);
                 }
                 // if the piece is a pawn see if it is a good move
                 if (type == "P")
@@ -183,22 +197,107 @@ bool Piece::checkMove(int destR, int destF, std::string B[][8],
                     }
                 }
             }
-            
-            //king stuff donw here
         }
         else
             return false;
     }
-    else
-    {}// en passant stuff down here
-    
-    ////////////////////////// still need that occupied function
-
-    // determine if the occupied target square is friendly piece or enemy piece
-
-
-    // if friendly return false
-    // else ....
+    else// en passant stuff down here
+    {
+        // get a temporary board and list of pieces where the move was made
+        // so we can see if that would put the player's king in check
+        std::vector<Piece> t1 = p;
+        t1.erase(t1.begin() + targetPieceIndex);
+        t1[findPiece(rank, file, p)].movePiece(destR, destF);
+        std::string t2 [8][8];
+        for (int i = 0; i < 8; i++)
+        {
+            for (int j = 0; j < 8; j++)
+            {
+                t2[j][i] = " ";
+            }
+        }
+        for (int i = 0; i < p.size(); i++)
+        {
+            t2[t1[i].getRank()][t1[i].getFile()] = t1[i].getType();
+        }
+        
+        // if the move doesn't put the player's king in check...
+        if (!putsKingInCheck(player, t2, t1))
+        {
+            // if the piece is a rook see if it is a good move
+            if (type == "R")
+            {
+                return (rookMove(rank, file, destR, destF, B) ? true : false);
+            }
+            // if the piece is a knight see if it is a good move
+            if (type == "N")
+            {
+                return (knightMove(rank, file, destR, destF) ? true : false);
+            }
+            // if the piece is a bishop see if it is a good move
+            if (type == "B")
+            {
+                return (bishopMove(rank, file, destR, destF, B) ? true : false);
+            }
+            // if the piece is a queen see if it is a good move
+            if (type == "Q")
+            {
+                return (queenMove(rank, file, destR, destF, B) ? true : false);
+            }
+            // if the piece if a king see if ti is a good move
+            if (type == "K")
+            {
+                return (kingMove(rank, file, destR, destF, B, p) ? true : false);
+            }
+                // if the piece is a pawn see if it is a good move
+            if (type == "P")
+            {
+                // if player is white...
+                if (player == 0) 
+                {
+                    // if pawn is in starting location doing
+                    // the 2 space move
+                    if (rank == 1 && destR == 3)
+                    {return true;}
+                    // if the pawn is only moving foward 1 space
+                    else if (destR == rank + 1)
+                    {
+                        if (destF == file)
+                            return true;
+                        // the location has no enemy, the pawn cannot
+                        // move to capture
+                        else
+                            return false; // enpasssant stuff here
+                    }
+                    // every other weird, illegal move
+                    else
+                        return false;
+                }
+                // if the player is black
+                else
+                {
+                    // if pawn is in starting location doing
+                    // the 2 space move
+                    if (rank == 6 && destR == 4)
+                    {return true;}
+                    // if the pawn is only moving foward 1 space
+                    else if (destR == rank - 1)
+                    {
+                        if (destF == file)
+                            return true;
+                        // the location has no enemy, the pawn cannot
+                        // move to capture
+                        else
+                            return false;// en passant stuff here
+                    }
+                    // every other weird, illegal move
+                    else
+                        return false;
+                }
+            }
+        }
+    }
+    return false;
 }
 
 bool Piece::checkMove2(int destR, int destF, std::string b[][8],
@@ -216,27 +315,6 @@ void Piece::movePiece(int destR, int destF)
 ///////////////////////////////////////////////////////////////////////////////
 // Piece Non-Memeber Functions
 ///////////////////////////////////////////////////////////////////////////////
-
-
-// bool pawnMoveOccupied(int r, int f, int nr, int nf)
-// {
-//     if (r - nr > 0) // up the board
-//     {
-//         if (r == 6 && nr == 4)////////////////////////////need and unoccupied function
-//         {
-//             // if occupied return false
-//             return true;
-//         }
-//         else if (1 == std::abs(nr - r) && nf == f)// && unocupied
-//         {
-//             return true;
-//         }
-//     }
-//     else // down the board
-//     {
-        
-//     }
-// }
 
 
 bool knightMove(int r, int f, int nr, int nf)
@@ -286,10 +364,21 @@ bool rookMove(int r, int f, int nr, int nf, std::string board[][8])
     {
         if (nf == f)
         {
-            for (int i = r; i < nr; i++)
+            if (nr > r)
             {
-                if (board[i][f] != " ")
-                    return false;
+                for (int i = r + 1; i < nr; i++)
+                {
+                    if (board[i][f] != " ")
+                        return false;
+                }
+            }
+            else
+            {
+                for (int i = r + 1; i > nr; i--)
+                {
+                    if (board[i][f] != " ")
+                        return false;
+                }
             }
             return true;
         }
@@ -299,10 +388,21 @@ bool rookMove(int r, int f, int nr, int nf, std::string board[][8])
     {
         if (nr == r)
         {
-            for (int i = f; i < nf; i++)
+            if (nf > f)
             {
-                if (board[r][i] != " ")
-                    return false;
+                for (int i = f + 1; i < nf; i++)
+                {
+                    if (board[r][i] != " ")
+                        return false;
+                }
+            }
+            else
+            {
+                for (int i = f + 1; i > nf; i--)
+                {
+                    if (board[r][i] != " ")
+                        return false;
+                }
             }
             return true;
         }
@@ -310,24 +410,154 @@ bool rookMove(int r, int f, int nr, int nf, std::string board[][8])
     }
 }
 
-bool bishopMove(int r, int f, int nr, int nf)
+bool bishopMove(int r, int f, int nr, int nf, std::string board[][8])
 {
-    if (abs((nr-r)/(nf-f)) == 1)/// split into 4 directions for purposes of the for loop stuff... also need do same on rookFUCK
+    if (nr - r == 1)
     {
-        for (int i = 0; i < nr - r; i++)
+        if (nf - f == 1)
+        {
+            for (int i = 1; i < nr - r; i++)
+            {
+                if (board[r + i][f + i] == " ")
+                    return false;
+            }
+        }
+        else
+        {
+            for (int i = 1; i < nr - r; i++)
+            {
+                if (board[r + i][f - i] == " ")
+                    return false;
+            }
+        }
+        return true;
+    }
+    else if (nr - r == -1)
+    {
+        if (nf - f == 1)
+        {
+            for (int i = 1; i < r - nr; i++)
+            {
+                if (board[r - i][f + i] == " ")
+                    return false;
+            }
+        }
+        else
+        {
+            for (int i = 1; i < r - nr; i++)
+            {
+                if (board[r - i][f - i] == " ")
+                    return false;
+            }
+        }
         return true;
     }
     return false;
 }
 
-bool queenMove(int r, int f, int nr, int nf)
+bool queenMove(int r, int f, int nr, int nf, std::string board[][8])
 {
-    return (bishopMove(r, f, nr, nf) || rookMove(r, f, nr, nf));
+    return (bishopMove(r, f, nr, nf, board) || rookMove(r, f, nr, nf, board));
 }
 
-bool kingMove(int r, int f, int nr, int nf)
+bool kingMove(int r, int f, int nr, int nf, std::string board[][8],
+              std::vector <Piece> p)
 {
-    return (1 == std::abs(nr - r) || 1 == std::abs(nf - f));
+    if (1 == std::abs(nr - r) || 1 == std::abs(nf - f))
+    {
+        return true;
+    }
+    else if (nf == f + 2 && nr == r)
+    {
+        // get kings moved value and pertint rooks move value
+        int k = findPiece(r, f, p);
+        if (p[k].getMoved() == false && p[k].getType() == "K")
+        {
+            int r = findPiece(r, f + 3, p);
+            if (p[r].getMoved() == false && p[r].getType() == "R")
+            {
+                // verify that interving spaces are empty
+                for (int i = f + 1; i < f + 3; i++)
+                {
+                    if (board[r][i] != " ")
+                        return false;
+                }
+                // check king in check in current position
+                // get a temporary board and list of pieces where the move was made
+                // so we can see if that would put the player's king in check
+                std::vector<Piece> t1 = p;
+                for (int h = 0; h < 3; h++)
+                {
+                    int tempr = t1[k].getRank();
+                    int tempf = t1[k].getFile();
+                    t1[findPiece(tempr, tempf, p)].movePiece(r, f + h);
+                    std::string t2 [8][8];
+                    for (int i = 0; i < 8; i++)
+                    {
+                        for (int j = 0; j < 8; j++)
+                        {
+                            t2[j][i] = " ";
+                        }
+                    }
+                    for (int i = 0; i < p.size(); i++)
+                    {
+                        t2[t1[i].getRank()][t1[i].getFile()] = t1[i].getType();
+                    }
+                    // if the move doesn't put the player's king in check...
+                    if (putsKingInCheck(t1[k].getPlayer(), t2, t1))
+                    {return false;}
+                }
+                return true;
+            }
+            return false;
+        }
+    }
+    else if (nf == f - 2 && nr == r)
+    {
+        // get kings moved value and pertint rooks move value
+        int k = findPiece(r, f, p);
+        if (p[k].getMoved() == false && p[k].getType() == "K")
+        {
+            int r = findPiece(r, f - 4, p);
+            if (p[r].getMoved() == false && p[r].getType() == "R")
+            {
+                // verify that interving spaces are empty
+                for (int i = f - 1; i > -1; i++)
+                {
+                    if (board[r][i] != " ")
+                        return false;
+                }
+                // check king in check in current position
+                // get a temporary board and list of pieces where the move was made
+                // so we can see if that would put the player's king in check
+                std::vector<Piece> t1 = p;
+                for (int h = 0; h < 3; h++)
+                {
+                    int tempr = t1[k].getRank();
+                    int tempf = t1[k].getFile();
+                    t1[findPiece(tempr, tempf, p)].movePiece(r, f - h);
+                    std::string t2 [8][8];
+                    for (int i = 0; i < 8; i++)
+                    {
+                        for (int j = 0; j < 8; j++)
+                        {
+                            t2[j][i] = " ";
+                        }
+                    }
+                    for (int i = 0; i < p.size(); i++)
+                    {
+                        t2[t1[i].getRank()][t1[i].getFile()] = t1[i].getType();
+                    }
+                    // if the move doesn't put the player's king in check...
+                    if (putsKingInCheck(t1[k].getPlayer(), t2, t1))
+                    {return false;}
+                }
+                return true;
+            }
+            return false;
+        }
+    }
+    return false;
 }
 
 // posititve diagonal == slope of 1
