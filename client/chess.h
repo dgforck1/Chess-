@@ -7,7 +7,6 @@
 class Piece
 {
 public:
-    Piece(){};
     Piece(int r, int f, int p, std::string t, bool m = false)
         : rank(r), file(f), player(p), type(t), moved(m)
     {};
@@ -52,7 +51,8 @@ public:
     std::string capturePiece(int i);
     void printBoard() const;
     int getPieceSize() const;
-
+    bool checkmate(int);
+    
 private:
     std::string board[8][8];
     std::vector<Piece> p;

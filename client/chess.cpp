@@ -22,7 +22,8 @@ bool kingMove(int, int, int, int, std::string board[][8],
               std::vector <Piece> p);
 bool putsKingInCheck(int, std::string board[][8], std::vector<Piece> p);
 int findPiece(int, int, std::vector<Piece> p);
-
+std::vector<int> findThreats(int, std::string board[][8],
+                             std::vector <Piece> p);
 
 ///////////////////////////////////////////////////////////////////////////////
 // Piece Member Funcitons
@@ -802,7 +803,7 @@ Piece Board::getPiece(int i)
 }
 int Board::getPieceIndex(int r, int f)
 {
-    return findPiece(r, f);
+    return findPiece(r, f, p);
 }
 bool Board::checkMove(int i, int destR, int destF)
 {
@@ -810,22 +811,240 @@ bool Board::checkMove(int i, int destR, int destF)
 }
 void Board::movePiece(int i, int destR, int destF)
 {
+    p[i].movePiece(destR, destF);
 }
 std::string Board::capturePiece(int r, int f)
 {
+    int i = getPieceIndex(r, f);
+    if (i > -1)
+    {
+        std::string ret = p[i].getType();
+        p.erase(p.begin() + i);
+        return ret;
+    }
 }
 std::string Board::capturePiece(int i)
 {
+    std::string ret = p[i].getType();
+    p.erase(p.begin() + i);
+    return ret;
 }
 void Board::printBoard() const
 {
+    for (int i = 0; i < 8; i++)
+    {
+        for (int j = 0; j < 8; j++)
+        {
+            std::cout << board[i][j];
+        }
+        std::cout << std::endl;
+    }
 }
 int Board::getPieceSize() const
 {
+    return p.size();
 }
 
+bool Board::checkmate(int player)// player is the person checking their enemy for mate
+{
+    std::vector<Piece> t1;// mater
+    std::vector<Piece> t2;// matee
+    for (int i = 0; i < p.size(); i++)
+    {
+        if (p[i].getPlayer() == player)
+            t1.push_back(p[i]);
+        else
+            t2.push_back(p[i]);
+    }
+    bool inCheck = putsKingInCheck(player, board, p);
+    if (inCheck)
+    {
+        std::vector<int> threats = findThreats(player, board, p);
+        
+    }
+    else
+        return false;
+}
 
-
+std::vector<int> findThreats(int player, std::string board[][8],
+                             std::vector <Piece> p)
+{
+    std::vector<int> threats;
+    // identify correct king piece and obtain its rank and file
+    int kingRank = -1;
+    int kingFile = -1;
+    for (int i = 0; i < p.size(); i++)
+    {
+        if (p[i].getPlayer() == player && p[i].getType() == "K")
+        {
+            kingRank = p[i].getRank();
+            kingFile = p[i].getFile();
+            break;
+        }
+    }
+    
+    // for loop running from 0 - 7 on rank with king fixed file
+    for (int i = kingRank - 1; i > -1; i--)
+    {
+        if (board[i][kingFile] != " ")
+        {
+            int pindex = findPiece(i, kingFile, p);
+            if (p[pindex].getPlayer() == player)
+                break;
+            else
+            {
+                if (p[pindex].checkMove2(kingRank, kingFile, board, p))
+                    threats.push_back(pindex);
+            }
+        }
+    }
+    for (int i = kingRank + 1; i < 8; i++)
+    {
+        if (board[i][kingFile] != " ")
+        {
+            int pindex = findPiece(i, kingFile, p);
+            if (p[pindex].getPlayer() == player)
+                break;
+            else
+            {
+                if (p[pindex].checkMove2(kingRank, kingFile, board, p))
+                    threats.push_back(pindex);
+            }
+        }
+    }
+    
+    // for loop running from 0 - 7 on file with king fixed rank
+    for (int i = kingFile - 1; i > -1; i--)
+    {
+        if (board[kingRank][i] != " ")
+        {
+            int pindex = findPiece(kingRank, i, p);
+            if (p[pindex].getPlayer() == player)
+                break;
+            else
+            {
+                if (p[pindex].checkMove2(kingRank, kingFile, board, p))
+                    threats.push_back(pindex);                    
+            }
+        }
+    }
+    for (int i = kingFile + 1; i < 8; i++)
+    {
+        if (board[kingRank][i] != " ")
+        {
+            int pindex = findPiece(kingRank, i, p);
+            if (p[pindex].getPlayer() == player)
+                break;
+            else
+            {
+                if (p[pindex].checkMove2(kingRank, kingFile, board, p))
+                    threats.push_back(pindex);
+            }
+        }
+    }
+    // while loop running on positive diagonal in positive direction
+    int tr = kingRank + 1;
+    int ty = kingFile + 1;
+    while(tr < 8 && ty < 8)
+    {
+        if (board[tr][ty] != " ")
+        {
+            int pindex = findPiece(tr, ty, p);
+            if (p[pindex].getPlayer() == player)
+                break;
+            else
+            {
+                if (p[pindex].checkMove2(kingRank, kingFile, board, p))
+                    threats.push_back(pindex);
+            }
+        }
+        tr++;
+        ty++;
+    }
+    // while loop running on positive diagonal in negative direction
+    tr = kingRank - 1;
+    ty = kingFile - 1;
+    while(tr > -1 && ty > -1)
+    {
+        if (board[tr][ty] != " ")
+        {
+            int pindex = findPiece(tr, ty, p);
+            if (p[pindex].getPlayer() == player)
+                break;
+            else
+            {
+                if (p[pindex].checkMove2(kingRank, kingFile, board, p))
+                    threats.push_back(pindex);
+            }
+        }
+        tr--;
+        ty--;
+    }
+    // while loop running on negative diagonal in positive direction
+    tr = kingRank + 1;
+    ty = kingFile - 1;
+    while(tr < 8 && ty > -1)
+    {
+        if (board[tr][ty] != " ")
+        {
+            int pindex = findPiece(tr, ty, p);
+            if (p[pindex].getPlayer() == player)
+                break;
+            else
+            {
+                if (p[pindex].checkMove2(kingRank, kingFile, board, p))
+                    threats.push_back(pindex);
+            }
+        }
+        tr++;
+        ty--;
+    }
+    // while loop running on negative diagonal in negative direction
+    tr = kingRank - 1;
+    ty = kingFile + 1;
+    while(tr > -1 && ty < 8)
+    {
+        if (board[tr][ty] != " ")
+        {
+            int pindex = findPiece(tr, ty, p);
+            if (p[pindex].getPlayer() == player)
+                break;
+            else
+            {
+                if (p[pindex].checkMove2(kingRank, kingFile, board, p))
+                    threats.push_back(pindex);
+            }
+        }
+        tr--;
+        ty++;
+    }
+    // check the 8 possible knight possitions
+    bool flag = false;
+    for (int i = 0; i < p.size(); i++)
+    {
+        if (p[i].getType() == "N" && p[i].getPlayer() != player)
+        {
+            int r = p[i].getRank();
+            int f = p[i].getFile();
+            if (r == kingRank + 2 &&
+               (f == kingFile + 1 || f == kingFile - 1))
+                threats.push_back(i);               
+            if (r == kingRank - 2 &&
+               (f == kingFile + 1 || f == kingFile - 1))
+                threats.push_back(i);
+            if (f == kingFile + 2 &&
+               (r == kingRank + 1 || r == kingRank - 1))
+                threats.push_back(i);
+            if (f == kingFile - 2 &&
+               (r == kingRank + 1 || r == kingRank - 1))
+                threats.push_back(i);
+            if (flag)
+                break;
+            flag = true;
+        }
+    }
+    return threats;
+}
 
 
 
