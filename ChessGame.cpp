@@ -122,15 +122,54 @@ void ChessMain(int player)
             //player operating on board
 
 
-/*        if(clicked)
+        if(clicked)
         {
             if(RectClicked(mousex, mousey, boardRect))
             {
+                option = 0;
             }
-            }*/
+            else if(RectClicked(mousex, mousey, quitR))
+            {
+                option = 1;
+            }
+            else if(RectClicked(mousex, mousey, exitR))
+            {
+                option = 2;
+            }
+            else if(RectClicked(mousex, mousey, drawR))
+            {
+                option = 3;
+            }
+            else if(RectClicked(mousex, mousey, supRect))
+            {
+                option = 4;
+            }
+            else if(RectClicked(mousex, mousey, sdwRect))
+            {
+                option = 5;
+            }
+        }
 
 
-
+        switch(option)
+        {
+            case -1: //nothing clicked
+                break;
+            case 0: //game board clicked
+                break;
+            case 1: //quit button clicked
+                break;
+            case 2: //exit button clicked
+                break;
+            case 3: //draw button clicked
+                break;
+            case 4: //scroll up clicked
+                break;
+            case 5: //scroll down clicked
+                break;                
+            default: //heck if i know what was clicked
+                break;
+        }
 
 
 
