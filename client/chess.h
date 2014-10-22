@@ -30,4 +30,32 @@ private:
     std::string type;
 };
 
+
+class Board
+{
+public:
+    Board()
+    {
+        initalizePieces();
+        updateBoard();
+    }
+    // need a constructor that accepts a string of moves made and builds that board
+
+    void initalizePieces();
+    void updateBoard();
+    Piece getPiece(int r, int f);// piece by rank and file
+    Piece getPiece(int i);// piece by index
+    int getPieceIndex(int r, int f);// find the pieces index by its rank and file
+    bool checkMove(int i, int destR, int destF);    
+    void movePiece(int i, int destR, int destF);
+    std::string capturePiece(int r, int f);
+    std::string capturePiece(int i);
+    void printBoard() const;
+    int getPieceSize() const;
+
+private:
+    std::string board[8][8];
+    std::vector<Piece> p;
+};
+
 #endif

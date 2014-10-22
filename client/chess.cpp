@@ -6,9 +6,6 @@
 
 
 // TO DO:
-//  castleing
-//    long
-//    short
 //  en passant
 //  promotion
 //  checkmate
@@ -267,7 +264,7 @@ bool Piece::checkMove(int destR, int destF, std::string B[][8],
                         // the location has no enemy, the pawn cannot
                         // move to capture
                         else
-                            return false; // enpasssant stuff here
+                            return false; // en passsant stuff here
                     }
                     // every other weird, illegal move
                     else
@@ -749,6 +746,89 @@ int findPiece (int r, int f, std::vector<Piece> p)
     }
     return -1;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// Board Member Functions
+///////////////////////////////////////////////////////////////////////////////
+
+void Board::initalizePieces()
+{
+    for (int i = 0; i < 8; i++)
+    {p.push_back(Piece(1, i, 0, "P"));}
+
+    p.push_back(Piece(0, 0, 0, "R"));
+    p.push_back(Piece(0, 1, 0, "N"));
+    p.push_back(Piece(0, 2, 0, "B"));
+    p.push_back(Piece(0, 3, 0, "Q"));
+    p.push_back(Piece(0, 4, 0, "K"));
+    p.push_back(Piece(0, 5, 0, "B"));
+    p.push_back(Piece(0, 6, 0, "N"));
+    p.push_back(Piece(0, 7, 0, "R"));
+    
+    for (int i = 0; i < 8; i++)
+    {p.push_back(Piece(6, i, 1, "P"));}
+
+    p.push_back(Piece(7, 0, 1, "R"));
+    p.push_back(Piece(7, 1, 1, "N"));
+    p.push_back(Piece(7, 2, 1, "B"));
+    p.push_back(Piece(7, 3, 1, "Q"));
+    p.push_back(Piece(7, 4, 1, "K"));
+    p.push_back(Piece(7, 5, 1, "B"));
+    p.push_back(Piece(7, 6, 1, "N"));
+    p.push_back(Piece(7, 7, 1, "R"));    
+}
+void Board::updateBoard()
+{
+    for (int i = 0; i < 8; i++)
+    {
+        for (int j = 0; j < 8; j++)
+        {
+            board[j][i] = " ";
+        }
+    }
+    for (int i = 0; i < p.size(); i++)
+    {
+        board[p[i].getRank()][p[i].getFile()] = p[i].getType();
+    }        
+}
+Piece Board::getPiece(int r, int f)
+{
+    int index = findPiece(r, f, p);
+    return p[index];
+}
+Piece Board::getPiece(int i)
+{
+    return p[i];
+}
+int Board::getPieceIndex(int r, int f)
+{
+    return findPiece(r, f);
+}
+bool Board::checkMove(int i, int destR, int destF)
+{
+    return p[i].checkMove(destR, destF, board, p);
+}
+void Board::movePiece(int i, int destR, int destF)
+{
+}
+std::string Board::capturePiece(int r, int f)
+{
+}
+std::string Board::capturePiece(int i)
+{
+}
+void Board::printBoard() const
+{
+}
+int Board::getPieceSize() const
+{
+}
+
+
+
+
+
+
 
 
 int main()
