@@ -11,10 +11,13 @@
 
 
 
-
+//prototypes
 bool RectClicked(int mX, int mY, Rect&);
 std::string MoveString(bool captured, std::string type, int rank, int file,
     int sourceF);
+
+void BoardClicked(int mx, int my, Board &b);  //
+
 
 void ChessMain(int player)
 {
@@ -136,7 +139,6 @@ void ChessMain(int player)
 
         if(clicked)
         {
-            //std::cout << "<<<< entered if clicked statement" << std::endl;
             if(RectClicked(mousex, mousey, boardRect))
             {
                 option = 0;
@@ -168,7 +170,7 @@ void ChessMain(int player)
         {
             case -1: //nothing clicked
                 break;
-            case 0: //game board clicked
+            case 0: //game board clicked                
                 break;
             case 1: //quit button clicked
                 break;
@@ -185,11 +187,10 @@ void ChessMain(int player)
         }
 
 
-        //std::cout << "<<<< passed switch statement" << std::endl;
+
         
             if(RectClicked(mousex, mousey, boardRect))                
-            {
-                //std::cout << "<<<<board clicked" << std::endl;
+            {                
                 
                 if(clicked && workingPieceIndex == -1)
                 {
@@ -323,12 +324,7 @@ void ChessMain(int player)
                             {
                                 scrollstart -= 2;
                                 scrollend -= 2;
-                            }
-                            
-                            std::cout << "<<<<scrolling!"
-                                      << " start: " << scrollstart
-                                      << " end: " << scrollend
-                                      << std::endl;
+                            }                                          
                         }
                         
                         if(RectClicked(mousex, mousey, sdwRect))
@@ -337,12 +333,7 @@ void ChessMain(int player)
                             {
                                 scrollstart += 2;
                                 scrollend += 2;
-                            }
-                            
-                            std::cout << "<<<<scrolling!"
-                                      << " start: " << scrollstart
-                                      << " end: " << scrollend
-                                      << std::endl;
+                            }                                        
                         }                    
                     }
                     clicked = false;
