@@ -33,9 +33,11 @@ int main()
     int player = 0;
     
 
-    //choice = Welcome(); //main menu
+    choice = Welcome(); //main menu
 
-    /*switch(choice)
+    //std::cout << "<<<< debug point 1" << std::endl;
+    
+    switch(choice)
     {
         case 0: //exit game entirely
             break;
@@ -50,9 +52,12 @@ int main()
         default:
             std::cout << "<<<< choice: " << choice << std::endl;
             break;
-            }*/
-    
+    }
+
+//    std::cout << "<<<< debug point 2" << std::endl;
     ChessMain(0);
+
+    //  std::cout << "<<<< debug point last" << std::endl;
     
     return 0;
 }

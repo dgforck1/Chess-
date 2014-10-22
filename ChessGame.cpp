@@ -10,12 +10,15 @@
 #include "compgeom.h"
 
 
+
+
 bool RectClicked(int mX, int mY, Rect&);
 std::string MoveString(bool captured, std::string type, int rank, int file,
     int sourceF);
 
 void ChessMain(int player)
 {
+    
     Surface s(W, H);
     Event event;
     Mouse mouse;
@@ -99,6 +102,7 @@ void ChessMain(int player)
     
     while(1)
     {
+        //std::cout << "<<<< entered while statement" << std::endl;
         if(event.poll())
         {        
             if(event.type() == QUIT) break;
@@ -120,6 +124,9 @@ void ChessMain(int player)
                 }
             }
         }
+
+        
+        
 // here is the first area I'll add to, if havent recieved message then wait
         //if(playerTurn == player)
             //only cares if it's the current player's turn
@@ -129,6 +136,7 @@ void ChessMain(int player)
 
         if(clicked)
         {
+            //std::cout << "<<<< entered if clicked statement" << std::endl;
             if(RectClicked(mousex, mousey, boardRect))
             {
                 option = 0;
@@ -177,13 +185,15 @@ void ChessMain(int player)
         }
 
 
-
-
+        //std::cout << "<<<< passed switch statement" << std::endl;
         
             if(RectClicked(mousex, mousey, boardRect))                
             {
+                //std::cout << "<<<<board clicked" << std::endl;
+                
                 if(clicked && workingPieceIndex == -1)
                 {
+                    //std::cout << "<<<< grabbing a working piece" << std::endl;
                     //convert mouse coords to board coords (rank and file)
                     int tempx = mousex - boardRect.x;
                     int tempy = mousey - boardRect.y;
@@ -208,76 +218,82 @@ void ChessMain(int player)
                         }
                     }
                 }
+
+                //std::cout << "<<<< passed board clicked" << std::endl;
                 
                 if(released)
-                {                
+                {
+                    //std::cout << "<<<< enetered board released" << std::endl;
                     //convert mouse coords to board coords (rank and file)
-                    int tempx = mousex - boardRect.x;
-                    int tempy = mousey - boardRect.y;
-                    tempx /= 50;
-                    tempy /= 50;                
-                    tempy = 7 - tempy;
-                    Piece wp = b.getPiece(workingPieceIndex);
-                    
-                    if(b.checkMove(workingPieceIndex, tempy, tempx))
+                    if(workingPieceIndex >= 0)
                     {
-                        std::string temp;                                    
+                        int tempx = mousex - boardRect.x;
+                        int tempy = mousey - boardRect.y;
+                        tempx /= 50;
+                        tempy /= 50;                
+                        tempy = 7 - tempy;
+                        Piece wp = b.getPiece(workingPieceIndex);
                         
-                        if(b.getPieceIndex(tempy, tempx) >= 0)
+                        if(b.checkMove(workingPieceIndex, tempy, tempx))
                         {
-                            int temp = b.getPieceIndex(tempy, tempx);
+                            std::string temp;       
                             
-                            
-                            Piece tempP = b.getPiece(tempy, tempx);
-
-                            Moves.push_back(
-                                MoveString(true, wp.getType(),
-                                           tempy, tempx, wp.getFile())
-                                );
-                            
-                            //todo: fix weird capture bug
-                            if(tempP.getPlayer() == 0)
+                            if(b.getPieceIndex(tempy, tempx) >= 0)
                             {
-                                CapturedWhite.push_back(                     
-                                    b.capturePiece(temp)
+                                int temp = b.getPieceIndex(tempy, tempx);
+                                
+                                
+                                Piece tempP = b.getPiece(tempy, tempx);
+                                
+                                Moves.push_back(
+                                    MoveString(true, wp.getType(),
+                                               tempy, tempx, wp.getFile())
                                     );
+                                
+                                //todo: fix weird capture bug
+                                if(tempP.getPlayer() == 0)
+                                {
+                                    CapturedWhite.push_back(
+                                        b.capturePiece(temp)
+                                        );
+                                }
+                                else
+                                {
+                                    CapturedBlack.push_back(               
+                                        b.capturePiece(temp)
+                                        );
+                                }
+                                
                             }
                             else
                             {
-                                CapturedBlack.push_back(               
-                                    b.capturePiece(temp)
+                                Moves.push_back(
+                                    MoveString(false, wp.getType(),
+                                               tempy, tempx, wp.getFile())
                                     );
                             }
-                                                        
+                            
+                            if(Moves.size() > 30)
+                            {
+                                scroll = true;
+                                scrollstart = Moves.size() - 30 -
+                                    (Moves.size() % 2);
+                                scrollend = Moves.size() -
+                                    (Moves.size() % 2);                     
+                            }
+                            
+                            b.movePiece(workingPieceIndex, tempy, tempx);         
+                            
+                            if(playerTurn == 0)
+                            {
+                                playerTurn = 1;
+                            }
+                            else
+                            {
+                                playerTurn = 0;
+                            }
                         }
-                        else
-                        {
-                            Moves.push_back(
-                                MoveString(false, wp.getType(),
-                                           tempy, tempx, wp.getFile())
-                                );
-                        }
-
-                        if(Moves.size() > 30)
-                        {
-                            scroll = true;
-                            scrollstart = Moves.size() - 30 -
-                                (Moves.size() % 2);
-                            scrollend = Moves.size() -
-                                (Moves.size() % 2);                     
-                        }
-                        
-                        b.movePiece(workingPieceIndex, tempy, tempx);         
-                        
-                        if(playerTurn == 0)
-                        {
-                            playerTurn = 1;
-                        }
-                        else
-                        {
-                            playerTurn = 0;
-                        }
-                    }                
+                    }
                     
                     //reset variables
                     workingPieceIndex = -1;
@@ -287,6 +303,8 @@ void ChessMain(int player)
             }
             else
             {
+                //std::cout << "<<<< debug point 10" << std::endl;
+                
                 if(clicked)
                 {
                     if(RectClicked(mousex, mousey, quitR))
@@ -349,7 +367,7 @@ void ChessMain(int player)
         int toggle = -1;
         int x = 0, y = 0;
 
-
+        //std::cout << "<<<< debug point 8" << std::endl;
         
         //draw all the things
         s.lock();
@@ -582,7 +600,8 @@ void ChessMain(int player)
         s.unlock();
         s.flip();
         
-        delay(10);        
+        delay(10);
+        //std::cout << "<<<< debug point 7" << std::endl;
     }
     
         
