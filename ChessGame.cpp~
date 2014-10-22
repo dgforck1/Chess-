@@ -24,13 +24,17 @@ void ChessMain(int player)
         mousey = -1,
         workingPieceIndex = -1,
         scrollstart = 2,
-        scrollend = 31,
-        option = -1;
+        scrollend = 31;
     bool clicked = false,
         released = false,
         scroll = false;
 
-
+    Rect boardRect = Rect(250, 150, 400, 400),
+        blackRect = Rect(0, 0, 50, 50),
+        capRect = Rect(25, 150, 200, 400),
+        movRect = Rect(675, 150, 200, 400),
+        supRect = Rect(850, 150, 25, 25),
+        sdwRect = Rect(850, 525, 25, 25);
     Board b = Board();
 
 
@@ -61,34 +65,6 @@ void ChessMain(int player)
     Image BKS = Image("images/BlackKing-Small.png");
     Image SUP = Image("images/ScrollUp.png");
     Image SDW = Image("images/ScrollDown.png");
-    Image quitI = Image("images/Quit.png");
-    Image drawI = Image("images/Draw.png");
-    Image exitI = Image("images/Exit.png");
-    Image boardI = Image("images/Board.png");
-    
-    
-
-    Rect boardRect = boardI.getRect(),
-        blackRect = Rect(0, 0, 50, 50),
-        capRect = Rect(25, 150, 200, 400),
-        movRect = Rect(675, 150, 200, 400),
-        supRect = Rect(850, 150, 25, 25),
-        sdwRect = Rect(850, 525, 25, 25),
-        quitR = quitI.getRect(),
-        drawR = drawI.getRect(),
-        exitR = exitI.getRect(),
-        pieceR = Rect(0, 0, 50, 50);
-
-
-    //set rect coords
-    exitR.x = W - exitR.w;
-    quitR.y = H - quitR.h;
-
-    drawR.x = quitR.x + (drawR.w * 1.5);
-    drawR.y = H - drawR.h;
-
-    boardRect.x = 250;
-    boardRect.y = 150;
     
     std::vector< std::string > CapturedWhite;
     std::vector< std::string > CapturedBlack;
@@ -125,61 +101,6 @@ void ChessMain(int player)
             //only cares if it's the current player's turn
         //{
             //player operating on board
-
-
-        if(clicked)
-        {
-            if(RectClicked(mousex, mousey, boardRect))
-            {
-                option = 0;
-            }
-            else if(RectClicked(mousex, mousey, quitR))
-            {
-                option = 1;
-            }
-            else if(RectClicked(mousex, mousey, exitR))
-            {
-                option = 2;
-            }
-            else if(RectClicked(mousex, mousey, drawR))
-            {
-                option = 3;
-            }
-            else if(RectClicked(mousex, mousey, supRect))
-            {
-                option = 4;
-            }
-            else if(RectClicked(mousex, mousey, sdwRect))
-            {
-                option = 5;
-            }
-        }
-
-
-        switch(option)
-        {
-            case -1: //nothing clicked
-                break;
-            case 0: //game board clicked
-                break;
-            case 1: //quit button clicked
-                break;
-            case 2: //exit button clicked
-                break;
-            case 3: //draw button clicked
-                break;
-            case 4: //scroll up clicked
-                break;
-            case 5: //scroll down clicked
-                break;                
-            default: //heck if i know what was clicked
-                break;
-        }
-
-
-
-
-        
             if(RectClicked(mousex, mousey, boardRect))                
             {
                 if(clicked && workingPieceIndex == -1)
@@ -277,6 +198,8 @@ void ChessMain(int player)
                         {
                             playerTurn = 0;
                         }
+
+
                     }                
                     
                     //reset variables
@@ -287,48 +210,37 @@ void ChessMain(int player)
             }
             else
             {
-                if(clicked)
+                if(scroll)
                 {
-                    if(RectClicked(mousex, mousey, quitR))
+                    if(RectClicked(mousex, mousey, supRect))
                     {
-                        std::cout << "<<<< quit clicked" << std::endl;
-                    }
-                    else if(RectClicked(mousex, mousey, drawR))
-                    {
-                        std::cout << "<<<< draw clicked" << std::endl;
-                    }
-                    else if(scroll)
-                    {
-                        if(RectClicked(mousex, mousey, supRect))
+                        if(scrollstart > 0)
                         {
-                            if(scrollstart > 0)
-                            {
-                                scrollstart -= 2;
-                                scrollend -= 2;
-                            }
-                            
-                            std::cout << "<<<<scrolling!"
-                                      << " start: " << scrollstart
-                                      << " end: " << scrollend
-                                      << std::endl;
+                            scrollstart -= 2;
+                            scrollend -= 2;
                         }
                         
-                        if(RectClicked(mousex, mousey, sdwRect))
-                        {
-                            if(scrollend < Moves.size() - 1)
-                            {
-                                scrollstart += 2;
-                                scrollend += 2;
-                            }
-                            
-                            std::cout << "<<<<scrolling!"
-                                      << " start: " << scrollstart
-                                      << " end: " << scrollend
-                                      << std::endl;
-                        }                    
+                        std::cout << "<<<<scrolling!"
+                              << " start: " << scrollstart
+                              << " end: " << scrollend
+                              << std::endl;
                     }
-                    clicked = false;
-                }                                
+
+                    if(RectClicked(mousex, mousey, sdwRect))
+                    {
+                        if(scrollend < Moves.size() - 1)
+                        {
+                            scrollstart += 2;
+                            scrollend += 2;
+                        }
+                        
+                        std::cout << "<<<<scrolling!"
+                              << " start: " << scrollstart
+                              << " end: " << scrollend
+                              << std::endl;
+                    }
+                    
+                }
             }
                 
             //}
@@ -354,14 +266,13 @@ void ChessMain(int player)
         //draw all the things
         s.lock();
         s.fill(GRAY);
-        //s.put_rect(boardRect, WHITE);
-        s.put_image(boardI, boardRect);
+        s.put_rect(boardRect, WHITE);
         s.put_rect(movRect, WHITE);
         s.put_rect(capRect, WHITE);
         s.put_image(WPS, Rect(250, 120, 25, 25));
         s.put_image(BPS, Rect(625, 120, 25, 25));
         //draw squares
-        /*for(int i = boardRect.x; i < boardRect.x + boardRect.w ; i+= 50)
+        for(int i = boardRect.x; i < boardRect.x + boardRect.w ; i+= 50)
         {
             for(int n = boardRect.y; n < boardRect.y + boardRect.h; n+= 50)
             {
@@ -376,7 +287,7 @@ void ChessMain(int player)
                 toggle *= -1;
             }
             toggle *= -1;
-            }*/
+        }
         //draw pieces
         for(int i = 0; i < b.getPieceSize(); i++)
         {            
@@ -388,63 +299,59 @@ void ChessMain(int player)
             
             tempx += tempP.getFile() * 50;
             tempy += ((7 - tempP.getRank()) * 50);
-
-            pieceR.x = tempx;
-            pieceR.y = tempy;
             
             if(tempP.getPlayer() == 0)
             {
                 if(tempP.getType() == "P")
-                {
-                    //s.put_image(WP, Rect(tempx, tempy, 50, 50));
-                    s.put_image(WP, pieceR);
+                {                    
+                    s.put_image(WP, Rect(tempx, tempy, 50, 50));
                 }
                 else if(tempP.getType() == "R")
                 {                    
-                    s.put_image(WR, pieceR);
+                    s.put_image(WR, Rect(tempx, tempy, 50, 50));
                 }
                 else if(tempP.getType() == "N")
                 {                    
-                    s.put_image(WN, pieceR);
+                    s.put_image(WN, Rect(tempx, tempy, 50, 50));
                 }
                 else if(tempP.getType() == "B")
                 {                    
-                    s.put_image(WB, pieceR);
+                    s.put_image(WB, Rect(tempx, tempy, 50, 50));
                 }
                 else if(tempP.getType() == "Q")
                 {                    
-                    s.put_image(WQ, pieceR);
+                    s.put_image(WQ, Rect(tempx, tempy, 50, 50));
                 }
                 else if(tempP.getType() == "K")
                 {                    
-                    s.put_image(WK, pieceR);
+                    s.put_image(WK, Rect(tempx, tempy, 50, 50));
                 }
             }
             else if(tempP.getPlayer() == 1)
             {
                 if(tempP.getType() == "P")
                 {                    
-                    s.put_image(BP, pieceR);
+                    s.put_image(BP, Rect(tempx, tempy, 50, 50));
                 }
                 else if(tempP.getType() == "R")
                 {                    
-                    s.put_image(BR, pieceR);
+                    s.put_image(BR, Rect(tempx, tempy, 50, 50));
                 }
                 else if(tempP.getType() == "N")
                 {                    
-                    s.put_image(BN, pieceR);
+                    s.put_image(BN, Rect(tempx, tempy, 50, 50));
                 }
                 else if(tempP.getType() == "B")
                 {                    
-                    s.put_image(BB, pieceR);
+                    s.put_image(BB, Rect(tempx, tempy, 50, 50));
                 }
                 else if(tempP.getType() == "Q")
                 {                    
-                    s.put_image(BQ, pieceR);
+                    s.put_image(BQ, Rect(tempx, tempy, 50, 50));
                 }
                 else if(tempP.getType() == "K")
                 {                    
-                    s.put_image(BK, pieceR);
+                    s.put_image(BK, Rect(tempx, tempy, 50, 50));
                 }
             }
         }
@@ -575,10 +482,7 @@ void ChessMain(int player)
                     x += 100;
                 }                
             }
-        }
-        s.put_image(quitI, quitR);
-        s.put_image(drawI, drawR);
-        s.put_image(exitI, exitR);
+        }                
         s.unlock();
         s.flip();
         
