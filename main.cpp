@@ -23,23 +23,36 @@
 
 
 int Welcome();
-
+bool MainRectClicked(int mX, int mY, Rect& r);
 
 
 int main()
 {
     //bool RectClicked(int mX, int mY, Rect&);
-    
+    int choice = -1;
     int player = 0;
-    //need some way to determine who is white and who is black
-    // 0 = white, 1 = black
-
-    /*player = Welcome();
-    if(player > -1)
-    {*/
-        ChessMain(player);
-        //}
     
+
+    //choice = Welcome(); //main menu
+
+    /*switch(choice)
+    {
+        case 0: //exit game entirely
+            break;
+        case 1: //make game            
+            break;
+        case 2: //join game
+            break;
+        case 3: //watch game
+            break;
+        case 4: //load game
+            break;
+        default:
+            std::cout << "<<<< choice: " << choice << std::endl;
+            break;
+            }*/
+    
+    ChessMain(0);
     
     return 0;
 }
@@ -49,7 +62,7 @@ int Welcome()
 {
     int ret = -1;
 
-    Surface sm(900, 650);
+    Surface sm(W, H);
     Event event;
     Mouse mouse;
 
@@ -57,13 +70,40 @@ int Welcome()
     bool clicked = false,
         released = false;
 
-    Rect playWhite = Rect(200, 400, 50, 50),
-        playBlack = Rect(200, 475, 50, 50),
-        exitGame = Rect(200, 550, 50, 50);
-
 
     TextSurface welcomes = TextSurface(
         "Chess!!!", "fonts/FreeSerif.ttf", 200, 255, 255, 255);
+
+    //images
+    Image exitI = Image("images/Exit.png");
+    Image makeI = Image("images/Make.png");
+    Image joinI = Image("images/Join.png");
+    Image watchI = Image("images/Watch.png");
+    Image loadI = Image("images/Load.png");
+    
+    
+    //rects
+    Rect exitR = exitI.getRect();
+    Rect makeR = makeI.getRect();
+    Rect joinR = joinI.getRect();
+    Rect watchR = watchI.getRect();
+    Rect loadR = loadI.getRect();
+    
+    
+    //set rect coords
+    exitR.x = 900 - exitR.w;
+    
+    makeR.x = 150;
+    makeR.y = 300;
+    
+    joinR.x = makeR.x;
+    joinR.y = makeR.y + (joinR.h * 1.5);
+
+    watchR.x = makeR.x + (watchR.w * 1.5);
+    watchR.y = makeR.y;
+
+    loadR.x = watchR.x;
+    loadR.y = watchR.y + (loadR.h * 1.5);
 
     while(1)
     {
@@ -89,57 +129,72 @@ int Welcome()
             }
         }
 
+        
 
-        if(mousex >= playWhite.x && mousex <= playWhite.x + playWhite.w)
+        if(clicked)
         {
-            if(mousey >= playWhite.y && mousey <= playWhite.y + playWhite.h)
+            if(MainRectClicked(mousex, mousey, exitR))
             {
+                std::cout << "<<<< exit clicked" << std::endl;
                 return 0;
             }
-        }
-
-        if(mousex >= playBlack.x && mousex <= playBlack.x + playBlack.w)
-        {
-            if(mousey >= playBlack.y && mousey <= playBlack.y + playBlack.h)
+            else if(MainRectClicked(mousex, mousey, makeR))
             {
+                std::cout << "<<<< make clicked" << std::endl;
                 return 1;
             }
-        }
-
-        if(mousex >= exitGame.x && mousex <= exitGame.x + exitGame.w)
-        {
-            if(mousey >= exitGame.y && mousey <= exitGame.y + exitGame.h)
+            else if(MainRectClicked(mousex, mousey, joinR))
             {
-                return -1;
+                std::cout << "<<<< join clicked" << std::endl;
+                return 2;
             }
+            else if(MainRectClicked(mousex, mousey, watchR))
+            {
+                std::cout << "<<<< watch clicked" << std::endl;
+                return 3;
+            }
+            else if(MainRectClicked(mousex, mousey, loadR))
+            {
+                std::cout << "<<<< load clicked" << std::endl;
+                return 4;
+            }
+
+            //reset vars
+            clicked = false;
+            mousex = -1;
+            mousey = -1;
         }
-        
 
-
-        
+                       
+        //print all the things!!!
         sm.lock();
         sm.fill(GRAY);
-        sm.put_text(welcomes, 100, 0);
-        sm.put_text("Play as White", 275, 400, 0, 0, 0,
-                   "fonts/FreeSerif.ttf", 24);
-        sm.put_text("Play as Black", 275, 475, 0, 0, 0,
-                   "fonts/FreeSerif.ttf", 24);
-        sm.put_text("Exit Game", 275, 550, 0, 0, 0,
-                   "fonts/FreeSerif.ttf", 24);
-        sm.put_rect(playWhite, WHITE);
-        sm.put_rect(playBlack, BLACK);
-        sm.put_rect(exitGame, RED);
+        sm.put_text(welcomes, 100, 0);        
+        sm.put_image(exitI, exitR);
+        sm.put_image(makeI, makeR);
+        sm.put_image(joinI, joinR);
+        sm.put_image(watchI, watchR);
+        sm.put_image(loadI, loadR);
         sm.unlock();
         sm.flip();
         
         delay(10);
-    }
-
-    
+    }    
     
     return ret;
 }
 
 
 
-
+bool MainRectClicked(int mX, int mY, Rect& r)
+{
+    if(mX >= r.x && mX <= r.x + r.w)
+    {
+        if(mY >= r.y && mY <= r.y + r.h)
+        {
+            return true;
+        }
+    }
+    
+    return false;
+}
