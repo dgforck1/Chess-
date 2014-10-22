@@ -24,17 +24,13 @@ void ChessMain(int player)
         mousey = -1,
         workingPieceIndex = -1,
         scrollstart = 2,
-        scrollend = 31;
+        scrollend = 31,
+        option = -1;
     bool clicked = false,
         released = false,
         scroll = false;
 
-    Rect boardRect = Rect(250, 150, 400, 400),
-        blackRect = Rect(0, 0, 50, 50),
-        capRect = Rect(25, 150, 200, 400),
-        movRect = Rect(675, 150, 200, 400),
-        supRect = Rect(850, 150, 25, 25),
-        sdwRect = Rect(850, 525, 25, 25);
+
     Board b = Board();
 
 
@@ -65,6 +61,29 @@ void ChessMain(int player)
     Image BKS = Image("images/BlackKing-Small.png");
     Image SUP = Image("images/ScrollUp.png");
     Image SDW = Image("images/ScrollDown.png");
+    Image quitI = Image("images/Quit.png");
+    Image drawI = Image("images/Draw.png");
+    Image exitI = Image("images/Exit.png");
+    
+    
+
+    Rect boardRect = Rect(250, 150, 400, 400),
+        blackRect = Rect(0, 0, 50, 50),
+        capRect = Rect(25, 150, 200, 400),
+        movRect = Rect(675, 150, 200, 400),
+        supRect = Rect(850, 150, 25, 25),
+        sdwRect = Rect(850, 525, 25, 25),
+        quitR = quitI.getRect(),
+        drawR = drawI.getRect(),
+        exitR = exitI.getRect();
+
+
+    //set rect coords
+    exitR.x = W - exitR.w;
+    quitR.y = H - quitR.h;
+
+    drawR.x = quitR.x + (drawR.w * 1.5);
+    drawR.y = H - drawR.h;
     
     std::vector< std::string > CapturedWhite;
     std::vector< std::string > CapturedBlack;
@@ -101,6 +120,22 @@ void ChessMain(int player)
             //only cares if it's the current player's turn
         //{
             //player operating on board
+
+
+/*        if(clicked)
+        {
+            if(RectClicked(mousex, mousey, boardRect))
+            {
+            }
+            }*/
+
+
+
+
+
+
+
+        
             if(RectClicked(mousex, mousey, boardRect))                
             {
                 if(clicked && workingPieceIndex == -1)
@@ -198,8 +233,6 @@ void ChessMain(int player)
                         {
                             playerTurn = 0;
                         }
-
-
                     }                
                     
                     //reset variables
@@ -210,37 +243,48 @@ void ChessMain(int player)
             }
             else
             {
-                if(scroll)
+                if(clicked)
                 {
-                    if(RectClicked(mousex, mousey, supRect))
+                    if(RectClicked(mousex, mousey, quitR))
                     {
-                        if(scrollstart > 0)
+                        std::cout << "<<<< quit clicked" << std::endl;
+                    }
+                    else if(RectClicked(mousex, mousey, drawR))
+                    {
+                        std::cout << "<<<< draw clicked" << std::endl;
+                    }
+                    else if(scroll)
+                    {
+                        if(RectClicked(mousex, mousey, supRect))
                         {
-                            scrollstart -= 2;
-                            scrollend -= 2;
+                            if(scrollstart > 0)
+                            {
+                                scrollstart -= 2;
+                                scrollend -= 2;
+                            }
+                            
+                            std::cout << "<<<<scrolling!"
+                                      << " start: " << scrollstart
+                                      << " end: " << scrollend
+                                      << std::endl;
                         }
                         
-                        std::cout << "<<<<scrolling!"
-                              << " start: " << scrollstart
-                              << " end: " << scrollend
-                              << std::endl;
-                    }
-
-                    if(RectClicked(mousex, mousey, sdwRect))
-                    {
-                        if(scrollend < Moves.size() - 1)
+                        if(RectClicked(mousex, mousey, sdwRect))
                         {
-                            scrollstart += 2;
-                            scrollend += 2;
-                        }
-                        
-                        std::cout << "<<<<scrolling!"
-                              << " start: " << scrollstart
-                              << " end: " << scrollend
-                              << std::endl;
+                            if(scrollend < Moves.size() - 1)
+                            {
+                                scrollstart += 2;
+                                scrollend += 2;
+                            }
+                            
+                            std::cout << "<<<<scrolling!"
+                                      << " start: " << scrollstart
+                                      << " end: " << scrollend
+                                      << std::endl;
+                        }                    
                     }
-                    
-                }
+                    clicked = false;
+                }                                
             }
                 
             //}
@@ -482,7 +526,10 @@ void ChessMain(int player)
                     x += 100;
                 }                
             }
-        }                
+        }
+        s.put_image(quitI, quitR);
+        s.put_image(drawI, drawR);
+        s.put_image(exitI, exitR);
         s.unlock();
         s.flip();
         
