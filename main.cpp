@@ -50,7 +50,7 @@ int main()
         case 4: //load game
             break;
         default:
-            std::cout << "<<<< choice: " << choice << std::endl;
+            //std::cout << "<<<< choice: " << choice << std::endl;
             break;
     }
 
@@ -140,27 +140,27 @@ int Welcome()
         {
             if(MainRectClicked(mousex, mousey, exitR))
             {
-                std::cout << "<<<< exit clicked" << std::endl;
+                //std::cout << "<<<< exit clicked" << std::endl;
                 return 0;
             }
             else if(MainRectClicked(mousex, mousey, makeR))
             {
-                std::cout << "<<<< make clicked" << std::endl;
+                //std::cout << "<<<< make clicked" << std::endl;
                 return 1;
             }
             else if(MainRectClicked(mousex, mousey, joinR))
             {
-                std::cout << "<<<< join clicked" << std::endl;
+                //std::cout << "<<<< join clicked" << std::endl;
                 return 2;
             }
             else if(MainRectClicked(mousex, mousey, watchR))
             {
-                std::cout << "<<<< watch clicked" << std::endl;
+                //std::cout << "<<<< watch clicked" << std::endl;
                 return 3;
             }
             else if(MainRectClicked(mousex, mousey, loadR))
             {
-                std::cout << "<<<< load clicked" << std::endl;
+                //std::cout << "<<<< load clicked" << std::endl;
                 return 4;
             }
 
