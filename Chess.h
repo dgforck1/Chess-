@@ -1,8 +1,10 @@
 #ifndef CHESS_H
 #define CHESS_H
 
-#include<iostream>
-#include<vector>
+#include <iostream>
+#include <vector>
+#include "Includes.h"
+
 
 class Piece
 {
@@ -12,6 +14,7 @@ public:
     Piece(int p, std::string t, int r, int f) :
         rank(r), file(f), player(p), type(t), moved(false)
     {};
+
     
 
     //methods
@@ -62,6 +65,24 @@ private:
     std::string board[8][8];
     std::vector< Piece > p;
     
+};
+
+
+class DrawPiece
+{
+public:
+    DrawPiece(Image *i0, Rect r0):
+        i(i0), r(r0)
+    {};
+
+
+    Image * getImage();
+    Rect & getRect();
+
+private:
+    Image *i;
+    Rect r;
+
 };
 
 

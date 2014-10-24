@@ -99,6 +99,18 @@ void ChessMain(int player)
         pieceR = Rect(0, 0, 50, 50);
 
 
+    
+    
+    std::vector< std::string > CapturedWhite;
+    std::vector< std::string > CapturedBlack;
+    std::vector< std::string > Moves;
+    std::vector< DrawPiece > dw;
+    
+    int playerTurn = 0,
+        x = 0,
+        y = 0;
+
+
     //set rect coords
     exitR.x = W - exitR.w;
     quitR.y = H - quitR.h;
@@ -108,15 +120,93 @@ void ChessMain(int player)
 
     boardRect.x = 250;
     boardRect.y = 150;
+
+
+    //initialize draw pieces            
+    for(int i = 0; i < b.getPieceSize(); i++)
+    {
+        Piece tempP = b.getPiece(i);
+        
+        int tempx = boardRect.x;
+        int tempy = boardRect.y;            
+        
+        
+        tempx += tempP.getFile() * 50;
+        tempy += ((7 - tempP.getRank()) * 50);
+        
+        pieceR.x = tempx;
+        pieceR.y = tempy;
+        
+        if(tempP.getPlayer() == 0)
+        {
+            if(tempP.getType() == "P")
+            {
+                dw.push_back(DrawPiece(&WP, Rect(tempx, tempy, 50, 50)));
+                //s.put_image(WP, pieceR);
+            }
+            else if(tempP.getType() == "R")
+            {
+                dw.push_back(DrawPiece(&WR, Rect(tempx, tempy, 50, 50)));
+                //s.put_image(WR, pieceR);
+            }
+            else if(tempP.getType() == "N")
+            {
+                dw.push_back(DrawPiece(&WN, Rect(tempx, tempy, 50, 50)));
+                //s.put_image(WN, pieceR);
+            }
+            else if(tempP.getType() == "B")
+            {
+                dw.push_back(DrawPiece(&WB, Rect(tempx, tempy, 50, 50)));
+                //s.put_image(WB, pieceR);
+            }
+            else if(tempP.getType() == "Q")
+            {
+                dw.push_back(DrawPiece(&WQ, Rect(tempx, tempy, 50, 50)));
+                //s.put_image(WQ, pieceR);
+            }
+            else if(tempP.getType() == "K")
+            {
+                dw.push_back(DrawPiece(&WK, Rect(tempx, tempy, 50, 50)));
+                //s.put_image(WK, pieceR);
+            }
+        }
+        else if(tempP.getPlayer() == 1)
+        {
+            if(tempP.getType() == "P")
+            {
+                dw.push_back(DrawPiece(&BP, Rect(tempx, tempy, 50, 50)));
+                //s.put_image(BP, pieceR);
+            }
+            else if(tempP.getType() == "R")
+            {
+                dw.push_back(DrawPiece(&BR, Rect(tempx, tempy, 50, 50)));
+                //s.put_image(BR, pieceR);
+            }
+            else if(tempP.getType() == "N")
+            {
+                dw.push_back(DrawPiece(&BN, Rect(tempx, tempy, 50, 50)));
+                //s.put_image(BN, pieceR);
+            }
+            else if(tempP.getType() == "B")
+            {
+                dw.push_back(DrawPiece(&BB, Rect(tempx, tempy, 50, 50)));
+                        //s.put_image(BB, pieceR);
+            }
+            else if(tempP.getType() == "Q")
+            {
+                dw.push_back(DrawPiece(&BQ, Rect(tempx, tempy, 50, 50)));
+                //s.put_image(BQ, pieceR);
+            }
+            else if(tempP.getType() == "K")
+            {
+                dw.push_back(DrawPiece(&BK, Rect(tempx, tempy, 50, 50)));
+                //s.put_image(BK, pieceR);
+            }
+        }                                             
+    }
     
-    std::vector< std::string > CapturedWhite;
-    std::vector< std::string > CapturedBlack;
-    std::vector< std::string > Moves;
-    
-    int playerTurn = 0,
-        x = 0,
-        y = 0;
-    
+
+
     
     while(1)
     {
@@ -233,19 +323,113 @@ void ChessMain(int player)
             
 
 
-        //reset variables        
-        mousex = -1;        
-        mousey = -1;                
-        clicked = false;
-        if(option != 0)
-        {
-            option = -1;
-        }
+        
         
         
         //x = 0;
         //y = 0;
 
+        
+//######################################################################################
+// TODO : MOVE PLACEMENT CALCULATIONS OUTSIDE OF DRAWINGS
+////////////////////////////////////////////////////////////////////////////////////////
+//maybe use a pointer to the image in the piece
+
+
+        
+// vector of x
+// vector of y
+// vector of images
+
+        if(option == 0)
+        {
+            //only update draw pieces if they may have made a move
+            //or later if we receive an update from server
+
+            dw.clear();
+            
+            for(int i = 0; i < b.getPieceSize(); i++)
+            {
+                Piece tempP = b.getPiece(i);
+
+                int tempx = boardRect.x;
+                int tempy = boardRect.y;            
+                
+                
+                tempx += tempP.getFile() * 50;
+                tempy += ((7 - tempP.getRank()) * 50);
+                
+                pieceR.x = tempx;
+                pieceR.y = tempy;
+                
+                if(tempP.getPlayer() == 0)
+                {
+                    if(tempP.getType() == "P")
+                    {
+                        dw.push_back(DrawPiece(&WP, Rect(tempx, tempy, 50, 50)));
+                        //s.put_image(WP, pieceR);
+                    }
+                    else if(tempP.getType() == "R")
+                    {
+                        dw.push_back(DrawPiece(&WR, Rect(tempx, tempy, 50, 50)));
+                        //s.put_image(WR, pieceR);
+                    }
+                    else if(tempP.getType() == "N")
+                    {
+                        dw.push_back(DrawPiece(&WN, Rect(tempx, tempy, 50, 50)));
+                        //s.put_image(WN, pieceR);
+                    }
+                    else if(tempP.getType() == "B")
+                    {
+                        dw.push_back(DrawPiece(&WB, Rect(tempx, tempy, 50, 50)));
+                        //s.put_image(WB, pieceR);
+                    }
+                    else if(tempP.getType() == "Q")
+                    {
+                        dw.push_back(DrawPiece(&WQ, Rect(tempx, tempy, 50, 50)));
+                        //s.put_image(WQ, pieceR);
+                    }
+                    else if(tempP.getType() == "K")
+                    {
+                        dw.push_back(DrawPiece(&WK, Rect(tempx, tempy, 50, 50)));
+                        //s.put_image(WK, pieceR);
+                    }
+                }
+                else if(tempP.getPlayer() == 1)
+                {
+                    if(tempP.getType() == "P")
+                    {
+                        dw.push_back(DrawPiece(&BP, Rect(tempx, tempy, 50, 50)));
+                        //s.put_image(BP, pieceR);
+                    }
+                    else if(tempP.getType() == "R")
+                    {
+                        dw.push_back(DrawPiece(&BR, Rect(tempx, tempy, 50, 50)));
+                        //s.put_image(BR, pieceR);
+                    }
+                    else if(tempP.getType() == "N")
+                    {
+                        dw.push_back(DrawPiece(&BN, Rect(tempx, tempy, 50, 50)));
+                        //s.put_image(BN, pieceR);
+                    }
+                    else if(tempP.getType() == "B")
+                    {
+                        dw.push_back(DrawPiece(&BB, Rect(tempx, tempy, 50, 50)));
+                        //s.put_image(BB, pieceR);
+                    }
+                    else if(tempP.getType() == "Q")
+                    {
+                        dw.push_back(DrawPiece(&BQ, Rect(tempx, tempy, 50, 50)));
+                        //s.put_image(BQ, pieceR);
+                    }
+                    else if(tempP.getType() == "K")
+                    {
+                        dw.push_back(DrawPiece(&BK, Rect(tempx, tempy, 50, 50)));
+                        //s.put_image(BK, pieceR);
+                    }
+                }                                             
+            }
+        }
 
         
         //draw all the things
@@ -257,77 +441,10 @@ void ChessMain(int player)
         s.put_image(WPS, Rect(250, 120, 25, 25));
         s.put_image(BPS, Rect(625, 120, 25, 25));
         //draw pieces
-        for(int i = 0; i < b.getPieceSize(); i++)
-        {            
-            Piece tempP = b.getPiece(i);
-
-            int tempx = boardRect.x;
-            int tempy = boardRect.y;            
-
-            
-            tempx += tempP.getFile() * 50;
-            tempy += ((7 - tempP.getRank()) * 50);
-
-            pieceR.x = tempx;
-            pieceR.y = tempy;
-            
-            if(tempP.getPlayer() == 0)
-            {
-                if(tempP.getType() == "P")
-                {
-                    //s.put_image(WP, Rect(tempx, tempy, 50, 50));
-                    s.put_image(WP, pieceR);
-                }
-                else if(tempP.getType() == "R")
-                {                    
-                    s.put_image(WR, pieceR);
-                }
-                else if(tempP.getType() == "N")
-                {                    
-                    s.put_image(WN, pieceR);
-                }
-                else if(tempP.getType() == "B")
-                {                    
-                    s.put_image(WB, pieceR);
-                }
-                else if(tempP.getType() == "Q")
-                {                    
-                    s.put_image(WQ, pieceR);
-                }
-                else if(tempP.getType() == "K")
-                {                    
-                    s.put_image(WK, pieceR);
-                }
-            }
-            else if(tempP.getPlayer() == 1)
-            {
-                if(tempP.getType() == "P")
-                {                    
-                    s.put_image(BP, pieceR);
-                }
-                else if(tempP.getType() == "R")
-                {                    
-                    s.put_image(BR, pieceR);
-                }
-                else if(tempP.getType() == "N")
-                {                    
-                    s.put_image(BN, pieceR);
-                }
-                else if(tempP.getType() == "B")
-                {                    
-                    s.put_image(BB, pieceR);
-                }
-                else if(tempP.getType() == "Q")
-                {                    
-                    s.put_image(BQ, pieceR);
-                }
-                else if(tempP.getType() == "K")
-                {                    
-                    s.put_image(BK, pieceR);
-                }
-            }
+        for(int i = 0; i < dw.size(); i++)
+        {
+            s.put_image(*dw[i].getImage(), dw[i].getRect());
         }
-
         //draw turn indicator
         if(playerTurn == 0)
         {
@@ -462,7 +579,16 @@ void ChessMain(int player)
         s.flip();
         
         delay(10);
-        //std::cout << "<<<< debug point 7" << std::endl;
+
+        //reset variables        
+        mousex = -1;        
+        mousey = -1;                
+        clicked = false;
+        if(option != 0)
+        {
+            option = -1;
+        }
+        
     }
     
         
