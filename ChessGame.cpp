@@ -215,6 +215,7 @@ void ChessMain(int player)
                     //only update draw pieces if they may have made a move
                     //or later if we receive an update from server
                     BuildDrawPiece(dw, b, boardRect, pieceR);
+                    BuildDrawCaptured(dc, CapturedWhite, CapturedBlack);
                 }
                 
                 break;
@@ -248,12 +249,10 @@ void ChessMain(int player)
 
 
         
-//###############################################################################
+//#######################################################
 // TODO : MOVE PLACEMENT CALCULATIONS OUTSIDE OF DRAWINGS
-//////////////////////////////////////////////////////////////////////////////////
-
-        //temp location for this
-        BuildDrawCaptured(dc, CapturedWhite, CapturedBlack);
+/////////////////////////////////////////////////////////
+        
 
         
         
@@ -717,6 +716,11 @@ void BuildDrawCaptured(std::vector< DrawPiece > &dw,
                        std::vector< std::string > &cw,
                        std::vector< std::string > &cb)
 {
+    if(dw.size() > 0)
+    {
+        dw.clear();
+    }
+    
     //draw captured white pieces
     int x = 25;
     int y = 150;
