@@ -1,6 +1,8 @@
 #include <iostream>
 #include "Chess.h"
 #include <string>
+#include "Includes.h"
+
 
 //piece implementation
 void Piece::print() const
@@ -736,6 +738,8 @@ void Board::initializePieces()
         p.push_back(Piece(1, "P", 6, i)); //black's pawns
     }
 
+
+
     //white's pieces
 
     p.push_back(Piece(0, "K", 0, 4)); //king
@@ -902,4 +906,16 @@ void Board::printBoard() const
 int Board::getPieceSize() const
 {
     return p.size();
+}
+
+
+Image *DrawPiece::getImage()
+{
+    return i;
+}
+
+
+Rect &DrawPiece::getRect()
+{
+    return r;
 }

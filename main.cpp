@@ -33,9 +33,11 @@ int main()
     int player = 0;
     
 
-    //choice = Welcome(); //main menu
+    choice = Welcome(); //main menu
 
-    /*switch(choice)
+    //std::cout << "<<<< debug point 1" << std::endl;
+    
+    switch(choice)
     {
         case 0: //exit game entirely
             break;
@@ -48,11 +50,14 @@ int main()
         case 4: //load game
             break;
         default:
-            std::cout << "<<<< choice: " << choice << std::endl;
+            //std::cout << "<<<< choice: " << choice << std::endl;
             break;
-            }*/
-    
+    }
+
+//    std::cout << "<<<< debug point 2" << std::endl;
     ChessMain(0);
+
+    //  std::cout << "<<<< debug point last" << std::endl;
     
     return 0;
 }
@@ -135,27 +140,27 @@ int Welcome()
         {
             if(MainRectClicked(mousex, mousey, exitR))
             {
-                std::cout << "<<<< exit clicked" << std::endl;
+                //std::cout << "<<<< exit clicked" << std::endl;
                 return 0;
             }
             else if(MainRectClicked(mousex, mousey, makeR))
             {
-                std::cout << "<<<< make clicked" << std::endl;
+                //std::cout << "<<<< make clicked" << std::endl;
                 return 1;
             }
             else if(MainRectClicked(mousex, mousey, joinR))
             {
-                std::cout << "<<<< join clicked" << std::endl;
+                //std::cout << "<<<< join clicked" << std::endl;
                 return 2;
             }
             else if(MainRectClicked(mousex, mousey, watchR))
             {
-                std::cout << "<<<< watch clicked" << std::endl;
+                //std::cout << "<<<< watch clicked" << std::endl;
                 return 3;
             }
             else if(MainRectClicked(mousex, mousey, loadR))
             {
-                std::cout << "<<<< load clicked" << std::endl;
+                //std::cout << "<<<< load clicked" << std::endl;
                 return 4;
             }
 

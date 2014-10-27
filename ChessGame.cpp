@@ -10,25 +10,44 @@
 #include "compgeom.h"
 
 
+
+//prototypes
 bool RectClicked(int mX, int mY, Rect&);
 std::string MoveString(bool captured, std::string type, int rank, int file,
     int sourceF);
 
+int BoardClicked(int mx, int my, Board &b, Rect &br, int pt);
+    //process board being clicked
+void BoardReleased(int mx, int my, Board &b, int wpi,
+                   Rect &br, int &pt, std::vector< std::string > &Moves,
+                   std::vector< std::string > &CapturedWhite,
+                   std::vector< std::string > &CapturedBlack);
+    //process board released
+void QuitClicked();
+void ExitClicked();
+void DrawClicked();
+void ScrollUpClicked();
+void ScrollDownClicked(std::vector< std::string > &Moves);
+
+
+//global vars
+bool scroll = false;
+int scrollstart = 2,
+    scrollend = 31;
+
 void ChessMain(int player)
 {
+    
     Surface s(W, H);
     Event event;
     Mouse mouse;
 
     int mousex = -1,
         mousey = -1,
-        workingPieceIndex = -1,
-        scrollstart = 2,
-        scrollend = 31,
+        workingPieceIndex = -1,        
         option = -1;
     bool clicked = false,
-        released = false,
-        scroll = false;
+        released = false;
 
 
     Board b = Board();
@@ -80,6 +99,18 @@ void ChessMain(int player)
         pieceR = Rect(0, 0, 50, 50);
 
 
+    
+    
+    std::vector< std::string > CapturedWhite;
+    std::vector< std::string > CapturedBlack;
+    std::vector< std::string > Moves;
+    std::vector< DrawPiece > dw;
+    
+    int playerTurn = 0,
+        x = 0,
+        y = 0;
+
+
     //set rect coords
     exitR.x = W - exitR.w;
     quitR.y = H - quitR.h;
@@ -89,16 +120,97 @@ void ChessMain(int player)
 
     boardRect.x = 250;
     boardRect.y = 150;
+
+
+    //initialize draw pieces            
+    for(int i = 0; i < b.getPieceSize(); i++)
+    {
+        Piece tempP = b.getPiece(i);
+        
+        int tempx = boardRect.x;
+        int tempy = boardRect.y;            
+        
+        
+        tempx += tempP.getFile() * 50;
+        tempy += ((7 - tempP.getRank()) * 50);
+        
+        pieceR.x = tempx;
+        pieceR.y = tempy;
+        
+        if(tempP.getPlayer() == 0)
+        {
+            if(tempP.getType() == "P")
+            {
+                dw.push_back(DrawPiece(&WP, Rect(tempx, tempy, 50, 50)));
+                //s.put_image(WP, pieceR);
+            }
+            else if(tempP.getType() == "R")
+            {
+                dw.push_back(DrawPiece(&WR, Rect(tempx, tempy, 50, 50)));
+                //s.put_image(WR, pieceR);
+            }
+            else if(tempP.getType() == "N")
+            {
+                dw.push_back(DrawPiece(&WN, Rect(tempx, tempy, 50, 50)));
+                //s.put_image(WN, pieceR);
+            }
+            else if(tempP.getType() == "B")
+            {
+                dw.push_back(DrawPiece(&WB, Rect(tempx, tempy, 50, 50)));
+                //s.put_image(WB, pieceR);
+            }
+            else if(tempP.getType() == "Q")
+            {
+                dw.push_back(DrawPiece(&WQ, Rect(tempx, tempy, 50, 50)));
+                //s.put_image(WQ, pieceR);
+            }
+            else if(tempP.getType() == "K")
+            {
+                dw.push_back(DrawPiece(&WK, Rect(tempx, tempy, 50, 50)));
+                //s.put_image(WK, pieceR);
+            }
+        }
+        else if(tempP.getPlayer() == 1)
+        {
+            if(tempP.getType() == "P")
+            {
+                dw.push_back(DrawPiece(&BP, Rect(tempx, tempy, 50, 50)));
+                //s.put_image(BP, pieceR);
+            }
+            else if(tempP.getType() == "R")
+            {
+                dw.push_back(DrawPiece(&BR, Rect(tempx, tempy, 50, 50)));
+                //s.put_image(BR, pieceR);
+            }
+            else if(tempP.getType() == "N")
+            {
+                dw.push_back(DrawPiece(&BN, Rect(tempx, tempy, 50, 50)));
+                //s.put_image(BN, pieceR);
+            }
+            else if(tempP.getType() == "B")
+            {
+                dw.push_back(DrawPiece(&BB, Rect(tempx, tempy, 50, 50)));
+                        //s.put_image(BB, pieceR);
+            }
+            else if(tempP.getType() == "Q")
+            {
+                dw.push_back(DrawPiece(&BQ, Rect(tempx, tempy, 50, 50)));
+                //s.put_image(BQ, pieceR);
+            }
+            else if(tempP.getType() == "K")
+            {
+                dw.push_back(DrawPiece(&BK, Rect(tempx, tempy, 50, 50)));
+                //s.put_image(BK, pieceR);
+            }
+        }                                             
+    }
     
-    std::vector< std::string > CapturedWhite;
-    std::vector< std::string > CapturedBlack;
-    std::vector< std::string > Moves;
-    
-    int playerTurn = 0;    
-    
+
+
     
     while(1)
     {
+        //std::cout << "<<<< entered while statement" << std::endl;
         if(event.poll())
         {        
             if(event.type() == QUIT) break;
@@ -108,23 +220,25 @@ void ChessMain(int player)
                 {
                     mouse.update(event);                    
                     mousex = mouse.x();
-                    mousey = mouse.y();                                        
+                    mousey = mouse.y();    
                     clicked = true;
                 }
                 else if(event.type() == MOUSEBUTTONUP)
                 {
                     mouse.update(event);
                     mousex = mouse.x();
-                    mousey = mouse.y();                                       
+                    mousey = mouse.y();       
                     released = true;
                 }
             }
         }
-// here is the first area I'll add to, if havent recieved message then wait
-        //if(playerTurn == player)
-            //only cares if it's the current player's turn
-        //{
-            //player operating on board
+        
+        
+        
+        // here is the first area I'll add to,
+        //if havent recieved message then wait
+
+        
 
 
         if(clicked)
@@ -161,294 +275,176 @@ void ChessMain(int player)
             case -1: //nothing clicked
                 break;
             case 0: //game board clicked
-                break;
-            case 1: //quit button clicked
-                break;
-            case 2: //exit button clicked
-                break;
-            case 3: //draw button clicked
-                break;
-            case 4: //scroll up clicked
-                break;
-            case 5: //scroll down clicked
-                break;                
-            default: //heck if i know what was clicked
-                break;
-        }
-
-
-
-
-        
-            if(RectClicked(mousex, mousey, boardRect))                
-            {
-                if(clicked && workingPieceIndex == -1)
-                {
-                    //convert mouse coords to board coords (rank and file)
-                    int tempx = mousex - boardRect.x;
-                    int tempy = mousey - boardRect.y;
-                    tempx /= 50;
-                    tempy /= 50;                
-                    tempy = 7 - tempy;
-                    
-                    workingPieceIndex = b.getPieceIndex(tempy, tempx);
-                    
-                    if(workingPieceIndex >= 0)
-                    {
-                        //std::cout << "<<<< working piece: ";
-                        Piece tempP = b.getPiece(workingPieceIndex);
-
-                        /*tempP.print();
-                          std::cout << std::endl;*/
-                        
-                        if(tempP.getPlayer()  != playerTurn)
-                        {
-                            //not the current player's piece
-                            workingPieceIndex = -1;                    
-                        }
-                    }
-                }
-                
-                if(released)
-                {                
-                    //convert mouse coords to board coords (rank and file)
-                    int tempx = mousex - boardRect.x;
-                    int tempy = mousey - boardRect.y;
-                    tempx /= 50;
-                    tempy /= 50;                
-                    tempy = 7 - tempy;
-                    Piece wp = b.getPiece(workingPieceIndex);
-                    
-                    if(b.checkMove(workingPieceIndex, tempy, tempx))
-                    {
-                        std::string temp;                                    
-                        
-                        if(b.getPieceIndex(tempy, tempx) >= 0)
-                        {
-                            int temp = b.getPieceIndex(tempy, tempx);
-                            
-                            
-                            Piece tempP = b.getPiece(tempy, tempx);
-
-                            Moves.push_back(
-                                MoveString(true, wp.getType(),
-                                           tempy, tempx, wp.getFile())
-                                );
-                            
-                            //todo: fix weird capture bug
-                            if(tempP.getPlayer() == 0)
-                            {
-                                CapturedWhite.push_back(                     
-                                    b.capturePiece(temp)
-                                    );
-                            }
-                            else
-                            {
-                                CapturedBlack.push_back(               
-                                    b.capturePiece(temp)
-                                    );
-                            }
-                                                        
-                        }
-                        else
-                        {
-                            Moves.push_back(
-                                MoveString(false, wp.getType(),
-                                           tempy, tempx, wp.getFile())
-                                );
-                        }
-
-                        if(Moves.size() > 30)
-                        {
-                            scroll = true;
-                            scrollstart = Moves.size() - 30 -
-                                (Moves.size() % 2);
-                            scrollend = Moves.size() -
-                                (Moves.size() % 2);                     
-                        }
-                        
-                        b.movePiece(workingPieceIndex, tempy, tempx);         
-                        
-                        if(playerTurn == 0)
-                        {
-                            playerTurn = 1;
-                        }
-                        else
-                        {
-                            playerTurn = 0;
-                        }
-                    }                
-                    
-                    //reset variables
-                    workingPieceIndex = -1;
-                    clicked = false;
-                    released = false;
-                }
-            }
-            else
-            {
                 if(clicked)
                 {
-                    if(RectClicked(mousex, mousey, quitR))
-                    {
-                        std::cout << "<<<< quit clicked" << std::endl;
-                    }
-                    else if(RectClicked(mousex, mousey, drawR))
-                    {
-                        std::cout << "<<<< draw clicked" << std::endl;
-                    }
-                    else if(scroll)
-                    {
-                        if(RectClicked(mousex, mousey, supRect))
-                        {
-                            if(scrollstart > 0)
-                            {
-                                scrollstart -= 2;
-                                scrollend -= 2;
-                            }
-                            
-                            std::cout << "<<<<scrolling!"
-                                      << " start: " << scrollstart
-                                      << " end: " << scrollend
-                                      << std::endl;
-                        }
-                        
-                        if(RectClicked(mousex, mousey, sdwRect))
-                        {
-                            if(scrollend < Moves.size() - 1)
-                            {
-                                scrollstart += 2;
-                                scrollend += 2;
-                            }
-                            
-                            std::cout << "<<<<scrolling!"
-                                      << " start: " << scrollstart
-                                      << " end: " << scrollend
-                                      << std::endl;
-                        }                    
-                    }
-                    clicked = false;
-                }                                
-            }
+                    workingPieceIndex =
+                        BoardClicked(mousex, mousey, b, boardRect,
+                                     playerTurn);                    
+                }
+                else if(released)
+                {
+                    BoardReleased(mousex, mousey, b, workingPieceIndex,
+                                  boardRect, playerTurn, Moves,
+                                  CapturedWhite, CapturedBlack);
+                    released = false;
+                    workingPieceIndex = -1;
+                }
                 
-            //}
-
-
-        //reset mouse variables
-        if(mousex != -1)
-        {
-            mousex = -1;
+                break;
+            case 1: //quit button clicked
+                QuitClicked();
+                break;
+            case 2: //exit button clicked
+                ExitClicked();
+                break;
+            case 3: //draw button clicked
+                DrawClicked();
+                break;
+            case 4: //scroll up clicked
+                if(scroll)
+                {
+                    ScrollUpClicked();
+                }                
+                break;
+            case 5: //scroll down clicked
+                if(scroll)
+                {
+                    ScrollDownClicked(Moves);
+                }                
+                break;                
+            default: //heck if i know what was clicked
+                
+                break;
         }
 
-        if(mousey != -1)
-        {
-            mousey = -1;
-        }
+
+                
+            
+            
+
+
         
+        
+        
+        //x = 0;
+        //y = 0;
 
-        int toggle = -1;
-        int x = 0, y = 0;
+        
+//######################################################################################
+// TODO : MOVE PLACEMENT CALCULATIONS OUTSIDE OF DRAWINGS
+////////////////////////////////////////////////////////////////////////////////////////
+//maybe use a pointer to the image in the piece
 
+
+        
+// vector of x
+// vector of y
+// vector of images
+
+        if(option == 0)
+        {
+            //only update draw pieces if they may have made a move
+            //or later if we receive an update from server
+
+            dw.clear();
+            
+            for(int i = 0; i < b.getPieceSize(); i++)
+            {
+                Piece tempP = b.getPiece(i);
+
+                int tempx = boardRect.x;
+                int tempy = boardRect.y;            
+                
+                
+                tempx += tempP.getFile() * 50;
+                tempy += ((7 - tempP.getRank()) * 50);
+                
+                pieceR.x = tempx;
+                pieceR.y = tempy;
+                
+                if(tempP.getPlayer() == 0)
+                {
+                    if(tempP.getType() == "P")
+                    {
+                        dw.push_back(DrawPiece(&WP, Rect(tempx, tempy, 50, 50)));
+                        //s.put_image(WP, pieceR);
+                    }
+                    else if(tempP.getType() == "R")
+                    {
+                        dw.push_back(DrawPiece(&WR, Rect(tempx, tempy, 50, 50)));
+                        //s.put_image(WR, pieceR);
+                    }
+                    else if(tempP.getType() == "N")
+                    {
+                        dw.push_back(DrawPiece(&WN, Rect(tempx, tempy, 50, 50)));
+                        //s.put_image(WN, pieceR);
+                    }
+                    else if(tempP.getType() == "B")
+                    {
+                        dw.push_back(DrawPiece(&WB, Rect(tempx, tempy, 50, 50)));
+                        //s.put_image(WB, pieceR);
+                    }
+                    else if(tempP.getType() == "Q")
+                    {
+                        dw.push_back(DrawPiece(&WQ, Rect(tempx, tempy, 50, 50)));
+                        //s.put_image(WQ, pieceR);
+                    }
+                    else if(tempP.getType() == "K")
+                    {
+                        dw.push_back(DrawPiece(&WK, Rect(tempx, tempy, 50, 50)));
+                        //s.put_image(WK, pieceR);
+                    }
+                }
+                else if(tempP.getPlayer() == 1)
+                {
+                    if(tempP.getType() == "P")
+                    {
+                        dw.push_back(DrawPiece(&BP, Rect(tempx, tempy, 50, 50)));
+                        //s.put_image(BP, pieceR);
+                    }
+                    else if(tempP.getType() == "R")
+                    {
+                        dw.push_back(DrawPiece(&BR, Rect(tempx, tempy, 50, 50)));
+                        //s.put_image(BR, pieceR);
+                    }
+                    else if(tempP.getType() == "N")
+                    {
+                        dw.push_back(DrawPiece(&BN, Rect(tempx, tempy, 50, 50)));
+                        //s.put_image(BN, pieceR);
+                    }
+                    else if(tempP.getType() == "B")
+                    {
+                        dw.push_back(DrawPiece(&BB, Rect(tempx, tempy, 50, 50)));
+                        //s.put_image(BB, pieceR);
+                    }
+                    else if(tempP.getType() == "Q")
+                    {
+                        dw.push_back(DrawPiece(&BQ, Rect(tempx, tempy, 50, 50)));
+                        //s.put_image(BQ, pieceR);
+                    }
+                    else if(tempP.getType() == "K")
+                    {
+                        dw.push_back(DrawPiece(&BK, Rect(tempx, tempy, 50, 50)));
+                        //s.put_image(BK, pieceR);
+                    }
+                }                                             
+            }
+        }
 
         
         //draw all the things
         s.lock();
         s.fill(GRAY);
-        //s.put_rect(boardRect, WHITE);
         s.put_image(boardI, boardRect);
         s.put_rect(movRect, WHITE);
         s.put_rect(capRect, WHITE);
         s.put_image(WPS, Rect(250, 120, 25, 25));
         s.put_image(BPS, Rect(625, 120, 25, 25));
-        //draw squares
-        /*for(int i = boardRect.x; i < boardRect.x + boardRect.w ; i+= 50)
-        {
-            for(int n = boardRect.y; n < boardRect.y + boardRect.h; n+= 50)
-            {
-                blackRect.x = i;
-                blackRect.y = n;
-
-                if(toggle == 1)
-                {
-                    s.put_rect(blackRect, RED);
-                }
-                
-                toggle *= -1;
-            }
-            toggle *= -1;
-            }*/
         //draw pieces
-        for(int i = 0; i < b.getPieceSize(); i++)
-        {            
-            Piece tempP = b.getPiece(i);
-
-            int tempx = boardRect.x;
-            int tempy = boardRect.y;            
-
-            
-            tempx += tempP.getFile() * 50;
-            tempy += ((7 - tempP.getRank()) * 50);
-
-            pieceR.x = tempx;
-            pieceR.y = tempy;
-            
-            if(tempP.getPlayer() == 0)
-            {
-                if(tempP.getType() == "P")
-                {
-                    //s.put_image(WP, Rect(tempx, tempy, 50, 50));
-                    s.put_image(WP, pieceR);
-                }
-                else if(tempP.getType() == "R")
-                {                    
-                    s.put_image(WR, pieceR);
-                }
-                else if(tempP.getType() == "N")
-                {                    
-                    s.put_image(WN, pieceR);
-                }
-                else if(tempP.getType() == "B")
-                {                    
-                    s.put_image(WB, pieceR);
-                }
-                else if(tempP.getType() == "Q")
-                {                    
-                    s.put_image(WQ, pieceR);
-                }
-                else if(tempP.getType() == "K")
-                {                    
-                    s.put_image(WK, pieceR);
-                }
-            }
-            else if(tempP.getPlayer() == 1)
-            {
-                if(tempP.getType() == "P")
-                {                    
-                    s.put_image(BP, pieceR);
-                }
-                else if(tempP.getType() == "R")
-                {                    
-                    s.put_image(BR, pieceR);
-                }
-                else if(tempP.getType() == "N")
-                {                    
-                    s.put_image(BN, pieceR);
-                }
-                else if(tempP.getType() == "B")
-                {                    
-                    s.put_image(BB, pieceR);
-                }
-                else if(tempP.getType() == "Q")
-                {                    
-                    s.put_image(BQ, pieceR);
-                }
-                else if(tempP.getType() == "K")
-                {                    
-                    s.put_image(BK, pieceR);
-                }
-            }
+        for(int i = 0; i < dw.size(); i++)
+        {
+            s.put_image(*dw[i].getImage(), dw[i].getRect());
         }
-
         //draw turn indicator
         if(playerTurn == 0)
         {
@@ -582,7 +578,17 @@ void ChessMain(int player)
         s.unlock();
         s.flip();
         
-        delay(10);        
+        delay(10);
+
+        //reset variables        
+        mousex = -1;        
+        mousey = -1;                
+        clicked = false;
+        if(option != 0)
+        {
+            option = -1;
+        }
+        
     }
     
         
@@ -709,3 +715,158 @@ std::string MoveString(bool captured, std::string type, int rank, int file,
     
     return temp;
 }
+
+
+int BoardClicked(int mx, int my, Board &b, Rect &bR, int pt)
+{
+    //std::cout << "<<<< board clicked" << std::endl;
+                          
+    //convert mouse coords to board coords (rank and file)
+    int tempx = mx - bR.x;
+    int tempy = my - bR.y;
+    tempx /= 50;
+    tempy /= 50;                
+    tempy = 7 - tempy;
+
+    int workingPieceIndex = -1;
+    
+    workingPieceIndex = b.getPieceIndex(tempy, tempx);
+    
+    if(workingPieceIndex >= 0)
+    {
+        Piece tempP = b.getPiece(workingPieceIndex);                
+        
+        if(tempP.getPlayer() == pt)
+        {
+            return workingPieceIndex;
+        }
+    }
+
+    return -1;
+}
+                                      
+
+void BoardReleased(int mx, int my, Board &b, int wpi, Rect &bR, int &pt,
+                   std::vector< std::string > &Moves,
+                   std::vector< std::string > &CapturedWhite,
+                   std::vector< std::string > &CapturedBlack)
+{
+    //std::cout << "<<<< board released" << std::endl;
+
+
+    //convert mouse coords to board coords (rank and file)
+    if(wpi >= 0)
+    {
+        int tempx = mx - bR.x;
+        int tempy = my - bR.y;
+        tempx /= 50;
+        tempy /= 50;                
+        tempy = 7 - tempy;
+        Piece wp = b.getPiece(wpi);
+        
+        if(b.checkMove(wpi, tempy, tempx))
+        {
+            //std::string temp;       
+            
+            if(b.getPieceIndex(tempy, tempx) >= 0)
+            {
+                int temp = b.getPieceIndex(tempy, tempx);
+                Piece tempP = b.getPiece(tempy, tempx);
+                
+                Moves.push_back(
+                    MoveString(true, wp.getType(),
+                               tempy, tempx, wp.getFile())
+                    );
+                
+                //todo: fix weird capture bug
+                if(tempP.getPlayer() == 0)
+                {
+                    CapturedWhite.push_back(
+                        b.capturePiece(temp)
+                        );
+                }
+                else
+                {
+                    CapturedBlack.push_back(               
+                        b.capturePiece(temp)
+                        );
+                }
+                
+            }
+            else
+            {
+                Moves.push_back(
+                    MoveString(false, wp.getType(),
+                               tempy, tempx, wp.getFile())
+                    );
+            }
+            
+            if(Moves.size() > 30)
+            {
+                scroll = true;
+                scrollstart = Moves.size() - 30 -
+                    (Moves.size() % 2);
+                scrollend = Moves.size() -
+                    (Moves.size() % 2);                     
+            }
+            
+            b.movePiece(wpi, tempy, tempx);         
+            
+            if(pt == 0)
+            {
+                pt = 1;
+            }
+            else
+            {
+                pt = 0;
+            }
+        }
+    }    
+}
+
+
+
+
+void QuitClicked()
+{
+    //std::cout << "<<<< quick clicked" << std::endl;
+
+}
+
+
+void ExitClicked()
+{
+    //std::cout << "<<<< exit clicked" << std::endl;
+
+}
+
+
+void DrawClicked()
+{
+    //std::cout << "<<<< draw clicked" << std::endl;
+}
+
+
+void ScrollUpClicked()
+{
+    //std::cout << "<<<< scroll up clicked" << std::endl;
+    if(scrollstart > 0)
+    {
+        scrollstart -= 2;
+        scrollend -= 2;
+    }
+}
+
+
+void ScrollDownClicked(std::vector< std::string > &Moves)
+{
+    //std::cout << "<<<< scroll down clicked" << std::endl;
+    if(scrollend < Moves.size() - 1)
+    {
+        scrollstart += 2;
+        scrollend += 2;
+    }
+}
+
+
+
