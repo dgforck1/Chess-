@@ -10,6 +10,7 @@
 #include "compgeom.h"
 
 
+#include <ctime>
 
 //prototypes
 bool RectClicked(int mX, int mY, Rect&);
@@ -37,6 +38,14 @@ int scrollstart = 2,
 
 void ChessMain(int player)
 {
+    //used to time code, to be removed later
+    time_t timer;
+    struct tm y2k;    
+    int seconds;
+    y2k.tm_hour = 1;   y2k.tm_min = 0; y2k.tm_sec = 0;
+    y2k.tm_year = 114; y2k.tm_mon = 0; y2k.tm_mday = 24;
+    
+  
     
     Surface s(W, H);
     Event event;
@@ -210,14 +219,19 @@ void ChessMain(int player)
     
     while(1)
     {
-        //std::cout << "<<<< entered while statement" << std::endl;
+        //get user input
         if(event.poll())
         {        
             if(event.type() == QUIT) break;
             else
-            {
+            {                                
                 if(event.type() == MOUSEBUTTONDOWN)
-                {
+                {                    
+                    /*time(&timer);
+                    seconds = difftime(timer, mktime(&y2k));
+                    std::cout << "<<<< clicked at time: "
+                    << seconds << std::endl;*/
+                    
                     mouse.update(event);                    
                     mousex = mouse.x();
                     mousey = mouse.y();    
@@ -225,6 +239,11 @@ void ChessMain(int player)
                 }
                 else if(event.type() == MOUSEBUTTONUP)
                 {
+                    /*time(&timer);
+                    seconds = difftime(timer, mktime(&y2k));
+                    std::cout << "<<<< released at time: "
+                    << seconds << std::endl;*/
+                    
                     mouse.update(event);
                     mousex = mouse.x();
                     mousey = mouse.y();       
@@ -240,7 +259,7 @@ void ChessMain(int player)
 
         
 
-
+        //determine what was clicked, if anything
         if(clicked)
         {
             if(RectClicked(mousex, mousey, boardRect))
@@ -270,24 +289,157 @@ void ChessMain(int player)
         }
 
 
+        //determine what to do with what was clicked
         switch(option)
         {
             case -1: //nothing clicked
                 break;
-            case 0: //game board clicked
+            case 0: //game board clicked                                
                 if(clicked)
                 {
+                    /*time(&timer);
+                    seconds = difftime(timer, mktime(&y2k));
+                    std::cout << "    <<<< before click process: "
+                    << seconds << std::endl;*/
+                    
                     workingPieceIndex =
                         BoardClicked(mousex, mousey, b, boardRect,
-                                     playerTurn);                    
+                                     playerTurn);
+
+                    /*time(&timer);
+                    seconds = difftime(timer, mktime(&y2k));
+                    std::cout << "    <<<< after click process: "
+                    << seconds << std::endl;*/
                 }
                 else if(released)
                 {
+                    /*time(&timer);
+                    seconds = difftime(timer, mktime(&y2k));
+                    std::cout << "    <<<< before release process: "
+                    << seconds << std::endl;*/
+                    
                     BoardReleased(mousex, mousey, b, workingPieceIndex,
                                   boardRect, playerTurn, Moves,
                                   CapturedWhite, CapturedBlack);
                     released = false;
                     workingPieceIndex = -1;
+                    
+
+                    /*time(&timer);
+                    seconds = difftime(timer, mktime(&y2k));
+                    std::cout << "    <<<< after click process: "
+                              << seconds << std::endl;
+
+
+
+                    time(&timer);
+                    seconds = difftime(timer, mktime(&y2k));
+                    std::cout << "    <<<< before rebuilding dw: "
+                    << seconds << std::endl;*/
+                    
+                    //only update draw pieces if they may have made a move
+                    //or later if we receive an update from server
+                    
+                    dw.clear();
+                    
+                    for(int i = 0; i < b.getPieceSize(); i++)
+                    {
+                        Piece tempP = b.getPiece(i);                
+                        
+                        int tempx = boardRect.x;
+                        int tempy = boardRect.y;            
+                        
+                        
+                        tempx += tempP.getFile() * 50;
+                        tempy += ((7 - tempP.getRank()) * 50);
+                        
+                        pieceR.x = tempx;
+                        pieceR.y = tempy;
+                        
+                        if(tempP.getPlayer() == 0)
+                        {
+                            if(tempP.getType() == "P")
+                            {
+                                dw.push_back(
+                                    DrawPiece(&WP, Rect(tempx, tempy, 50, 50))
+                                    );
+                            }
+                            else if(tempP.getType() == "R")
+                            {
+                                dw.push_back(
+                                    DrawPiece(&WR, Rect(tempx, tempy, 50, 50))
+                                    );
+                            }
+                            else if(tempP.getType() == "N")
+                            {
+                                dw.push_back(
+                                    DrawPiece(&WN, Rect(tempx, tempy, 50, 50))
+                                    );
+                            }
+                            else if(tempP.getType() == "B")
+                            {
+                                dw.push_back(
+                                    DrawPiece(&WB, Rect(tempx, tempy, 50, 50))
+                                    );
+                            }
+                            else if(tempP.getType() == "Q")
+                            {
+                                dw.push_back(
+                                    DrawPiece(&WQ, Rect(tempx, tempy, 50, 50))
+                                    );
+                            }
+                            else if(tempP.getType() == "K")
+                            {
+                                dw.push_back(
+                                    DrawPiece(&WK, Rect(tempx, tempy, 50, 50))
+                                    );
+                            }
+                        }
+                        else if(tempP.getPlayer() == 1)
+                        {
+                            if(tempP.getType() == "P")
+                            {
+                                dw.push_back(
+                                    DrawPiece(&BP, Rect(tempx, tempy, 50, 50))
+                                    );
+                            }
+                            else if(tempP.getType() == "R")
+                            {
+                                dw.push_back(
+                                    DrawPiece(&BR, Rect(tempx, tempy, 50, 50))
+                                    );
+                            }
+                            else if(tempP.getType() == "N")
+                            {
+                                dw.push_back(
+                                    DrawPiece(&BN, Rect(tempx, tempy, 50, 50))
+                                    );
+                            }
+                            else if(tempP.getType() == "B")
+                            {
+                                dw.push_back(
+                                    DrawPiece(&BB, Rect(tempx, tempy, 50, 50))
+                                    );
+                            }
+                            else if(tempP.getType() == "Q")
+                            {
+                                dw.push_back(
+                                    DrawPiece(&BQ, Rect(tempx, tempy, 50, 50))
+                                    );
+                            }
+                            else if(tempP.getType() == "K")
+                            {
+                                dw.push_back(
+                                    DrawPiece(&BK, Rect(tempx, tempy, 50, 50))
+                                    );
+                            }
+                        }                                             
+                    }
+                    
+                    /*time(&timer);
+                    seconds = difftime(timer, mktime(&y2k));
+                    std::cout << "    <<<< after rebuilding dw: "
+                    << seconds << std::endl;*/
                 }
                 
                 break;
@@ -312,125 +464,26 @@ void ChessMain(int player)
                     ScrollDownClicked(Moves);
                 }                
                 break;                
-            default: //heck if i know what was clicked
-                
+            default: //heck if i know what was clicked                
                 break;
         }
 
 
                 
-            
-            
 
 
         
-        
-        
-        //x = 0;
-        //y = 0;
-
-        
-//######################################################################################
+//###############################################################################
 // TODO : MOVE PLACEMENT CALCULATIONS OUTSIDE OF DRAWINGS
-////////////////////////////////////////////////////////////////////////////////////////
-//maybe use a pointer to the image in the piece
-
+//////////////////////////////////////////////////////////////////////////////////
 
         
-// vector of x
-// vector of y
-// vector of images
+        
 
-        if(option == 0)
-        {
-            //only update draw pieces if they may have made a move
-            //or later if we receive an update from server
-
-            dw.clear();
-            
-            for(int i = 0; i < b.getPieceSize(); i++)
-            {
-                Piece tempP = b.getPiece(i);
-
-                int tempx = boardRect.x;
-                int tempy = boardRect.y;            
-                
-                
-                tempx += tempP.getFile() * 50;
-                tempy += ((7 - tempP.getRank()) * 50);
-                
-                pieceR.x = tempx;
-                pieceR.y = tempy;
-                
-                if(tempP.getPlayer() == 0)
-                {
-                    if(tempP.getType() == "P")
-                    {
-                        dw.push_back(DrawPiece(&WP, Rect(tempx, tempy, 50, 50)));
-                        //s.put_image(WP, pieceR);
-                    }
-                    else if(tempP.getType() == "R")
-                    {
-                        dw.push_back(DrawPiece(&WR, Rect(tempx, tempy, 50, 50)));
-                        //s.put_image(WR, pieceR);
-                    }
-                    else if(tempP.getType() == "N")
-                    {
-                        dw.push_back(DrawPiece(&WN, Rect(tempx, tempy, 50, 50)));
-                        //s.put_image(WN, pieceR);
-                    }
-                    else if(tempP.getType() == "B")
-                    {
-                        dw.push_back(DrawPiece(&WB, Rect(tempx, tempy, 50, 50)));
-                        //s.put_image(WB, pieceR);
-                    }
-                    else if(tempP.getType() == "Q")
-                    {
-                        dw.push_back(DrawPiece(&WQ, Rect(tempx, tempy, 50, 50)));
-                        //s.put_image(WQ, pieceR);
-                    }
-                    else if(tempP.getType() == "K")
-                    {
-                        dw.push_back(DrawPiece(&WK, Rect(tempx, tempy, 50, 50)));
-                        //s.put_image(WK, pieceR);
-                    }
-                }
-                else if(tempP.getPlayer() == 1)
-                {
-                    if(tempP.getType() == "P")
-                    {
-                        dw.push_back(DrawPiece(&BP, Rect(tempx, tempy, 50, 50)));
-                        //s.put_image(BP, pieceR);
-                    }
-                    else if(tempP.getType() == "R")
-                    {
-                        dw.push_back(DrawPiece(&BR, Rect(tempx, tempy, 50, 50)));
-                        //s.put_image(BR, pieceR);
-                    }
-                    else if(tempP.getType() == "N")
-                    {
-                        dw.push_back(DrawPiece(&BN, Rect(tempx, tempy, 50, 50)));
-                        //s.put_image(BN, pieceR);
-                    }
-                    else if(tempP.getType() == "B")
-                    {
-                        dw.push_back(DrawPiece(&BB, Rect(tempx, tempy, 50, 50)));
-                        //s.put_image(BB, pieceR);
-                    }
-                    else if(tempP.getType() == "Q")
-                    {
-                        dw.push_back(DrawPiece(&BQ, Rect(tempx, tempy, 50, 50)));
-                        //s.put_image(BQ, pieceR);
-                    }
-                    else if(tempP.getType() == "K")
-                    {
-                        dw.push_back(DrawPiece(&BK, Rect(tempx, tempy, 50, 50)));
-                        //s.put_image(BK, pieceR);
-                    }
-                }                                             
-            }
-        }
-
+        /*time(&timer);
+        seconds = difftime(timer, mktime(&y2k));
+        std::cout << "    <<<< before drawing: "
+        << seconds << std::endl;*/
         
         //draw all the things
         s.lock();
@@ -537,6 +590,7 @@ void ChessMain(int player)
                     Moves[i].c_str(), "fonts/FreeSans.ttf", 16, 0, 0, 0);
                 
                 s.put_text(ts, x, y);
+
                 if(i % 2 == 1)
                 {
                     x = 675;
@@ -561,6 +615,7 @@ void ChessMain(int player)
                     Moves[i].c_str(), "fonts/FreeSans.ttf", 16, 0, 0, 0);
                 
                 s.put_text(ts, x, y);
+
                 if(i % 2 == 1)
                 {
                     x = 675;
@@ -580,10 +635,17 @@ void ChessMain(int player)
         
         delay(10);
 
+
+
+        /*time(&timer);
+        seconds = difftime(timer, mktime(&y2k));
+        std::cout << "    <<<< after drawing: "
+        << seconds << std::endl;*/
+        
         //reset variables        
         mousex = -1;        
         mousey = -1;                
-        clicked = false;
+        clicked = false;        
         if(option != 0)
         {
             option = -1;
