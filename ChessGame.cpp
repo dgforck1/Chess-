@@ -31,6 +31,9 @@ void ScrollUpClicked();
 void ScrollDownClicked(std::vector< std::string > &Moves);
 void BuildDrawPiece(std::vector< DrawPiece > &dw, Board &b, Rect &boardRect,
     Rect &pieceR);
+void BuildDrawCaptured(std::vector< DrawPiece > &dw,
+                       std::vector< std::string > &cw,
+                       std::vector< std::string > &cb);
 
 //global vars
 bool scroll = false;
@@ -105,7 +108,7 @@ void ChessMain(int player)
     std::vector< std::string > CapturedWhite;
     std::vector< std::string > CapturedBlack;
     std::vector< std::string > Moves;
-    std::vector< DrawPiece > dw;
+    std::vector< DrawPiece > dw, dc;
     
 
 
@@ -249,7 +252,9 @@ void ChessMain(int player)
 // TODO : MOVE PLACEMENT CALCULATIONS OUTSIDE OF DRAWINGS
 //////////////////////////////////////////////////////////////////////////////////
 
-        
+        //temp location for this
+        BuildDrawCaptured(dc, CapturedWhite, CapturedBlack);
+
         
         
         //draw all the things
@@ -265,6 +270,11 @@ void ChessMain(int player)
         {
             s.put_image(*dw[i].getImage(), dw[i].getRect());
         }
+        //draw captured pieces
+        for(int i = 0; i < dc.size(); i++)
+        {
+            s.put_image(*dc[i].getImage(), dc[i].getRect());
+        }
         //draw turn indicator
         if(playerTurn == 0)
         {
@@ -274,77 +284,8 @@ void ChessMain(int player)
         {
             s.put_circle(650, 125, 5, GREEN);
         }
+
         
-        //draw captured white pieces
-        x = 25;
-        y = 150;
-        for(int i = 0; i < CapturedWhite.size(); i++)
-        {
-            if(CapturedWhite[i] == "P")
-            {
-                s.put_image(WPS, Rect(x + (i * 25), y, 25, 25));
-            }
-            else if(CapturedWhite[i] == "R")
-            {
-                s.put_image(WRS, Rect(x + (i * 25), y, 25, 25));
-            }
-            else if(CapturedWhite[i] == "N")
-            {
-                s.put_image(WNS, Rect(x + (i * 25), y, 25, 25));
-            }
-            else if(CapturedWhite[i] == "B")
-            {
-                s.put_image(WBS, Rect(x + (i * 25), y, 25, 25));
-            }
-            else if(CapturedWhite[i] == "Q")
-            {
-                s.put_image(WQS, Rect(x + (i * 25), y, 25, 25));
-            }
-            else if(CapturedWhite[i] == "K")
-            {
-                s.put_image(WKS, Rect(x + (i * 25), y, 25, 25));
-            }
-            if(x + (i * 25) >= 200)
-            {
-                x -= ((i * 25) + 25);
-                y += 25;
-            }
-        }
-        //draw captured black pieces
-        x = 25;
-        y = 350;
-        for(int i = 0; i < CapturedBlack.size(); i++)
-        {
-            if(CapturedBlack[i] == "P")
-            {
-                s.put_image(BPS, Rect(x + (i * 25), y, 25, 25));
-            }
-            else if(CapturedWhite[i] == "R")
-            {
-                s.put_image(BRS, Rect(x + (i * 25), y, 25, 25));
-            }
-            else if(CapturedWhite[i] == "N")
-            {
-                s.put_image(BNS, Rect(x + (i * 25), y, 25, 25));
-            }
-            else if(CapturedWhite[i] == "B")
-            {
-                s.put_image(BBS, Rect(x + (i * 25), y, 25, 25));
-            }
-            else if(CapturedWhite[i] == "Q")
-            {
-                s.put_image(BQS, Rect(x + (i * 25), y, 25, 25));
-            }
-            else if(CapturedWhite[i] == "K")
-            {
-                s.put_image(BKS, Rect(x + (i * 25), y, 25, 25));
-            }
-            if(x + (i * 25) >= 200)
-            {
-                x -= ((i * 25) + 25);
-                y += 25;
-            }
-        }
         //print moves
         if(scroll)
         {
@@ -542,9 +483,7 @@ std::string MoveString(bool captured, std::string type, int rank, int file,
 
 
 int BoardClicked(int mx, int my, Board &b, Rect &bR, int pt)
-{
-    //std::cout << "<<<< board clicked" << std::endl;
-                          
+{                         
     //convert mouse coords to board coords (rank and file)
     int tempx = mx - bR.x;
     int tempy = my - bR.y;
@@ -575,9 +514,6 @@ void BoardReleased(int mx, int my, Board &b, int wpi, Rect &bR, int &pt,
                    std::vector< std::string > &CapturedWhite,
                    std::vector< std::string > &CapturedBlack)
 {
-    //std::cout << "<<<< board released" << std::endl;
-
-
     //convert mouse coords to board coords (rank and file)
     if(wpi >= 0)
     {
@@ -774,5 +710,108 @@ void BuildDrawPiece(std::vector< DrawPiece > &dw, Board &b, Rect &boardRect,
             }
         }                                             
     }
+}
 
+
+void BuildDrawCaptured(std::vector< DrawPiece > &dw,
+                       std::vector< std::string > &cw,
+                       std::vector< std::string > &cb)
+{
+    //draw captured white pieces
+    int x = 25;
+    int y = 150;
+    for(int i = 0; i < cw.size(); i++)
+    {
+        if(cw[i] == "P")
+        {
+            dw.push_back(
+                DrawPiece(&WPS, Rect(x + (i * 25), y, 25, 25))
+                );            
+        }
+        else if(cw[i] == "R")
+        {
+            dw.push_back(
+                DrawPiece(&WRS, Rect(x + (i * 25), y, 25, 25))
+                );
+        }
+        else if(cw[i] == "N")
+        {
+            dw.push_back(
+                DrawPiece(&WNS, Rect(x + (i * 25), y, 25, 25))
+                );
+        }
+        else if(cw[i] == "B")
+        {
+            dw.push_back(
+                DrawPiece(&WBS, Rect(x + (i * 25), y, 25, 25))
+                );
+        }
+        else if(cw[i] == "Q")
+        {
+            dw.push_back(
+                DrawPiece(&WQS, Rect(x + (i * 25), y, 25, 25))
+                );
+        }
+        else if(cw[i] == "K")
+        {
+            dw.push_back(
+                DrawPiece(&WKS, Rect(x + (i * 25), y, 25, 25))
+                );
+        }
+        
+        if(x + (i * 25) >= 200)
+        {
+            x -= ((i * 25) + 25);
+                y += 25;
+        }
+    }
+    
+    //draw captured black pieces
+    x = 25;
+    y = 350;
+    for(int i = 0; i < cb.size(); i++)
+    {
+        if(cb[i] == "P")
+        {
+            dw.push_back(
+                DrawPiece(&BPS, Rect(x + (i * 25), y, 25, 25))
+                );
+        }
+        else if(cb[i] == "R")
+        {
+            dw.push_back(
+                DrawPiece(&BRS, Rect(x + (i * 25), y, 25, 25))
+                );
+        }
+        else if(cb[i] == "N")
+        {
+            dw.push_back(
+                DrawPiece(&BNS, Rect(x + (i * 25), y, 25, 25))
+                    );
+        }
+        else if(cb[i] == "B")
+        {
+            dw.push_back(
+                DrawPiece(&BBS, Rect(x + (i * 25), y, 25, 25))
+                );
+        }
+        else if(cb[i] == "Q")
+        {
+            dw.push_back(
+                DrawPiece(&BQS, Rect(x + (i * 25), y, 25, 25))
+                );
+        }
+        else if(cb[i] == "K")
+        {
+            dw.push_back(
+                DrawPiece(&BKS, Rect(x + (i * 25), y, 25, 25))
+                );
+        }
+        
+        if(x + (i * 25) >= 200)
+        {
+            x -= ((i * 25) + 25);
+            y += 25;
+        }
+    }    
 }
