@@ -11,6 +11,7 @@
 
 
 
+
 //prototypes
 bool RectClicked(int mX, int mY, Rect&);
 std::string MoveString(bool captured, std::string type, int rank, int file,
@@ -28,16 +29,50 @@ void ExitClicked();
 void DrawClicked();
 void ScrollUpClicked();
 void ScrollDownClicked(std::vector< std::string > &Moves);
-
+void BuildDrawPiece(std::vector< DrawPiece > &dw, Board &b, Rect &boardRect,
+    Rect &pieceR);
+void BuildDrawCaptured(std::vector< DrawPiece > &dw,
+                       std::vector< std::string > &cw,
+                       std::vector< std::string > &cb);
 
 //global vars
 bool scroll = false;
 int scrollstart = 2,
     scrollend = 31;
 
+Image WP = Image("images/WhitePawn.png");
+Image WR = Image("images/WhiteRook.png");
+Image WN = Image("images/WhiteKnight.png");
+Image WB = Image("images/WhiteBishop.png");
+Image WQ = Image("images/WhiteQueen.png");
+Image WK = Image("images/WhiteKing.png");    
+Image BP = Image("images/BlackPawn.png");
+Image BR = Image("images/BlackRook.png");
+Image BN = Image("images/BlackKnight.png");
+Image BB = Image("images/BlackBishop.png");
+Image BQ = Image("images/BlackQueen.png");
+Image BK = Image("images/BlackKing.png");    
+Image WPS = Image("images/WhitePawn-Small.png");
+Image BPS = Image("images/BlackPawn-Small.png");
+Image WRS = Image("images/WhiteRook-Small.png");
+Image WNS = Image("images/WhiteKnight-Small.png");
+Image WBS = Image("images/WhiteBishop-Small.png");
+Image WQS = Image("images/WhiteQueen-Small.png");
+Image WKS = Image("images/WhiteKing-Small.png");        
+Image BRS = Image("images/BlackRook-Small.png");
+Image BNS = Image("images/BlackKnight-Small.png");
+Image BBS = Image("images/BlackBishop-Small.png");
+Image BQS = Image("images/BlackQueen-Small.png");
+Image BKS = Image("images/BlackKing-Small.png");
+Image SUP = Image("images/ScrollUp.png");
+Image SDW = Image("images/ScrollDown.png");
+Image quitI = Image("images/Quit.png");
+Image drawI = Image("images/Draw.png");
+Image exitI = Image("images/Exit.png");
+Image boardI = Image("images/Board.png");
+
 void ChessMain(int player)
-{
-    
+{      
     Surface s(W, H);
     Event event;
     Mouse mouse;
@@ -45,47 +80,16 @@ void ChessMain(int player)
     int mousex = -1,
         mousey = -1,
         workingPieceIndex = -1,        
-        option = -1;
+        option = -1,
+        playerTurn = 0,
+        x = 0,
+        y = 0;
     bool clicked = false,
         released = false;
 
 
     Board b = Board();
 
-
-    
-    Image WP = Image("images/WhitePawn.png");
-    Image WR = Image("images/WhiteRook.png");
-    Image WN = Image("images/WhiteKnight.png");
-    Image WB = Image("images/WhiteBishop.png");
-    Image WQ = Image("images/WhiteQueen.png");
-    Image WK = Image("images/WhiteKing.png");    
-    Image BP = Image("images/BlackPawn.png");
-    Image BR = Image("images/BlackRook.png");
-    Image BN = Image("images/BlackKnight.png");
-    Image BB = Image("images/BlackBishop.png");
-    Image BQ = Image("images/BlackQueen.png");
-    Image BK = Image("images/BlackKing.png");    
-    Image WPS = Image("images/WhitePawn-Small.png");
-    Image BPS = Image("images/BlackPawn-Small.png");
-    Image WRS = Image("images/WhiteRook-Small.png");
-    Image WNS = Image("images/WhiteKnight-Small.png");
-    Image WBS = Image("images/WhiteBishop-Small.png");
-    Image WQS = Image("images/WhiteQueen-Small.png");
-    Image WKS = Image("images/WhiteKing-Small.png");        
-    Image BRS = Image("images/BlackRook-Small.png");
-    Image BNS = Image("images/BlackKnight-Small.png");
-    Image BBS = Image("images/BlackBishop-Small.png");
-    Image BQS = Image("images/BlackQueen-Small.png");
-    Image BKS = Image("images/BlackKing-Small.png");
-    Image SUP = Image("images/ScrollUp.png");
-    Image SDW = Image("images/ScrollDown.png");
-    Image quitI = Image("images/Quit.png");
-    Image drawI = Image("images/Draw.png");
-    Image exitI = Image("images/Exit.png");
-    Image boardI = Image("images/Board.png");
-    
-    
 
     Rect boardRect = boardI.getRect(),
         blackRect = Rect(0, 0, 50, 50),
@@ -104,11 +108,8 @@ void ChessMain(int player)
     std::vector< std::string > CapturedWhite;
     std::vector< std::string > CapturedBlack;
     std::vector< std::string > Moves;
-    std::vector< DrawPiece > dw;
+    std::vector< DrawPiece > dw, dc;
     
-    int playerTurn = 0,
-        x = 0,
-        y = 0;
 
 
     //set rect coords
@@ -123,108 +124,28 @@ void ChessMain(int player)
 
 
     //initialize draw pieces            
-    for(int i = 0; i < b.getPieceSize(); i++)
-    {
-        Piece tempP = b.getPiece(i);
-        
-        int tempx = boardRect.x;
-        int tempy = boardRect.y;            
-        
-        
-        tempx += tempP.getFile() * 50;
-        tempy += ((7 - tempP.getRank()) * 50);
-        
-        pieceR.x = tempx;
-        pieceR.y = tempy;
-        
-        if(tempP.getPlayer() == 0)
-        {
-            if(tempP.getType() == "P")
-            {
-                dw.push_back(DrawPiece(&WP, Rect(tempx, tempy, 50, 50)));
-                //s.put_image(WP, pieceR);
-            }
-            else if(tempP.getType() == "R")
-            {
-                dw.push_back(DrawPiece(&WR, Rect(tempx, tempy, 50, 50)));
-                //s.put_image(WR, pieceR);
-            }
-            else if(tempP.getType() == "N")
-            {
-                dw.push_back(DrawPiece(&WN, Rect(tempx, tempy, 50, 50)));
-                //s.put_image(WN, pieceR);
-            }
-            else if(tempP.getType() == "B")
-            {
-                dw.push_back(DrawPiece(&WB, Rect(tempx, tempy, 50, 50)));
-                //s.put_image(WB, pieceR);
-            }
-            else if(tempP.getType() == "Q")
-            {
-                dw.push_back(DrawPiece(&WQ, Rect(tempx, tempy, 50, 50)));
-                //s.put_image(WQ, pieceR);
-            }
-            else if(tempP.getType() == "K")
-            {
-                dw.push_back(DrawPiece(&WK, Rect(tempx, tempy, 50, 50)));
-                //s.put_image(WK, pieceR);
-            }
-        }
-        else if(tempP.getPlayer() == 1)
-        {
-            if(tempP.getType() == "P")
-            {
-                dw.push_back(DrawPiece(&BP, Rect(tempx, tempy, 50, 50)));
-                //s.put_image(BP, pieceR);
-            }
-            else if(tempP.getType() == "R")
-            {
-                dw.push_back(DrawPiece(&BR, Rect(tempx, tempy, 50, 50)));
-                //s.put_image(BR, pieceR);
-            }
-            else if(tempP.getType() == "N")
-            {
-                dw.push_back(DrawPiece(&BN, Rect(tempx, tempy, 50, 50)));
-                //s.put_image(BN, pieceR);
-            }
-            else if(tempP.getType() == "B")
-            {
-                dw.push_back(DrawPiece(&BB, Rect(tempx, tempy, 50, 50)));
-                        //s.put_image(BB, pieceR);
-            }
-            else if(tempP.getType() == "Q")
-            {
-                dw.push_back(DrawPiece(&BQ, Rect(tempx, tempy, 50, 50)));
-                //s.put_image(BQ, pieceR);
-            }
-            else if(tempP.getType() == "K")
-            {
-                dw.push_back(DrawPiece(&BK, Rect(tempx, tempy, 50, 50)));
-                //s.put_image(BK, pieceR);
-            }
-        }                                             
-    }
+    BuildDrawPiece(dw, b, boardRect, pieceR);
     
 
 
     
     while(1)
     {
-        //std::cout << "<<<< entered while statement" << std::endl;
+        //get user input
         if(event.poll())
         {        
             if(event.type() == QUIT) break;
             else
-            {
+            {                                
                 if(event.type() == MOUSEBUTTONDOWN)
-                {
+                {                                        
                     mouse.update(event);                    
                     mousex = mouse.x();
                     mousey = mouse.y();    
                     clicked = true;
                 }
                 else if(event.type() == MOUSEBUTTONUP)
-                {
+                {                    
                     mouse.update(event);
                     mousex = mouse.x();
                     mousey = mouse.y();       
@@ -240,7 +161,7 @@ void ChessMain(int player)
 
         
 
-
+        //determine what was clicked, if anything
         if(clicked)
         {
             if(RectClicked(mousex, mousey, boardRect))
@@ -270,24 +191,31 @@ void ChessMain(int player)
         }
 
 
+        //determine what to do with what was clicked
         switch(option)
         {
             case -1: //nothing clicked
                 break;
-            case 0: //game board clicked
+            case 0: //game board clicked                                
                 if(clicked)
-                {
+                {                    
                     workingPieceIndex =
                         BoardClicked(mousex, mousey, b, boardRect,
-                                     playerTurn);                    
+                                     playerTurn);
                 }
                 else if(released)
-                {
+                {                    
                     BoardReleased(mousex, mousey, b, workingPieceIndex,
                                   boardRect, playerTurn, Moves,
                                   CapturedWhite, CapturedBlack);
                     released = false;
                     workingPieceIndex = -1;
+                    
+                    
+                    //only update draw pieces if they may have made a move
+                    //or later if we receive an update from server
+                    BuildDrawPiece(dw, b, boardRect, pieceR);
+                    BuildDrawCaptured(dc, CapturedWhite, CapturedBlack);
                 }
                 
                 break;
@@ -312,125 +240,21 @@ void ChessMain(int player)
                     ScrollDownClicked(Moves);
                 }                
                 break;                
-            default: //heck if i know what was clicked
-                
+            default: //heck if i know what was clicked                
                 break;
         }
 
 
                 
-            
-            
 
 
         
-        
-        
-        //x = 0;
-        //y = 0;
-
-        
-//######################################################################################
+//#######################################################
 // TODO : MOVE PLACEMENT CALCULATIONS OUTSIDE OF DRAWINGS
-////////////////////////////////////////////////////////////////////////////////////////
-//maybe use a pointer to the image in the piece
-
+/////////////////////////////////////////////////////////
+        
 
         
-// vector of x
-// vector of y
-// vector of images
-
-        if(option == 0)
-        {
-            //only update draw pieces if they may have made a move
-            //or later if we receive an update from server
-
-            dw.clear();
-            
-            for(int i = 0; i < b.getPieceSize(); i++)
-            {
-                Piece tempP = b.getPiece(i);
-
-                int tempx = boardRect.x;
-                int tempy = boardRect.y;            
-                
-                
-                tempx += tempP.getFile() * 50;
-                tempy += ((7 - tempP.getRank()) * 50);
-                
-                pieceR.x = tempx;
-                pieceR.y = tempy;
-                
-                if(tempP.getPlayer() == 0)
-                {
-                    if(tempP.getType() == "P")
-                    {
-                        dw.push_back(DrawPiece(&WP, Rect(tempx, tempy, 50, 50)));
-                        //s.put_image(WP, pieceR);
-                    }
-                    else if(tempP.getType() == "R")
-                    {
-                        dw.push_back(DrawPiece(&WR, Rect(tempx, tempy, 50, 50)));
-                        //s.put_image(WR, pieceR);
-                    }
-                    else if(tempP.getType() == "N")
-                    {
-                        dw.push_back(DrawPiece(&WN, Rect(tempx, tempy, 50, 50)));
-                        //s.put_image(WN, pieceR);
-                    }
-                    else if(tempP.getType() == "B")
-                    {
-                        dw.push_back(DrawPiece(&WB, Rect(tempx, tempy, 50, 50)));
-                        //s.put_image(WB, pieceR);
-                    }
-                    else if(tempP.getType() == "Q")
-                    {
-                        dw.push_back(DrawPiece(&WQ, Rect(tempx, tempy, 50, 50)));
-                        //s.put_image(WQ, pieceR);
-                    }
-                    else if(tempP.getType() == "K")
-                    {
-                        dw.push_back(DrawPiece(&WK, Rect(tempx, tempy, 50, 50)));
-                        //s.put_image(WK, pieceR);
-                    }
-                }
-                else if(tempP.getPlayer() == 1)
-                {
-                    if(tempP.getType() == "P")
-                    {
-                        dw.push_back(DrawPiece(&BP, Rect(tempx, tempy, 50, 50)));
-                        //s.put_image(BP, pieceR);
-                    }
-                    else if(tempP.getType() == "R")
-                    {
-                        dw.push_back(DrawPiece(&BR, Rect(tempx, tempy, 50, 50)));
-                        //s.put_image(BR, pieceR);
-                    }
-                    else if(tempP.getType() == "N")
-                    {
-                        dw.push_back(DrawPiece(&BN, Rect(tempx, tempy, 50, 50)));
-                        //s.put_image(BN, pieceR);
-                    }
-                    else if(tempP.getType() == "B")
-                    {
-                        dw.push_back(DrawPiece(&BB, Rect(tempx, tempy, 50, 50)));
-                        //s.put_image(BB, pieceR);
-                    }
-                    else if(tempP.getType() == "Q")
-                    {
-                        dw.push_back(DrawPiece(&BQ, Rect(tempx, tempy, 50, 50)));
-                        //s.put_image(BQ, pieceR);
-                    }
-                    else if(tempP.getType() == "K")
-                    {
-                        dw.push_back(DrawPiece(&BK, Rect(tempx, tempy, 50, 50)));
-                        //s.put_image(BK, pieceR);
-                    }
-                }                                             
-            }
-        }
-
         
         //draw all the things
         s.lock();
@@ -445,6 +269,11 @@ void ChessMain(int player)
         {
             s.put_image(*dw[i].getImage(), dw[i].getRect());
         }
+        //draw captured pieces
+        for(int i = 0; i < dc.size(); i++)
+        {
+            s.put_image(*dc[i].getImage(), dc[i].getRect());
+        }
         //draw turn indicator
         if(playerTurn == 0)
         {
@@ -454,77 +283,8 @@ void ChessMain(int player)
         {
             s.put_circle(650, 125, 5, GREEN);
         }
+
         
-        //draw captured white pieces
-        x = 25;
-        y = 150;
-        for(int i = 0; i < CapturedWhite.size(); i++)
-        {
-            if(CapturedWhite[i] == "P")
-            {
-                s.put_image(WPS, Rect(x + (i * 25), y, 25, 25));
-            }
-            else if(CapturedWhite[i] == "R")
-            {
-                s.put_image(WRS, Rect(x + (i * 25), y, 25, 25));
-            }
-            else if(CapturedWhite[i] == "N")
-            {
-                s.put_image(WNS, Rect(x + (i * 25), y, 25, 25));
-            }
-            else if(CapturedWhite[i] == "B")
-            {
-                s.put_image(WBS, Rect(x + (i * 25), y, 25, 25));
-            }
-            else if(CapturedWhite[i] == "Q")
-            {
-                s.put_image(WQS, Rect(x + (i * 25), y, 25, 25));
-            }
-            else if(CapturedWhite[i] == "K")
-            {
-                s.put_image(WKS, Rect(x + (i * 25), y, 25, 25));
-            }
-            if(x + (i * 25) >= 200)
-            {
-                x -= ((i * 25) + 25);
-                y += 25;
-            }
-        }
-        //draw captured black pieces
-        x = 25;
-        y = 350;
-        for(int i = 0; i < CapturedBlack.size(); i++)
-        {
-            if(CapturedBlack[i] == "P")
-            {
-                s.put_image(BPS, Rect(x + (i * 25), y, 25, 25));
-            }
-            else if(CapturedWhite[i] == "R")
-            {
-                s.put_image(BRS, Rect(x + (i * 25), y, 25, 25));
-            }
-            else if(CapturedWhite[i] == "N")
-            {
-                s.put_image(BNS, Rect(x + (i * 25), y, 25, 25));
-            }
-            else if(CapturedWhite[i] == "B")
-            {
-                s.put_image(BBS, Rect(x + (i * 25), y, 25, 25));
-            }
-            else if(CapturedWhite[i] == "Q")
-            {
-                s.put_image(BQS, Rect(x + (i * 25), y, 25, 25));
-            }
-            else if(CapturedWhite[i] == "K")
-            {
-                s.put_image(BKS, Rect(x + (i * 25), y, 25, 25));
-            }
-            if(x + (i * 25) >= 200)
-            {
-                x -= ((i * 25) + 25);
-                y += 25;
-            }
-        }
         //print moves
         if(scroll)
         {
@@ -537,6 +297,7 @@ void ChessMain(int player)
                     Moves[i].c_str(), "fonts/FreeSans.ttf", 16, 0, 0, 0);
                 
                 s.put_text(ts, x, y);
+
                 if(i % 2 == 1)
                 {
                     x = 675;
@@ -561,6 +322,7 @@ void ChessMain(int player)
                     Moves[i].c_str(), "fonts/FreeSans.ttf", 16, 0, 0, 0);
                 
                 s.put_text(ts, x, y);
+
                 if(i % 2 == 1)
                 {
                     x = 675;
@@ -578,12 +340,14 @@ void ChessMain(int player)
         s.unlock();
         s.flip();
         
-        delay(10);
+        delay(5);
 
+
+        
         //reset variables        
         mousex = -1;        
         mousey = -1;                
-        clicked = false;
+        clicked = false;        
         if(option != 0)
         {
             option = -1;
@@ -718,9 +482,7 @@ std::string MoveString(bool captured, std::string type, int rank, int file,
 
 
 int BoardClicked(int mx, int my, Board &b, Rect &bR, int pt)
-{
-    //std::cout << "<<<< board clicked" << std::endl;
-                          
+{                         
     //convert mouse coords to board coords (rank and file)
     int tempx = mx - bR.x;
     int tempy = my - bR.y;
@@ -751,9 +513,6 @@ void BoardReleased(int mx, int my, Board &b, int wpi, Rect &bR, int &pt,
                    std::vector< std::string > &CapturedWhite,
                    std::vector< std::string > &CapturedBlack)
 {
-    //std::cout << "<<<< board released" << std::endl;
-
-
     //convert mouse coords to board coords (rank and file)
     if(wpi >= 0)
     {
@@ -869,4 +628,194 @@ void ScrollDownClicked(std::vector< std::string > &Moves)
 }
 
 
+void BuildDrawPiece(std::vector< DrawPiece > &dw, Board &b, Rect &boardRect,
+    Rect &pieceR)
+{
+    //std::cout << "<<<< updating draw pieces" << std::endl;
+    
+    //remove existing pieces
+    if(dw.size() > 0)
+    {
+        dw.clear();
+    }
 
+    
+    for(int i = 0; i < b.getPieceSize(); i++)
+    {
+        Piece tempP = b.getPiece(i);
+        
+        int tempx = boardRect.x;
+        int tempy = boardRect.y;            
+        
+        
+        tempx += tempP.getFile() * 50;
+        tempy += ((7 - tempP.getRank()) * 50);
+        
+        pieceR.x = tempx;
+        pieceR.y = tempy;
+        
+        if(tempP.getPlayer() == 0)
+        {
+            if(tempP.getType() == "P")
+            {
+                dw.push_back(DrawPiece(&WP, Rect(tempx, tempy, 50, 50)));
+            }
+            else if(tempP.getType() == "R")
+            {
+                dw.push_back(DrawPiece(&WR, Rect(tempx, tempy, 50, 50)));
+            }
+            else if(tempP.getType() == "N")
+            {
+                dw.push_back(DrawPiece(&WN, Rect(tempx, tempy, 50, 50)));
+            }
+            else if(tempP.getType() == "B")
+            {
+                dw.push_back(DrawPiece(&WB, Rect(tempx, tempy, 50, 50)));
+            }
+            else if(tempP.getType() == "Q")
+            {
+                dw.push_back(DrawPiece(&WQ, Rect(tempx, tempy, 50, 50)));
+            }
+            else if(tempP.getType() == "K")
+            {
+                dw.push_back(DrawPiece(&WK, Rect(tempx, tempy, 50, 50)));
+            }
+        }
+        else if(tempP.getPlayer() == 1)
+        {
+            if(tempP.getType() == "P")
+            {
+                dw.push_back(DrawPiece(&BP, Rect(tempx, tempy, 50, 50)));
+            }
+            else if(tempP.getType() == "R")
+            {
+                dw.push_back(DrawPiece(&BR, Rect(tempx, tempy, 50, 50)));
+            }
+            else if(tempP.getType() == "N")
+            {
+                dw.push_back(DrawPiece(&BN, Rect(tempx, tempy, 50, 50)));
+            }
+            else if(tempP.getType() == "B")
+            {
+                dw.push_back(DrawPiece(&BB, Rect(tempx, tempy, 50, 50)));
+            }
+            else if(tempP.getType() == "Q")
+            {
+                dw.push_back(DrawPiece(&BQ, Rect(tempx, tempy, 50, 50)));
+            }
+            else if(tempP.getType() == "K")
+            {
+                dw.push_back(DrawPiece(&BK, Rect(tempx, tempy, 50, 50)));
+            }
+        }                                             
+    }
+}
+
+
+void BuildDrawCaptured(std::vector< DrawPiece > &dw,
+                       std::vector< std::string > &cw,
+                       std::vector< std::string > &cb)
+{
+    if(dw.size() > 0)
+    {
+        dw.clear();
+    }
+    
+    //draw captured white pieces
+    int x = 25;
+    int y = 150;
+    for(int i = 0; i < cw.size(); i++)
+    {
+        if(cw[i] == "P")
+        {
+            dw.push_back(
+                DrawPiece(&WPS, Rect(x + (i * 25), y, 25, 25))
+                );            
+        }
+        else if(cw[i] == "R")
+        {
+            dw.push_back(
+                DrawPiece(&WRS, Rect(x + (i * 25), y, 25, 25))
+                );
+        }
+        else if(cw[i] == "N")
+        {
+            dw.push_back(
+                DrawPiece(&WNS, Rect(x + (i * 25), y, 25, 25))
+                );
+        }
+        else if(cw[i] == "B")
+        {
+            dw.push_back(
+                DrawPiece(&WBS, Rect(x + (i * 25), y, 25, 25))
+                );
+        }
+        else if(cw[i] == "Q")
+        {
+            dw.push_back(
+                DrawPiece(&WQS, Rect(x + (i * 25), y, 25, 25))
+                );
+        }
+        else if(cw[i] == "K")
+        {
+            dw.push_back(
+                DrawPiece(&WKS, Rect(x + (i * 25), y, 25, 25))
+                );
+        }
+        
+        if(x + (i * 25) >= 200)
+        {
+            x -= ((i * 25) + 25);
+                y += 25;
+        }
+    }
+    
+    //draw captured black pieces
+    x = 25;
+    y = 350;
+    for(int i = 0; i < cb.size(); i++)
+    {
+        if(cb[i] == "P")
+        {
+            dw.push_back(
+                DrawPiece(&BPS, Rect(x + (i * 25), y, 25, 25))
+                );
+        }
+        else if(cb[i] == "R")
+        {
+            dw.push_back(
+                DrawPiece(&BRS, Rect(x + (i * 25), y, 25, 25))
+                );
+        }
+        else if(cb[i] == "N")
+        {
+            dw.push_back(
+                DrawPiece(&BNS, Rect(x + (i * 25), y, 25, 25))
+                    );
+        }
+        else if(cb[i] == "B")
+        {
+            dw.push_back(
+                DrawPiece(&BBS, Rect(x + (i * 25), y, 25, 25))
+                );
+        }
+        else if(cb[i] == "Q")
+        {
+            dw.push_back(
+                DrawPiece(&BQS, Rect(x + (i * 25), y, 25, 25))
+                );
+        }
+        else if(cb[i] == "K")
+        {
+            dw.push_back(
+                DrawPiece(&BKS, Rect(x + (i * 25), y, 25, 25))
+                );
+        }
+        
+        if(x + (i * 25) >= 200)
+        {
+            x -= ((i * 25) + 25);
+            y += 25;
+        }
+    }    
+}
