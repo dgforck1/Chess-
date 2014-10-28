@@ -21,43 +21,52 @@
 #include "ChessGame.h"
 
 
-
+//prototypes
 int Welcome();
+void Make();
+int Join();
+void Watch();
+void Load();
 bool MainRectClicked(int mX, int mY, Rect& r);
+
+
+
+
 
 
 int main()
 {
-    //bool RectClicked(int mX, int mY, Rect&);
     int choice = -1;
     int player = 0;
-    
 
-    choice = Welcome(); //main menu
-
-    //std::cout << "<<<< debug point 1" << std::endl;
+    bool play = true;
     
-    switch(choice)
+    while(play)
     {
-        case 0: //exit game entirely
-            break;
-        case 1: //make game            
-            break;
-        case 2: //join game
-            break;
-        case 3: //watch game
-            break;
-        case 4: //load game
-            break;
-        default:
-            //std::cout << "<<<< choice: " << choice << std::endl;
-            break;
+        choice = Welcome(); //main menu
+
+    
+        switch(choice)
+        {
+            case 0: //exit game entirely
+                play = false;
+                break;
+            case 1: //make game
+                Make();                
+                break;
+            case 2: //join game
+                Join();
+                break;
+            case 3: //watch game
+                break;
+            case 4: //load game
+                break;
+            default:
+                //std::cout << "<<<< choice: " << choice << std::endl;
+                break;
+        }                        
     }
 
-//    std::cout << "<<<< debug point 2" << std::endl;
-    ChessMain(0);
-
-    //  std::cout << "<<<< debug point last" << std::endl;
     
     return 0;
 }
@@ -114,7 +123,10 @@ int Welcome()
     {
         if(event.poll())
         {        
-            if(event.type() == QUIT) break;
+            if(event.type() == QUIT)
+            {
+                return 0;
+            }
             else
             {
                 if(event.type() == MOUSEBUTTONDOWN)
@@ -140,27 +152,22 @@ int Welcome()
         {
             if(MainRectClicked(mousex, mousey, exitR))
             {
-                //std::cout << "<<<< exit clicked" << std::endl;
                 return 0;
             }
             else if(MainRectClicked(mousex, mousey, makeR))
             {
-                //std::cout << "<<<< make clicked" << std::endl;
                 return 1;
             }
             else if(MainRectClicked(mousex, mousey, joinR))
             {
-                //std::cout << "<<<< join clicked" << std::endl;
                 return 2;
             }
             else if(MainRectClicked(mousex, mousey, watchR))
             {
-                //std::cout << "<<<< watch clicked" << std::endl;
                 return 3;
             }
             else if(MainRectClicked(mousex, mousey, loadR))
             {
-                //std::cout << "<<<< load clicked" << std::endl;
                 return 4;
             }
 
@@ -202,4 +209,86 @@ bool MainRectClicked(int mX, int mY, Rect& r)
     }
     
     return false;
+}
+
+
+void Make()
+{
+    ChessMain(0);
+}
+
+
+int Join()
+{
+    Surface sm(W, H);
+    Event event;
+    Mouse mouse;
+
+    int mousex = -1, mousey = -1;
+    bool clicked = false,
+        released = false;
+
+
+    //images
+    Image searchI = Image("images/SearchForGame.png");
+    Image cancelI = Image("images/Cancel.png");
+    
+    
+    
+    //rects
+    Rect searchR = searchI.getRect();
+    Rect cancelR = cancelI.getRect();
+    
+
+    //set rect locations
+    searchR.x = (W / 2) - (searchR.w / 2);
+    searchR.y = (H / 2) - (searchR.h / 2);
+    
+
+    while(1)
+    {
+        if(event.poll())
+        {        
+            if(event.type() == QUIT)
+            {
+                return 0;
+            }
+            else
+            {
+                if(event.type() == MOUSEBUTTONDOWN)
+                {
+                    mouse.update(event);                    
+                    mousex = mouse.x();
+                    mousey = mouse.y();                                        
+                    clicked = true;
+                }
+            }
+        }
+        
+        
+
+        if(clicked)
+        {
+            if(MainRectClicked(mousex, mousey, cancelR))
+            {
+                return -1;
+            }            
+
+            //reset vars
+            clicked = false;
+            mousex = -1;
+            mousey = -1;
+        }
+
+    
+        //print all the things!!!
+        sm.lock();
+        sm.fill(GRAY);
+        sm.put_image(searchI, searchR);
+        sm.put_image(cancelI, cancelR);
+        sm.unlock();
+        sm.flip();
+        
+        delay(10);
+    }
 }
