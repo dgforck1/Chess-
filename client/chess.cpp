@@ -10,6 +10,7 @@
 //  promotion -- think I got this done... modified the piece move function
 //  test checkmate
 //  test checkmove2
+//  stalemate
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -332,6 +333,14 @@ void Piece::movePiece(int destR, int destF)
     {type = "Q";}
     rank = destR;
     file = destF;
+}
+
+
+bool Piece::operator==(const Piece & p)const
+{
+    return (rank == p.getRank() && file == p.getFile()
+            && player == p.getPlayer() && moved == p.getMoved()
+            && type == p.getType());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -853,6 +862,7 @@ std::string Board::capturePiece(int i)
     p.erase(p.begin() + i);
     return ret;
 }
+
 void Board::printBoard() const
 {
     for (int i = 0; i < 8; i++)
@@ -864,11 +874,17 @@ void Board::printBoard() const
         std::cout << std::endl;
     }
 }
+
 int Board::getPieceSize() const
 {
     return p.size();
 }
 
+std::string Board::getSquare(int r, int f) const
+{
+    return board[r][f];
+}
+    
 bool Board::checkmate(int player)// player is the person checking their enemy for mate
 {
     std::vector<Piece> t1;// mater
@@ -1322,14 +1338,20 @@ std::vector<int> findThreats(int player, std::string board[][8],
     return threats;
 }
 
+bool Board::stalemate(int p) // turn player
+{return false;}
+// king cannot make any moves but isnt in check
+// rest of pieces cannot make any moves
+//      (check this part by seeing in any pertient moves(based on piece)
+//       are good moves)
 
 
 
 
-int main()
-{
-    return 0;
-}
+// int main()
+// {
+//     return 0;
+// }
 
 
 
