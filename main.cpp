@@ -371,27 +371,21 @@ int Load()
         }*/
 
     std::vector< std::string > SaveFiles; //list of all of the save files
+    std::vector< std::string > Contents; //file contents
     std::fstream saves("saves/saves.txt", std::fstream::in
                        | std::fstream::app);
 
     if(saves.is_open())
     {
-        std::string temp;
-        
-        std::cout << "<<<< opened the file" << std::endl;
-
+        std::string temp;               
         saves >> temp;
 
-        std::cout << "initial temp: " << temp << std::endl;
-
+        //get list of saved files from saves/saves.txt
         while(temp.size() > 1)
         {
-            std::cout << "substring: "
-                      << temp.substr(0, temp.find("||"))
-                      << std::endl;
-
-
-            if(temp.find("||") > 0)
+            std::size_t found = temp.find("||");
+            
+            if(found != std::string::npos)
             {
                 SaveFiles.push_back(temp.substr(0, temp.find("||")));
                 temp = temp.substr(temp.find("||") + 2);
@@ -400,21 +394,40 @@ int Load()
             {
                 SaveFiles.push_back(temp);
                 temp = "";
-            }
-            
-            std::cout << "shrunk down temp: "
-                      << temp
-                      << std::endl;
-            
+            }                        
         }
-        /*
-        SaveFiles.push_back(temp);
 
+
+        //get the contents of each file
         for(int i = 0; i < SaveFiles.size(); i++)
         {
-            std::cout << SaveFiles[i] << std::endl;
+            std::string path = "saves/" + SaveFiles[i];
+            
+            std::fstream c (path.c_str(), std::fstream::in
+                       | std::fstream::app);
+
+            std::string line;
+            std::string content = "";
+
+            while(std::getline(c, line))
+            {
+                std::cout << "<<<< current line: " << line << std::endl;
+                content.append(line);
+            }
+            
+            Contents.push_back(content);
         }
-        */
+
+        
+        for(int i = 0; i < SaveFiles.size(); i++)
+        {
+            std::cout << SaveFiles[i] << std::endl
+                      << Contents[i]
+                      << std::endl
+                      << "/////////////////"
+                      << std::endl;
+        }
+        
     }
     else
     {
