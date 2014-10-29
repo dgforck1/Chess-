@@ -300,14 +300,14 @@ int Join()
 
 int Load()
 {
-    /*Surface sm(W, H);
+    Surface sm(W, H);
     Event event;
     Mouse mouse;
     
     int mousex = -1, mousey = -1;
     bool clicked = false,
         released = false;
-
+    
 
     //images
     Image exitI = Image("images/Exit.png");
@@ -321,10 +321,72 @@ int Load()
     //set rect locations
     exitR.x = 900 - exitR.w;
 
-    
-    
+    std::vector< std::string > SaveFiles; //list of all of the save files
+    std::vector< std::string > Contents; //file contents
+    std::fstream saves("saves/saves.txt", std::fstream::in
+                       | std::fstream::app);
 
-/*    while(1)
+    if(saves.is_open())
+    {
+        std::string temp;               
+        saves >> temp;
+        
+        //get list of saved files from saves/saves.txt
+        while(temp.size() > 1)
+        {
+            std::size_t found = temp.find("||");
+            
+            if(found != std::string::npos)
+            {
+                SaveFiles.push_back(temp.substr(0, temp.find("||")));
+                temp = temp.substr(temp.find("||") + 2);
+            }
+            else
+            {
+                SaveFiles.push_back(temp);
+                temp = "";
+            }                        
+        }
+        
+        
+        //get the contents of each file
+        for(int i = 0; i < SaveFiles.size(); i++)
+        {
+            std::string path = "saves/" + SaveFiles[i];
+            
+            std::fstream c (path.c_str(), std::fstream::in
+                            | std::fstream::app);
+            
+            if(c.is_open())
+            {
+                std::string line;
+                std::string content = "";
+                
+                while(std::getline(c, line))
+                {
+                    content.append(line);
+                }
+                
+                Contents.push_back(content);
+            }
+            else
+            {
+                std::cout << "<<<< couldn't open the specific file"
+                          << std::endl;
+            }
+        }        
+    }
+    else
+    {
+        std::cout << "<<<< couldn't open the saves file" << std::endl;
+    }
+    
+    
+    saves.close();    
+    
+    int saveindex = -1;
+        
+    while(1)
     {
         if(event.poll())
         {        
@@ -351,89 +413,59 @@ int Load()
             if(MainRectClicked(mousex, mousey, exitR))
             {
                 return 0;
-            }            
+            }
 
+            for(int i = 0; i < SaveFiles.size(); i++)
+            {
+                TextSurface ts = TextSurface(
+                    SaveFiles[i].c_str(), "fonts/FreeSans.ttf", 16, 0, 0, 0);
+                
+                Rect tempR = Rect(20, (i * ts.getHeight()) + 100,
+                                  ts.getWidth(), ts.getHeight());
+
+                if(MainRectClicked(mousex, mousey, tempR))
+                {
+                    saveindex = i;
+                }                
+            }
+            
             //reset vars
             clicked = false;
             mousex = -1;
             mousey = -1;
         }
-
-    
+        
+        
         //print all the things!!!
         sm.lock();
         sm.fill(GRAY);
+        //print saves games        
+        for(int i = 0; i < SaveFiles.size(); i++)
+        {            
+            TextSurface ts = TextSurface(
+                SaveFiles[i].c_str(), "fonts/FreeSans.ttf", 16, 0, 0, 0);
+
+            sm.put_rect(20, (i * ts.getHeight()) + 100, ts.getWidth(),
+                        ts.getHeight(), 0, 200, 0);
+            
+            sm.put_text(ts, 20, (i * ts.getHeight()) + 100);
+        }
+        if(saveindex > -1)
+        {
+            TextSurface ts = TextSurface(
+                Contents[saveindex].c_str(), "fonts/FreeSans.ttf", 16, 0, 0,
+                0);
+            
+            sm.put_rect(200, 100, ts.getWidth(),
+                        ts.getHeight(), 0, 200, 0);
+            
+            sm.put_text(ts, 200, 100);
+        }                    
         sm.put_image(exitI, exitR);
         sm.unlock();
         sm.flip();
         
         delay(10);
-        }*/
-
-    std::vector< std::string > SaveFiles; //list of all of the save files
-    std::vector< std::string > Contents; //file contents
-    std::fstream saves("saves/saves.txt", std::fstream::in
-                       | std::fstream::app);
-
-    if(saves.is_open())
-    {
-        std::string temp;               
-        saves >> temp;
-
-        //get list of saved files from saves/saves.txt
-        while(temp.size() > 1)
-        {
-            std::size_t found = temp.find("||");
-            
-            if(found != std::string::npos)
-            {
-                SaveFiles.push_back(temp.substr(0, temp.find("||")));
-                temp = temp.substr(temp.find("||") + 2);
-            }
-            else
-            {
-                SaveFiles.push_back(temp);
-                temp = "";
-            }                        
-        }
-
-
-        //get the contents of each file
-        for(int i = 0; i < SaveFiles.size(); i++)
-        {
-            std::string path = "saves/" + SaveFiles[i];
-            
-            std::fstream c (path.c_str(), std::fstream::in
-                       | std::fstream::app);
-
-            std::string line;
-            std::string content = "";
-
-            while(std::getline(c, line))
-            {
-                std::cout << "<<<< current line: " << line << std::endl;
-                content.append(line);
-            }
-            
-            Contents.push_back(content);
-        }
-
-        
-        for(int i = 0; i < SaveFiles.size(); i++)
-        {
-            std::cout << SaveFiles[i] << std::endl
-                      << Contents[i]
-                      << std::endl
-                      << "/////////////////"
-                      << std::endl;
-        }
-        
-    }
-    else
-    {
-        std::cout << "<<<< couldn't open the file" << std::endl;
     }
 
-    
-    saves.close();
 }
