@@ -10,7 +10,7 @@
 #include "compgeom.h"
 
 
-
+//fixing mikey's fuckup
 //prototypes
 bool RectClicked(int mX, int mY, Rect&);
 std::string MoveString(bool captured, std::string type, int rank, int file,
