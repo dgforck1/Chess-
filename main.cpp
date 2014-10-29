@@ -9,6 +9,7 @@
 #include <cstdlib>
 #include <sstream>
 
+
 //sdl libraries
 #include "Includes.h"
 #include "Constants.h"
@@ -26,10 +27,8 @@ int Welcome();
 void Make();
 int Join();
 void Watch();
-void Load();
+int Load();
 bool MainRectClicked(int mX, int mY, Rect& r);
-
-
 
 
 
@@ -55,16 +54,21 @@ int main()
                 Make();                
                 break;
             case 2: //join game
-                Join();
+                choice = Join();
                 break;
             case 3: //watch game
                 break;
             case 4: //load game
+                choice = Load();
                 break;
             default:
-                //std::cout << "<<<< choice: " << choice << std::endl;
                 break;
-        }                        
+        }
+
+        if(choice == 0)
+        {
+            play = false;
+        }
     }
 
     
@@ -291,4 +295,132 @@ int Join()
         
         delay(10);
     }
+}
+
+
+int Load()
+{
+    /*Surface sm(W, H);
+    Event event;
+    Mouse mouse;
+    
+    int mousex = -1, mousey = -1;
+    bool clicked = false,
+        released = false;
+
+
+    //images
+    Image exitI = Image("images/Exit.png");
+    
+    
+    
+    //rects
+    Rect exitR = exitI.getRect();
+    
+
+    //set rect locations
+    exitR.x = 900 - exitR.w;
+
+    
+    
+
+/*    while(1)
+    {
+        if(event.poll())
+        {        
+            if(event.type() == QUIT)
+            {
+                return 0;
+            }
+            else
+            {
+                if(event.type() == MOUSEBUTTONDOWN)
+                {
+                    mouse.update(event);                    
+                    mousex = mouse.x();
+                    mousey = mouse.y();                                        
+                    clicked = true;
+                }
+            }
+        }
+        
+        
+
+        if(clicked)
+        {
+            if(MainRectClicked(mousex, mousey, exitR))
+            {
+                return 0;
+            }            
+
+            //reset vars
+            clicked = false;
+            mousex = -1;
+            mousey = -1;
+        }
+
+    
+        //print all the things!!!
+        sm.lock();
+        sm.fill(GRAY);
+        sm.put_image(exitI, exitR);
+        sm.unlock();
+        sm.flip();
+        
+        delay(10);
+        }*/
+
+    std::vector< std::string > SaveFiles; //list of all of the save files
+    std::fstream saves("saves/saves.txt", std::fstream::in
+                       | std::fstream::app);
+
+    if(saves.is_open())
+    {
+        std::string temp;
+        
+        std::cout << "<<<< opened the file" << std::endl;
+
+        saves >> temp;
+
+        std::cout << "initial temp: " << temp << std::endl;
+
+        while(temp.size() > 1)
+        {
+            std::cout << "substring: "
+                      << temp.substr(0, temp.find("||"))
+                      << std::endl;
+
+
+            if(temp.find("||") > 0)
+            {
+                SaveFiles.push_back(temp.substr(0, temp.find("||")));
+                temp = temp.substr(temp.find("||") + 2);
+            }
+            else
+            {
+                SaveFiles.push_back(temp);
+                temp = "";
+            }
+            
+            std::cout << "shrunk down temp: "
+                      << temp
+                      << std::endl;
+            
+        }
+        /*
+        SaveFiles.push_back(temp);
+
+        for(int i = 0; i < SaveFiles.size(); i++)
+        {
+            std::cout << SaveFiles[i] << std::endl;
+        }
+        */
+    }
+    else
+    {
+        std::cout << "<<<< couldn't open the file" << std::endl;
+    }
+
+    
+    saves.close();
 }
