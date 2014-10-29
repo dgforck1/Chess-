@@ -29,6 +29,7 @@ int Join();
 void Watch();
 int Load();
 bool MainRectClicked(int mX, int mY, Rect& r);
+void getSaves(std::vector<std::string> &s);
 
 
 
@@ -300,11 +301,13 @@ int Join()
 
 int Load()
 {
+    std::cout << "<<<< got to load function" << std::endl;
+    
     Surface sm(W, H);
     Event event;
     Mouse mouse;
     
-    int mousex = -1, mousey = -1;
+    int mousex = -1, mousey = -1, saveindex = -1;
     bool clicked = false,
         released = false;
     
@@ -323,69 +326,11 @@ int Load()
 
     std::vector< std::string > SaveFiles; //list of all of the save files
     std::vector< std::string > Contents; //file contents
-    std::fstream saves("saves/saves.txt", std::fstream::in
-                       | std::fstream::app);
+    
+       
 
-    if(saves.is_open())
-    {
-        std::string temp;               
-        saves >> temp;
-        
-        //get list of saved files from saves/saves.txt
-        while(temp.size() > 1)
-        {
-            std::size_t found = temp.find("||");
-            
-            if(found != std::string::npos)
-            {
-                SaveFiles.push_back(temp.substr(0, temp.find("||")));
-                temp = temp.substr(temp.find("||") + 2);
-            }
-            else
-            {
-                SaveFiles.push_back(temp);
-                temp = "";
-            }                        
-        }
-        
-        
-        //get the contents of each file
-        for(int i = 0; i < SaveFiles.size(); i++)
-        {
-            std::string path = "saves/" + SaveFiles[i];
-            
-            std::fstream c (path.c_str(), std::fstream::in
-                            | std::fstream::app);
-            
-            if(c.is_open())
-            {
-                std::string line;
-                std::string content = "";
-                
-                while(std::getline(c, line))
-                {
-                    content.append(line);
-                }
-                
-                Contents.push_back(content);
-            }
-            else
-            {
-                std::cout << "<<<< couldn't open the specific file"
-                          << std::endl;
-            }
-        }        
-    }
-    else
-    {
-        std::cout << "<<<< couldn't open the saves file" << std::endl;
-    }
+    getSaves(SaveFiles);
     
-    
-    saves.close();    
-    
-    int saveindex = -1;
-        
     while(1)
     {
         if(event.poll())
@@ -410,23 +355,38 @@ int Load()
 
         if(clicked)
         {
+            saveindex= -1;
+            
             if(MainRectClicked(mousex, mousey, exitR))
             {
                 return 0;
             }
 
-            for(int i = 0; i < SaveFiles.size(); i++)
+            for(int i = 0; i < SaveFiles.size(); i++)            
             {
                 TextSurface ts = TextSurface(
                     SaveFiles[i].c_str(), "fonts/FreeSans.ttf", 16, 0, 0, 0);
                 
-                Rect tempR = Rect(20, (i * ts.getHeight()) + 100,
-                                  ts.getWidth(), ts.getHeight());
+                Rect tempR =
+                    Rect(20, (i * ts.getHeight()) + 100, ts.getWidth(),
+                         ts.getHeight());
 
                 if(MainRectClicked(mousex, mousey, tempR))
                 {
                     saveindex = i;
                 }                
+            }
+
+            if(saveindex > -1)
+            {
+                //this is a hack in place of having time to create
+                //a text box in sdl
+                if(system(NULL))
+                {
+                    std::string c = "pluma saves/" + SaveFiles[saveindex];
+                    system(c.c_str());
+                }
+                
             }
             
             //reset vars
@@ -450,22 +410,46 @@ int Load()
             
             sm.put_text(ts, 20, (i * ts.getHeight()) + 100);
         }
-        if(saveindex > -1)
-        {
-            TextSurface ts = TextSurface(
-                Contents[saveindex].c_str(), "fonts/FreeSans.ttf", 16, 0, 0,
-                0);
-            
-            sm.put_rect(200, 100, ts.getWidth(),
-                        ts.getHeight(), 0, 200, 0);
-            
-            sm.put_text(ts, 200, 100);
-        }                    
         sm.put_image(exitI, exitR);
         sm.unlock();
         sm.flip();
         
         delay(10);
     }
+    
+}
 
+
+
+
+void getSaves(std::vector<std::string> &s)
+{
+    std::fstream saves("saves/saves.txt", std::fstream::in
+                       | std::fstream::app);
+    
+    if(saves.is_open())
+    {
+        std::string temp;               
+        saves >> temp;
+        
+        //get list of saved files from saves/saves.txt
+        while(temp.size() > 1)
+        {
+            std::size_t found = temp.find("||");
+            
+            if(found != std::string::npos)
+            {
+                s.push_back(temp.substr(0, temp.find("||")));
+                temp = temp.substr(temp.find("||") + 2);
+            }
+            else
+            {
+                s.push_back(temp);
+                temp = "";
+            }                        
+        }
+        
+    
+        saves.close();        
+    }
 }
