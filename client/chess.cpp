@@ -8,9 +8,6 @@
 // TO DO:
 //  en passant
 //  promotion -- think I got this done... modified the piece move function
-//  test checkmate
-//  test checkmove2
-//  stalemate
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -70,20 +67,35 @@ std::string Piece::getType() const
 bool Piece::checkMove(int destR, int destF, std::string B[][8],
                       std::vector <Piece> p) const
 {
+//     std::cout << std::endl << *this << std::endl;
+//     std::cout << "in Piece::checkMove " << (player ? "Black" : "White") << std::endl;
+//     std::cout << "move on board?" << std::endl;
+    
     // check if the move is on the board
     if (destR < 0 || destR > 7 || destF < 0 || destF > 7)
     {
-        // std::cout << "move outside bounds of board" << std::endl;
+        
+//         std::cout << "\tmove outside bounds of board" << std::endl;
+
         return false;
     }
+    
+//     std::cout << "\tmove on the board" << std::endl;
+//     std::cout << "move off origional square?" << std::endl;
+    
     // check if they actually moved the piece
     if (destR == rank && destF == file)
     {
-        // std::cout << "you didnt move the piece to a new square"
-        //           << std::endl; 
+        
+//         std::cout << "\tyou didnt move the piece to a new square"
+//                   << std::endl; 
+
         return false;
     }
 
+//     std::cout << "\tmove is off origional square" << std::endl;
+//     std::cout << "piece at target location?" << std::endl;
+    
     // figure out if there is a piece at the target location and who's it is
     int targetPieceIndex = -1;
     int targetPiecePlayer = -1;
@@ -93,16 +105,24 @@ bool Piece::checkMove(int destR, int destF, std::string B[][8],
         {
             targetPieceIndex = i;
             targetPiecePlayer = p[i].getPlayer();
+//             std::cout << "\tyes : " << p[i] << std::endl;
             break;
         }
     }
-
+    
     // if there is a piece at the target location...
     if (targetPieceIndex > -1)
     {
+        
+//         std::cout << "\nin the \"there is a target piece\" location" << std::endl;
+//         std::cout << "piece friendly?" << std::endl;
+
         // if the piece at the target location isn't the player's...
         if (player != targetPiecePlayer)
         {
+            
+//             std::cout << "\tthe target is not a friendly piece" << std::endl;
+
             // get a temporary board and list of pieces where the move was made
             // so we can see if that would put the player's king in check
             std::vector<Piece> t1 = p;
@@ -204,11 +224,13 @@ bool Piece::checkMove(int destR, int destF, std::string B[][8],
     }
     else// en passant stuff down here
     {
+//        std::cout << "in the \"no target piece section\"" << std::endl;
         // get a temporary board and list of pieces where the move was made
         // so we can see if that would put the player's king in check
         std::vector<Piece> t1 = p;
-        t1.erase(t1.begin() + targetPieceIndex);
+//        std::cout << "f" << std::endl;
         t1[findPiece(rank, file, p)].movePiece(destR, destF);
+//        std::cout << "uc" << std::endl;
         std::string t2 [8][8];
         for (int i = 0; i < 8; i++)
         {
@@ -217,11 +239,12 @@ bool Piece::checkMove(int destR, int destF, std::string B[][8],
                 t2[j][i] = " ";
             }
         }
+//        std::cout << "k" << std::endl;
         for (int i = 0; i < p.size(); i++)
         {
             t2[t1[i].getRank()][t1[i].getFile()] = t1[i].getType();
         }
-        
+//        std::cout << "getting ready to check for check" << std::endl;
         // if the move doesn't put the player's king in check...
         if (!putsKingInCheck(player, t2, t1))
         {
@@ -840,6 +863,7 @@ int Board::getPieceIndex(int r, int f)
 }
 bool Board::checkMove(int i, int destR, int destF)
 {
+//    std::cout << "in the Board::checkMove" << std::endl;
     return p[i].checkMove(destR, destF, board, p);
 }
 void Board::movePiece(int i, int destR, int destF)
@@ -901,6 +925,7 @@ bool Board::checkmate(int player)// player is the person checking their enemy fo
             t1.push_back(p[i]);
     }
     bool inCheck = putsKingInCheck(player, board, p);
+
     if (inCheck)
     {
         int kingRank, kingFile, kingi;
@@ -985,7 +1010,7 @@ bool Board::checkmate(int player)// player is the person checking their enemy fo
             for (int i = 0; i < threats.size(); i++)
             {
                 if (p[threats[i]].getType() == "N")
-                    break;
+                    return true;
                 else
                 {
                     int threati = threats[i];
@@ -1153,9 +1178,10 @@ bool Board::checkmate(int player)// player is the person checking their enemy fo
                     }
                 }
             }
+            return true;
         }
     }
-    return true;
+    return false;
 }
 
 std::vector<int> findThreats(int player, std::string board[][8],
@@ -1338,8 +1364,285 @@ std::vector<int> findThreats(int player, std::string board[][8],
     return threats;
 }
 
-bool Board::stalemate(int p) // turn player
-{return false;}
+bool Board::stalemate(int player) // turn player
+{
+//     std::cout << "\n\nin stalemate" << std::endl;
+//     std::cout << "turn player is " << (player ? "Black" : "White") << std::endl;
+    
+    std::vector<Piece> t2;// turn player pieces
+    std::vector<int> t2i;// t2 piece index in p
+    for (int i = 0; i < p.size(); i++)
+    {
+        if (p[i].getPlayer() == player)
+        {
+            t2.push_back(p[i]);
+            t2i.push_back(i);
+        }
+    }
+//     std::cout << t2.size() << std::endl;
+//     std::cout << std::endl << std::endl << std::endl;
+//     for (int i = 0; i < t2.size(); i++)
+//         std::cout << t2[i] << std::endl;
+//     std::cout << std::endl << std::endl << std::endl;
+    bool inCheck = putsKingInCheck(player, board, p);
+
+//     std::cout << "in check? " << (inCheck ? "Yes" : "No") << std::endl;
+    
+    if (inCheck)
+        return false;
+    else
+    {
+        bool stalemate = true;
+        // find king
+        int kingRank, kingFile, kingi;
+        for (int i = 0; i < t2.size(); i++)
+        {
+            if (t2[i].getType() == "K")
+            {
+                kingRank = t2[i].getRank();
+                kingFile = t2[i].getFile();
+                kingi = i;
+                break;
+            }
+        }
+//         std::cout << kingRank << ", "  << kingFile << std::endl;
+//         std::cout << "can king move?" << std::endl;;
+ 
+        // can king move?
+        for (int i = 0; i < 8; i++)
+        {
+            int destR, destF;
+            switch(i)
+            {
+                case 0: destR = kingRank; destF = kingFile + 1; break;
+                case 1: destR = kingRank; destF = kingFile - 1; break;
+                case 2: destR = kingRank + 1; destF = kingFile + 1; break;
+                case 3: destR = kingRank + 1; destF = kingFile - 1; break;
+                case 4: destR = kingRank - 1; destF = kingFile + 1; break;
+                case 5: destR = kingRank - 1; destF = kingFile - 1; break;
+                case 6: destR = kingRank + 1; destF = kingFile; break;
+                case 7: destR = kingRank - 1; destF = kingFile; break;
+            }
+//             std::cout << destR << ", " << destF << std::endl;
+//             std::cout << t2[kingi];
+            if (checkMove(t2i[kingi], destR, destF))
+            {
+
+//                 std::cout << "No" << std::endl;
+
+                stalemate = false;
+                break;
+            }
+        }
+        if (!stalemate)
+            return false;
+
+//         std::cout << "Yes" << std::endl; 
+
+        // can the other player pieces move?
+
+//         std::cout << "other pieces..." << std::endl;
+
+        for (int i = 0; i < t2.size(); i++)
+        {
+            int pieceRank = t2[i].getRank(),
+                pieceFile = t2[i].getFile(),
+                pieceIndex = t2i[i];
+            std::string pieceType = t2[i].getType();
+
+//             std::cout << "\t" << pieceType << " " << pieceRank << ", " << pieceFile;
+
+            std::vector<int> newr;
+            std::vector<int> newf;
+            if (pieceType == "P")
+            {
+
+//                 std::cout << " " << (player ? "Black" : "White") << std::endl;
+//                 std::cout << player << std::endl;
+
+                if (player == 0)// player is white
+                {
+//                     std::cout << "entering the blarg white" << std::endl;
+//                     std::cout << newr.size() << ' ' << newf.size() << std::endl;
+                    
+                    //straight ahead
+                    newr.push_back(pieceRank + 1);
+                    newf.push_back(pieceFile);
+                    //attack left
+                    newr.push_back(pieceRank + 1);
+                    newf.push_back(pieceFile - 1);
+                    //attack right
+                    newr.push_back(pieceRank + 1);
+                    newf.push_back(pieceFile + 1);
+
+//                     std::cout << "got the place allocated white" << std::endl;
+                    
+                }
+                else// player is black
+                {
+
+//                     std::cout << "entering the blarg black" << std::endl;
+//                     std::cout << newr.size() << ' ' << newf.size() << std::endl;
+                    //straight ahead
+                    newr.push_back(pieceRank - 1);
+                    newf.push_back(pieceFile);
+                    //attack left
+                    newr.push_back(pieceRank - 1);
+                    newf.push_back(pieceFile - 1);
+                    //attack right
+                    newr.push_back(pieceRank - 1);
+                    newf.push_back(pieceFile + 1);
+
+//                     std::cout << "got the place allocated black" << std::endl;
+                     
+                }
+            }
+            else if (pieceType == "R")
+            {
+                for (int i = 0; i < 8; i++)
+                {
+                    // horizontal movement
+                    newr.push_back(pieceRank);
+                    newf.push_back(i);
+                    // vertical movement
+                    newr.push_back(i);
+                    newf.push_back(pieceFile);
+                }
+            }
+            else if (pieceType == "B")
+            {
+                int x = pieceRank + 1, y = pieceFile + 1;
+                while (x < 8 && y < 8) // ++
+                {
+                    newr.push_back(x);
+                    newf.push_back(y);
+                    x++;
+                    y++;
+                }
+                x = pieceRank - 1;
+                y = pieceFile - 1;
+                while (x > -1 && y > -1)//--
+                {
+                    newr.push_back(x);
+                    newf.push_back(y);
+                    x--;
+                    y--;
+                }
+                x = pieceRank + 1;
+                y = pieceFile - 1;
+                while (x < 8 && y > -1)//+-
+                {
+                    newr.push_back(x);
+                    newf.push_back(y);
+                    x++;
+                    y--;
+                }
+                x = pieceRank - 1;
+                y = pieceFile + 1;
+                while (x > -1 && y < 8)//-+
+                {
+                    newr.push_back(x);
+                    newf.push_back(y);
+                    x--;
+                    y++;
+                }
+            }
+            else if (pieceType == "Q")
+            {
+                for (int i = 0; i < 8; i++)
+                {
+                    // horizontal movement
+                    newr.push_back(pieceRank);
+                    newf.push_back(i);
+                    // vertical movement
+                    newr.push_back(i);
+                    newf.push_back(pieceFile);
+                }
+                // diagonal movement
+                int x = pieceRank + 1, y = pieceFile + 1;
+                while (x < 8 && y < 8) // ++
+                {
+                    newr.push_back(x);
+                    newf.push_back(y);
+                    x++;
+                    y++;
+                }
+                x = pieceRank - 1;
+                y = pieceFile - 1;
+                while (x > -1 && y > -1)//--
+                {
+                    newr.push_back(x);
+                    newf.push_back(y);
+                    x--;
+                    y--;
+                }
+                x = pieceRank + 1;
+                y = pieceFile - 1;
+                while (x < 8 && y > -1)//+-
+                {
+                    newr.push_back(x);
+                    newf.push_back(y);
+                    x++;
+                    y--;
+                }
+                x = pieceRank - 1;
+                y = pieceFile + 1;
+                while (x > -1 && y < 8)//-+
+                {
+                    newr.push_back(x);
+                    newf.push_back(y);
+                    x--;
+                    y++;
+                }
+            }
+            else if (pieceType == "N")
+            {
+                newr.push_back(pieceRank + 2);
+                newf.push_back(pieceFile + 1);
+                
+                newr.push_back(pieceRank + 1);
+                newf.push_back(pieceFile + 2);
+                
+                newr.push_back(pieceRank - 1);
+                newf.push_back(pieceFile + 2);
+
+                newr.push_back(pieceRank - 2);
+                newf.push_back(pieceFile + 1);
+                
+                newr.push_back(pieceRank - 2);
+                newf.push_back(pieceFile - 1);
+                
+                newr.push_back(pieceRank - 1);
+                newf.push_back(pieceFile - 2);
+                
+                newr.push_back(pieceRank + 1);
+                newf.push_back(pieceFile - 2);
+                
+                newr.push_back(pieceRank + 2);
+                newf.push_back(pieceFile - 1);                
+            }
+
+//             std::cout << "at the checking stage" << std::endl;
+//             std::cout << newr.size() << std::endl;
+
+            for (int i = 0; i < newr.size(); i++)
+            {
+                
+//                 std::cout << i << std::endl;
+
+                if (checkMove(pieceIndex, newr[i], newf[i]))
+                {
+                    
+//                     std::cout << "in the fail location ... " << std::endl;
+
+                    stalemate = false;
+                    break;
+                }
+            }
+            return stalemate;
+        }
+    }
+}
 // king cannot make any moves but isnt in check
 // rest of pieces cannot make any moves
 //      (check this part by seeing in any pertient moves(based on piece)
