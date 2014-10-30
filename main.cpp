@@ -192,8 +192,8 @@ int Welcome()
         sm.put_image(joinI, joinR);
         sm.put_image(watchI, watchR);
         sm.put_image(loadI, loadR);
-        sm.unlock();
         sm.flip();
+        sm.unlock();
         
         delay(10);
     }    

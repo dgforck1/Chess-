@@ -909,11 +909,11 @@ int main(int argc, char **argv)
 		//---------------------------------------------------------------------
 		// LOOP THROUGH CLIENTS
 		//---------------------------------------------------------------------
-		std::cout << "numready : " << numready << '\n'
-                  << "num_clients : " << num_clients << std::endl;
+		// std::cout << "numready : " << numready << '\n'
+//                   << "num_clients : " << num_clients << std::endl;
         for(int i = 0; numready > 0 && i < num_clients; i++)
 		{
-			std::cout << '\t' << i << std::endl;
+		// 	std::cout << '\t' << i << std::endl;
 			message = "";
             if (clients[i]->active)
             {
@@ -922,26 +922,26 @@ int main(int argc, char **argv)
                     //---------------------------------------------------------
                     // GET DATA FROM CLIENT
                     //---------------------------------------------------------
-                    std::cout << "clients.size()         : " << clients.size() << '\n'
-                              << "games.size()           : " << games.size() << '\n'
-                              << "mainMenu.size()        : " << mainMenu.size() << '\n'
-                              << "reviewing.size()       : " << reviewing.size() << '\n'
-                              << "gamesInProgress.size() : " << gamesInProgress.size() << '\n'
-                              << "gamesWaiting.size()    : " << gamesWaiting.size() << std::endl;
+//                     std::cout << "clients.size()         : " << clients.size() << '\n'
+//                               << "games.size()           : " << games.size() << '\n'
+//                               << "mainMenu.size()        : " << mainMenu.size() << '\n'
+//                               << "reviewing.size()       : " << reviewing.size() << '\n'
+//                               << "gamesInProgress.size() : " << gamesInProgress.size() << '\n'
+//                               << "gamesWaiting.size()    : " << gamesWaiting.size() << std::endl;
                     message = recv_message(clients[i]->sock);
-                    std::cout << message << std::endl;
+                    std::cout << message << " trolololol" <<  std::endl;
                     if(message > "") 
                     {
                         parse(message, i);
                     }
                     
                     numready--;
-                    std::cout << "clients.size()         : " << clients.size() << '\n'
-                              << "games.size()           : " << games.size() << '\n'
-                              << "mainMenu.size()        : " << mainMenu.size() << '\n'
-                              << "reviewing.size()       : " << reviewing.size() << '\n'
-                              << "gamesInProgress.size() : " << gamesInProgress.size() << '\n'
-                              << "gamesWaiting.size()    : " << gamesWaiting.size() << std::endl;
+//                     std::cout << "clients.size()         : " << clients.size() << '\n'
+//                               << "games.size()           : " << games.size() << '\n'
+//                               << "mainMenu.size()        : " << mainMenu.size() << '\n'
+//                               << "reviewing.size()       : " << reviewing.size() << '\n'
+//                               << "gamesInProgress.size() : " << gamesInProgress.size() << '\n'
+//                               << "gamesWaiting.size()    : " << gamesWaiting.size() << std::endl;
                     
                 }
             }

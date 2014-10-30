@@ -2,6 +2,7 @@
 #define CHESSGAME_H
 
 #include <vector>
+#include <fstream>
 
 //sdl libraries
 #include "Includes.h"
@@ -21,6 +22,9 @@
 //////////////////////////////////////////////////////////////////////////////
 
 // random ass fucntion
-void ChessMain(int player);
+int ChessMain(int player);
+
+
+
 
 #endif

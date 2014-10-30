@@ -861,9 +861,8 @@ int Board::getPieceIndex(int r, int f)
 {
     return findPiece(r, f, p);
 }
-bool Board::checkMove(int i, int destR, int destF)
+bool Board::checkMove(int i, int destR, int destF)//, std::string & prev)
 {
-//    std::cout << "in the Board::checkMove" << std::endl;
     return p[i].checkMove(destR, destF, board, p);
 }
 void Board::movePiece(int i, int destR, int destF)

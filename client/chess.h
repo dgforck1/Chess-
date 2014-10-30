@@ -54,7 +54,7 @@ public:
     Piece getPiece(int r, int f);// piece by rank and file
     Piece getPiece(int i);// piece by index
     int getPieceIndex(int r, int f);// find the pieces index by its rank and file
-    bool checkMove(int i, int destR, int destF);    
+    bool checkMove(int i, int destR, int destF);//, std::string & prev);    
     void movePiece(int i, int destR, int destF);
     std::string capturePiece(int r, int f);
     std::string capturePiece(int i);
