@@ -1,6 +1,10 @@
 #include <iostream>
 #include <string>
 #include <cstring>
+#include <ctime>
+#include <sstream>
+
+//custom libraries
 #include "ChessGame.h"
 #include "Chess.h"
 
@@ -24,7 +28,7 @@ void BoardReleased(int mx, int my, Board &b, int wpi,
                    std::vector< std::string > &CapturedBlack);
     //process board released
 void QuitClicked();
-void ExitClicked();
+
 void DrawClicked();
 void ScrollUpClicked();
 void ScrollDownClicked(std::vector< std::string > &Moves);
@@ -33,6 +37,7 @@ void BuildDrawPiece(std::vector< DrawPiece > &dw, Board &b, Rect &boardRect,
 void BuildDrawCaptured(std::vector< DrawPiece > &dw,
                        std::vector< std::string > &cw,
                        std::vector< std::string > &cb);
+void SaveGame(std::vector<std::string> &m);
 
 //global vars
 bool scroll = false;
@@ -71,7 +76,7 @@ Image exitI = Image("images/Exit.png");
 Image boardI = Image("images/Board.png");
 
 void ChessMain(int player)
-{      
+{       
     Surface s(W, H);
     Event event;
     Mouse mouse;
@@ -108,7 +113,7 @@ void ChessMain(int player)
     std::vector< std::string > CapturedBlack;
     std::vector< std::string > Moves;
     std::vector< DrawPiece > dw, dc;
-    
+
 
 
     //set rect coords
@@ -222,7 +227,8 @@ void ChessMain(int player)
                 QuitClicked();
                 break;
             case 2: //exit button clicked
-                ExitClicked();
+                QuitClicked(); //perform whatever cleanup this does
+                
                 break;
             case 3: //draw button clicked
                 DrawClicked();
@@ -241,16 +247,7 @@ void ChessMain(int player)
                 break;                
             default: //heck if i know what was clicked                
                 break;
-        }
-
-
-                
-
-
-        
-//#######################################################
-// TODO : MOVE PLACEMENT CALCULATIONS OUTSIDE OF DRAWINGS
-/////////////////////////////////////////////////////////
+        }      
         
 
         
@@ -596,11 +593,7 @@ void QuitClicked()
 }
 
 
-void ExitClicked()
-{
-    //std::cout << "<<<< exit clicked" << std::endl;
 
-}
 
 
 void DrawClicked()
@@ -820,3 +813,97 @@ void BuildDrawCaptured(std::vector< DrawPiece > &dw,
         }
     }    
 }
+
+
+//save the moves
+void SaveGame(std::vector<std::string> &m)
+{
+    /*order of operations:
+      1. open saves.txt
+      2. load saves.txt into a vector of strings
+      3. create new txt file with current date and time,
+             ensure name doesn't alread exist in saves.txt
+      4. add the moves to the new txt file
+      5. append the name of the new file to saves.txt
+    */
+
+    
+    //open saves.txt
+    std::fstream saves("saves/saves.txt", std::fstream::in);
+    std::vector<std::string> SavesList;
+
+
+    if(saves.is_open())
+    {
+        std::string temp;
+        
+        //load saves.txt into vector of string
+        while (std::getline(saves, temp))
+        {
+            SavesList.push_back(temp);                 
+        }
+
+        //create new txt file with current date and time
+        time_t t = time(0);   // get time now
+        struct tm * now = localtime( & t );        
+
+        
+        std::string newFilePath;
+        
+        std::ostringstream sconvert;
+        sconvert << (now->tm_year + 1900) << '-' 
+                 << (now->tm_mon + 1) << '-'
+                 << now->tm_mday << '-'
+                 << now->tm_hour << ':'
+                 << now->tm_min
+                 << ".txt";
+        
+        newFilePath.append(sconvert.str());
+
+
+        bool FileAlreadyExists = false;
+        
+        for(int i = SavesList.size() - 1; i >= 0; i--)
+        {
+            if(SavesList[i] == newFilePath)
+            {
+                FileAlreadyExists = true;
+                break;
+            }
+        }
+
+        //ensure new file doesn't already exist
+        if(!FileAlreadyExists)
+        {
+            std::string path = "saves/" + newFilePath;
+            
+            std::fstream newFile(path.c_str(),
+                                 std::fstream::out);
+
+            if(newFile.is_open())
+            {
+                //append moves to new file
+                for(int i = 0; i < m.size(); i++)
+                {
+                    newFile << m[i] << std::endl;
+                }
+
+                newFile.close();
+                saves.close();
+                saves.open("saves/saves.txt", std::fstream::out
+                           | std::fstream::app); //open file in write mode
+
+                //append name of new file to saves.txt
+                saves << newFilePath << std::endl;
+                newFile.close();
+            }            
+        }
+        
+        saves.close();
+    }
+    else
+    {
+        std::cout << "<<<< couldn't open saves.txt" << std::endl;
+    }    
+}
+

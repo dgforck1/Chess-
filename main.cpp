@@ -300,9 +300,7 @@ int Join()
 
 
 int Load()
-{
-    std::cout << "<<<< got to load function" << std::endl;
-    
+{        
     Surface sm(W, H);
     Event event;
     Mouse mouse;
@@ -420,8 +418,6 @@ int Load()
 }
 
 
-
-
 void getSaves(std::vector<std::string> &s)
 {
     std::fstream saves("saves/saves.txt", std::fstream::in
@@ -430,26 +426,18 @@ void getSaves(std::vector<std::string> &s)
     if(saves.is_open())
     {
         std::string temp;               
-        saves >> temp;
+        //saves >> temp;
         
         //get list of saved files from saves/saves.txt
-        while(temp.size() > 1)
+        while (std::getline(saves, temp))
         {
-            std::size_t found = temp.find("||");
-            
-            if(found != std::string::npos)
-            {
-                s.push_back(temp.substr(0, temp.find("||")));
-                temp = temp.substr(temp.find("||") + 2);
-            }
-            else
-            {
-                s.push_back(temp);
-                temp = "";
-            }                        
-        }
-        
+            s.push_back(temp);
+                 
+        }        
     
         saves.close();        
     }
 }
+
+
+
