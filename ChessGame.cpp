@@ -75,7 +75,7 @@ Image drawI = Image("images/Draw.png");
 Image exitI = Image("images/Exit.png");
 Image boardI = Image("images/Board.png");
 
-void ChessMain(int player)
+int ChessMain(int player)
 {       
     Surface s(W, H);
     Event event;
@@ -138,7 +138,10 @@ void ChessMain(int player)
         //get user input
         if(event.poll())
         {        
-            if(event.type() == QUIT) break;
+            if(event.type() == QUIT)
+            {
+                return 0;
+            }
             else
             {                                
                 if(event.type() == MOUSEBUTTONDOWN)
@@ -225,10 +228,11 @@ void ChessMain(int player)
                 break;
             case 1: //quit button clicked
                 QuitClicked();
+                return -1;
                 break;
             case 2: //exit button clicked
                 QuitClicked(); //perform whatever cleanup this does
-                
+                return 0;
                 break;
             case 3: //draw button clicked
                 DrawClicked();

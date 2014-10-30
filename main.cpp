@@ -24,7 +24,7 @@
 
 //prototypes
 int Welcome();
-void Make();
+int Make();
 int Join();
 void Watch();
 int Load();
@@ -52,7 +52,7 @@ int main()
                 play = false;
                 break;
             case 1: //make game
-                Make();                
+                choice = Make();                
                 break;
             case 2: //join game
                 choice = Join();
@@ -217,9 +217,11 @@ bool MainRectClicked(int mX, int mY, Rect& r)
 }
 
 
-void Make()
+int Make()
 {
-    ChessMain(0);
+    int choice = -1;
+    choice = ChessMain(0);
+    return choice;
 }
 
 
