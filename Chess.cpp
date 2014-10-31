@@ -846,6 +846,10 @@ bool Board::checkMove(int i, int destR, int destF)
 
 void Board::movePiece(int i, int destR, int destF)
 {
+    /*std::cout << "<<<< moving this piece: ";
+    p[i].print();
+    std::cout << std::endl;*/
+    
     if(destR >=0 && destR < 8 && destF >= 0 && destF < 8)
     {
         p[i].movePiece(destR, destF);
@@ -880,7 +884,7 @@ std::string Board::capturePiece(int i)
     //p[i].print();    
     //std::cout << std::endl;       
 
-    //why are you broken?!?!?!?!?
+    
     std::string ret = p[i].getType();
     p.erase(p.begin() + i);
         
