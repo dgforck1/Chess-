@@ -772,6 +772,7 @@ void joinPlay(int c)
                 mainMenu.erase(mainMenu.begin() + i);
                 std::string message = "good";
                 gamesInProgress[gamesInProgress.size() - 1]->sendMove(message, sender);
+                send_client(c, message);
                 break;
             }
         }

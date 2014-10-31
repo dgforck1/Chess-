@@ -391,12 +391,9 @@ int Join(TCPsocket & sock, SDLNet_SocketSet & set)
     bool clicked = false,
         released = false;
 
-
     //images
     Image searchI = Image("images/SearchForGame.png");
     Image cancelI = Image("images/Cancel.png");
-    
-    
     
     //rects
     Rect searchR = searchI.getRect();
@@ -421,6 +418,11 @@ int Join(TCPsocket & sock, SDLNet_SocketSet & set)
 		if(numready && SDLNet_SocketReady(sock))
 		{
 			from_server = recv_message(sock);
+            if (from_server == "good")
+            {
+                foundGame = true;
+                playerSide = 1;
+            }
             std::cout << from_server << std::endl;// comment out after complete
             
 //            parse_player_data(from_server);
@@ -471,6 +473,9 @@ int Join(TCPsocket & sock, SDLNet_SocketSet & set)
         
         delay(10);
     }
+    
+    ChessMain(sock, set, playerSide);
+    return -1;
 }
 
 
