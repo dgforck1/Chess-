@@ -161,15 +161,19 @@ int ChessMain(TCPsocket & sock, SDLNet_SocketSet & set, int player)
                     mouse.update(event);                    
                     mousex = mouse.x();
                     mousey = mouse.y();
-                    std::cout << mousex << '\t' << mousey << std::endl;
+                    std::cout << "clicked: " <<
+                        mousex << '\t' << mousey << std::endl;
                     clicked = true;
                 }
                 else if(event.type() == MOUSEBUTTONUP)
                 {                    
                     mouse.update(event);
                     mousex = mouse.x();
-                    mousey = mouse.y();       
+                    mousey = mouse.y();
+                    std::cout << "released: "
+                              << mousex << '\t' << mousey << std::endl;
                     released = true;
+                    
                 }
             }
         }
@@ -179,6 +183,7 @@ int ChessMain(TCPsocket & sock, SDLNet_SocketSet & set, int player)
         {
             if(RectClicked(mousex, mousey, boardRect))
             {
+                std::cout << "    <<<< clicked on the board" << std::endl;
                 option = 0;
             }
             else if(RectClicked(mousex, mousey, quitR))
@@ -211,10 +216,13 @@ int ChessMain(TCPsocket & sock, SDLNet_SocketSet & set, int player)
                 break;
             case 0: //game board clicked                                
                 if(clicked)
-                {                    
+                {
+                    
                     workingPieceIndex =
                         BoardClicked(mousex, mousey, b, boardRect,
                                      playerTurn);
+                    std::cout << "    <<<< working piece index: "
+                              << workingPieceIndex << std::endl;
                 }
                 else if(released)
                 {                    
@@ -492,10 +500,15 @@ int BoardClicked(int mx, int my, Board &b, Rect &bR, int pt)
 
     
     //convert mouse coords to board coords (rank and file)
-    int tempx = mx - bR.x;
+    /*int tempx = mx - bR.x;
     int tempy = bR.y - my;
     tempx /= 50;
-    tempy /= 50;         
+    tempy /= 50;         */
+    int tempx = mx - bR.x;
+    int tempy = my - bR.y;
+    tempx /= 50;
+    tempy /= 50;                
+    tempy = 7 - tempy;
 
     int workingPieceIndex = -1;
     
@@ -525,10 +538,15 @@ void BoardReleased(int mx, int my, Board &b, int wpi, Rect &bR, int &pt,
     //convert mouse coords to board coords (rank and file)
     if(wpi >= 0)
     {
-        int tempx = mx - bR.x;
+        /*int tempx = mx - bR.x;
         int tempy = bR.y - my;
         tempx /= 50;
-        tempy /= 50;         
+        tempy /= 50;         */
+        int tempx = mx - bR.x;
+        int tempy = my - bR.y;
+        tempx /= 50;
+        tempy /= 50;                
+        tempy = 7 - tempy;
         Piece wp = b.getPiece(wpi);
         
         if(b.checkMove(wpi, tempy, tempx))
