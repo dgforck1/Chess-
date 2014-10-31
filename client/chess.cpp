@@ -67,30 +67,30 @@ std::string Piece::getType() const
 bool Piece::checkMove(int destR, int destF, std::string B[][8],
                       std::vector <Piece> p) const
 {
+
+    
     // check if the move is on the board
     if (destR < 0 || destR > 7 || destF < 0 || destF > 7)
     {
+        
+
+
         return false;
     }
+    
+
     
     // check if they actually moved the piece
     if (destR == rank && destF == file)
     {
+        
+
+
         return false;
     }
 
-    // check if the move is on the board
-    if (destR < 0 || destR > 7 || destF < 0 || destF > 7)
-    {
-        return false;
-    }
+
     
-    // check if they actually moved the piece
-    if (destR == rank && destF == file)
-    {
-        return false;
-    }
-
     // figure out if there is a piece at the target location and who's it is
     int targetPieceIndex = -1;
     int targetPiecePlayer = -1;
@@ -107,12 +107,15 @@ bool Piece::checkMove(int destR, int destF, std::string B[][8],
     // if there is a piece at the target location...
     if (targetPieceIndex > -1)
     {
+        
+
+
         // if the piece at the target location isn't the player's...
         if (player != targetPiecePlayer)
         {
-        // if the piece at the target location isn't the player's...
-        if (player != targetPiecePlayer)
-        {
+            
+
+
             // get a temporary board and list of pieces where the move was made
             // so we can see if that would put the player's king in check
             std::vector<Piece> t1 = p;
@@ -214,11 +217,13 @@ bool Piece::checkMove(int destR, int destF, std::string B[][8],
     }
     else// en passant stuff down here
     {
+
         // get a temporary board and list of pieces where the move was made
         // so we can see if that would put the player's king in check
         std::vector<Piece> t1 = p;
 
         t1[findPiece(rank, file, p)].movePiece(destR, destF);
+
         std::string t2 [8][8];
         for (int i = 0; i < 8; i++)
         {
@@ -227,10 +232,12 @@ bool Piece::checkMove(int destR, int destF, std::string B[][8],
                 t2[j][i] = " ";
             }
         }
+
         for (int i = 0; i < p.size(); i++)
         {
             t2[t1[i].getRank()][t1[i].getFile()] = t1[i].getType();
         }
+
         // if the move doesn't put the player's king in check...
         if (!putsKingInCheck(player, t2, t1))
         {
@@ -311,7 +318,7 @@ bool Piece::checkMove(int destR, int destF, std::string B[][8],
 }
 
 bool Piece::checkMove2(int destR, int destF, std::string b[][8],
-                       std::vector<Piece> p) const
+                    std::vector<Piece> p) const
 {
     if (type == "K")
     {return false;}
