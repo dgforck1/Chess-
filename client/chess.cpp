@@ -71,10 +71,7 @@ bool Piece::checkMove(int destR, int destF, std::string B[][8],
     
     // check if the move is on the board
     if (destR < 0 || destR > 7 || destF < 0 || destF > 7)
-    {
-        
-
-
+    {        
         return false;
     }
     
@@ -82,10 +79,7 @@ bool Piece::checkMove(int destR, int destF, std::string B[][8],
     
     // check if they actually moved the piece
     if (destR == rank && destF == file)
-    {
-        
-
-
+    {        
         return false;
     }
 
@@ -106,22 +100,20 @@ bool Piece::checkMove(int destR, int destF, std::string B[][8],
     
     // if there is a piece at the target location...
     if (targetPieceIndex > -1)
-    {
-        
-
-
+    {        
         // if the piece at the target location isn't the player's...
         if (player != targetPiecePlayer)
-        {
-            
-
-
+        {            
             // get a temporary board and list of pieces where the move was made
             // so we can see if that would put the player's king in check
             std::vector<Piece> t1 = p;
+            
             t1.erase(t1.begin() + targetPieceIndex);
             t1[findPiece(rank, file, p)].movePiece(destR, destF);
+            
             std::string t2 [8][8];
+
+            //initialize new board array
             for (int i = 0; i < 8; i++)
             {
                 for (int j = 0; j < 8; j++)
@@ -129,6 +121,8 @@ bool Piece::checkMove(int destR, int destF, std::string B[][8],
                     t2[j][i] = " ";
                 }
             }
+
+            //put the pieces on the new board array
             for (int i = 0; i < p.size(); i++)
             {
                 t2[t1[i].getRank()][t1[i].getFile()] = t1[i].getType();
@@ -346,7 +340,7 @@ void Piece::movePiece(int destR, int destF)
     {moved = true;}
     if (type == "P" && ((player == 0 && destR == 7) ||
                         (player == 1 && destR == 0)))
-    {type = "Q";}
+    {type = "Q";} //pawn promotion to queen
     rank = destR;
     file = destF;
 }
@@ -416,15 +410,23 @@ bool rookMove(int r, int f, int nr, int nf, std::string board[][8])
                 for (int i = r + 1; i < nr; i++)
                 {
                     if (board[i][f] != " ")
+                    {
+                        std::cout << "<<<< the rook can't move!"
+                                  << std::endl;
                         return false;
+                    }                    
                 }
             }
             else
             {
-                for (int i = r + 1; i > nr; i--)
+                for (int i = r - 1; i > nr; i--)
                 {
                     if (board[i][f] != " ")
+                    {
+                        std::cout << "<<<< the rook can't move #2!"
+                                  << std::endl;
                         return false;
+                    }
                 }
             }
             return true;
@@ -445,7 +447,7 @@ bool rookMove(int r, int f, int nr, int nf, std::string board[][8])
             }
             else
             {
-                for (int i = f + 1; i > nf; i--)
+                for (int i = f - 1; i > nf; i--)
                 {
                     if (board[r][i] != " ")
                         return false;
@@ -459,7 +461,8 @@ bool rookMove(int r, int f, int nr, int nf, std::string board[][8])
 
 bool bishopMove(int r, int f, int nr, int nf, std::string board[][8])
 {
-    if (nr - r == 1)
+    
+    /*if (nr - r == 1)
     {
         if (nf - f == 1)
         {
@@ -498,7 +501,7 @@ bool bishopMove(int r, int f, int nr, int nf, std::string board[][8])
             }
         }
         return true;
-    }
+        }*/
     return false;
 }
 
@@ -861,6 +864,7 @@ bool Board::checkMove(int i, int destR, int destF)//, std::string & prev)
 void Board::movePiece(int i, int destR, int destF)
 {
     p[i].movePiece(destR, destF);
+    updateBoard();
 }
 std::string Board::capturePiece(int r, int f)
 {
