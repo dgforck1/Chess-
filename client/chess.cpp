@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <cmath>
+#include "Includes.h"
 
 #include "chess.h"
 
@@ -1646,6 +1647,21 @@ bool Board::stalemate(int player) // turn player
 // rest of pieces cannot make any moves
 //      (check this part by seeing in any pertient moves(based on piece)
 //       are good moves)
+
+
+
+
+Image * DrawPiece::getImage()
+{
+    return i;
+}
+
+
+Rect & DrawPiece::getRect()
+{
+    return r;
+}
+
 
 
 

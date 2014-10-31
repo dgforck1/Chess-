@@ -3,15 +3,18 @@
 #include <cstring>
 #include <ctime>
 #include <sstream>
+#include <fstream>
 
 //custom libraries
-#include "ChessGame.h"
-#include "Chess.h"
+//#include "ChessGame.h"
+//#include "Chess.h"
+#include "chess.cpp"
 
 //sdl libraries
 #include "Includes.h"
 #include "Constants.h"
 #include "compgeom.h"
+#include "SDL_net.h"
 
 
 //fixing mikey's fuckup
@@ -74,6 +77,7 @@ Image quitI = Image("images/Quit.png");
 Image drawI = Image("images/Draw.png");
 Image exitI = Image("images/Exit.png");
 Image boardI = Image("images/Board.png");
+
 
 int ChessMain(int player)
 {       
@@ -161,13 +165,6 @@ int ChessMain(int player)
             }
         }
         
-        
-        
-        // here is the first area I'll add to,
-        //if havent recieved message then wait
-
-        
-
         //determine what was clicked, if anything
         if(clicked)
         {
@@ -199,7 +196,7 @@ int ChessMain(int player)
 
 
         //determine what to do with what was clicked
-        switch(option)
+        switch(option)// CALL SAVE GAME FUNCTION SOMEWHERE IN HERE
         {
             case -1: //nothing clicked
                 break;

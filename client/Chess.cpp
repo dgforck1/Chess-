@@ -909,13 +909,13 @@ int Board::getPieceSize() const
 }
 
 
-Image *DrawPiece::getImage()
+Image * DrawPiece::getImage()
 {
     return i;
 }
 
 
-Rect &DrawPiece::getRect()
+Rect & DrawPiece::getRect()
 {
     return r;
 }

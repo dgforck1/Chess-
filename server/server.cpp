@@ -11,6 +11,7 @@
 //                        that from removeFromGame
 //       -make a way for the system to send messages to the users
 //        really just need a format for the messages and specify what they do
+//       -fix quitGame
 //############################################################################
 
 
@@ -267,6 +268,7 @@ std::vector<Client*> mainMenu;      // location 0
 std::vector<Client*> reviewing;     // location 1
 std::vector<Game*> gamesInProgress; // location 2
 std::vector<Game*> gamesWaiting;    // location 3
+std::vector<Client*> waitingForGame;// location 4
 int num_clients=0;
 TCPsocket server;
 
@@ -547,14 +549,15 @@ void parse(std::string i, int sender)
     else if (command == "join")
     {
         char target = i[4];
-        if (target = 's')
+        std::cout << target << std::endl;
+        if (target == 's')
         {
-        std::cout << "got a joins" << std::endl;
+            std::cout << "got a joins" << std::endl;
             joinSpectate(sender);
         }
-        if (target = 'p')
+        if (target == 'p')
         {
-        std::cout << "got a joinp" << std::endl;
+            std::cout << "got a joinp" << std::endl;
             joinPlay(sender);
         }
     }
@@ -688,6 +691,17 @@ void quitGame(int s)
                 }
             }
             break;
+        case 4:
+            for (int i = 0; i < waitingForGame.size(); i++)
+            {
+                if (waitingForGame[i] == clients[s])
+                {
+                    clients[s]->location = 0;
+                    waitingForGame.erase(waitingForGame.begin() + i);
+                    mainMenu.push_back(clients[s]);
+                }
+            }
+            break;
         default:
             std::cout << "Aww shit, ERROR, ERROR, ERROR - " << clients[s]->location
                       << " is not a recognized location, kindly go fuck yourself."
@@ -721,33 +735,51 @@ void make(int c)
 void joinSpectate(int c)
 {
     std::string sender = clients[c]->name;
-    int g = rand() % gamesInProgress.size();
-    gamesInProgress[g]->addSpectator(clients[c]);
-    for (int i = 0; i < mainMenu.size(); i++)
+    if (gamesInProgress.size() > 0)
     {
-        if (mainMenu[i]->name == sender)
+        int g = rand() % gamesInProgress.size();
+        gamesInProgress[g]->addSpectator(clients[c]);
+        for (int i = 0; i < mainMenu.size(); i++)
         {
-            mainMenu.erase(mainMenu.begin() + i);
-            clients[c]->location = 2;
-            break;
+            if (mainMenu[i]->name == sender)
+            {
+                mainMenu.erase(mainMenu.begin() + i);
+                clients[c]->location = 2;
+                break;
+            }
         }
+    }
+    else
+    {
+        clients[c]->location = 4;
+        waitingForGame.push_back(clients[c]);
     }
 }
 void joinPlay(int c)
 {
     std::string sender = clients[c]->name;
-    int g = rand() % gamesWaiting.size();
-    gamesWaiting[g]->addPlayer(clients[c]);
-    gamesWaiting[g]->startGame();
-    gamesInProgress.push_back(gamesWaiting[g]);
-    gamesWaiting.erase(gamesWaiting.begin() + g);
-    for (int i = 0; i < mainMenu.size(); i++)
+    if (gamesWaiting.size() > 0)
     {
-        if (mainMenu[i]->name == sender)
+        int g = rand() % gamesWaiting.size();
+        gamesWaiting[g]->addPlayer(clients[c]);
+        gamesWaiting[g]->startGame();
+        gamesInProgress.push_back(gamesWaiting[g]);
+        gamesWaiting.erase(gamesWaiting.begin() + g);
+        for (int i = 0; i < mainMenu.size(); i++)
         {
-            mainMenu.erase(mainMenu.begin() + i);
-            break;
+            if (mainMenu[i]->name == sender)
+            {
+                mainMenu.erase(mainMenu.begin() + i);
+                std::string message = "good";
+                gamesInProgress[gamesInProgress.size() - 1]->sendMove(message, sender);
+                break;
+            }
         }
+    }
+    else
+    {
+        clients[c]->location = 4;
+        waitingForGame.push_back(clients[c]);
     }
 }
 void load(int c)

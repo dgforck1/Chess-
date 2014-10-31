@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <vector>
+#include "Includes.h"
 
 class Piece
 {
@@ -84,5 +85,22 @@ std::ostream & operator<<(std::ostream & cout, const Board & b)
     cout << "  1 2 3 4 5 6 7 8\n";
     return cout;
 }
+
+class DrawPiece
+{
+public:
+    DrawPiece(Image *i0, Rect r0):
+        i(i0), r(r0)
+    {};
+
+
+    Image * getImage();
+    Rect & getRect();
+
+private:
+    Image *i;
+    Rect r;
+
+};
 
 #endif

@@ -56,6 +56,17 @@ public:
 		return text;
 	}
 
+    //added by david forck:
+    int getWidth()
+    {
+        return text->w;
+    }
+
+    int getHeight()
+    {
+        return text->h;
+    }
+
 private:
 	SDL_Surface * text;
 };

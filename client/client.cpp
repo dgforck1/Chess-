@@ -24,7 +24,7 @@
 #include "SDL_net.h"
 
 // Our Includes
-#include "chess.cpp"
+#include "ChessGame.cpp"
 
 //////////////////////////////////////////////////////////////////////////////
 // END Includes.
@@ -56,6 +56,11 @@ bool draw = false;
 // Function Prototypes
 //////////////////////////////////////////////////////////////////////////////
 
+int Make(TCPsocket &, SDLNet_SocketSet &);
+int Join(TCPsocket &, SDLNet_SocketSet &);
+int Welcome();
+int Load();
+void getSaves(std::vector<std::string> &);
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -186,7 +191,7 @@ int main(int argc, char **argv)
 	}
 
 	/* open the server socket */
-	sock=SDLNet_TCP_Open(&ip);
+	sock = SDLNet_TCP_Open(&ip);
 	if(!sock)
 	{
 		std::cout << "SDLNet_TCP_Open ERROR" << std::endl;
@@ -195,7 +200,7 @@ int main(int argc, char **argv)
 		return 0;
 	}
 	
-	if(SDLNet_TCP_AddSocket(set,sock)==-1)
+	if(SDLNet_TCP_AddSocket(set, sock) == -1)
 	{
 		std::cout << "SDLNet_TCP_AddSocket ERROR" << std::endl;
 		SDLNet_Quit();
@@ -214,47 +219,48 @@ int main(int argc, char **argv)
 // 	//-------------------------------------------------------------------------
 // 	// GAME SEGMENT
 // 	//-------------------------------------------------------------------------
-    Surface sm(W, H);
-    Event event;
-    Mouse mouse;
-    int mousex = -1, mousey = -1;
-    bool clicked = false, released = false;
-    state = 0;
+    int choice = -1;
+    bool play = true;
     
-    TextSurface welcomes = TextSurface("Chess!!!",
-                                       "fonts/FreeSerif.ttf",
-                                       200, 255, 255, 255);
+    while(play)
+    {
+        choice = Welcome(); //main menu
+        
+        
+        switch(choice)
+        {
+            case 0: //exit game entirely
+                play = false;
+                break;
+            case 1: //make game
+                choice = Make(sock, set);                
+                break;
+            case 2: //join game
+                choice = Join(sock, set);
+                break;
+            case 3: //watch game
+                break;
+            case 4: //load game
+                //choice = Load();
+                break;
+            default:
+                break;
+        }
+        
+        if(choice == 0)
+        {
+            play = false;
+        }
+    }
+    send_message("exit", sock);
+    SDLNet_Quit();
+    SDL_Quit();
     
-    //images  
-    Image exitI = Image("images/Exit.png");
-    Image makeI = Image("images/Make.png");
-//     Image joinI = Image("images/Join.png");
-//     Image watchI = Image("images/Watch.png");
-//     Image loadI = Image("images/Load.png");
-    
-//     //rects
-//     Rect exitR = exitI.getRect();
-//     Rect makeR = makeI.getRect();
-//     Rect joinR = joinI.getRect();
-//     Rect watchR = watchI.getRect();
-//     Rect loadR = loadI.getRect();
-    
-//     //set rect coords
-//     exitR.x = 900 - exitR.w;
-//     makeR.x = 150;
-//     makeR.y = 300;
-//     joinR.x = makeR.x;
-//     joinR.y = makeR.y + (joinR.h * 1.5);
-//     watchR.x = makeR.x + (watchR.w * 1.5);
-//     watchR.y = makeR.y;
-//     loadR.x = watchR.x;
-//     loadR.y = watchR.y + (loadR.h * 1.5);
-    
-    
-// 	while(1)
-// 	{
-//         // int t = SDL_GetTicks();
-// //         std::cout << "start of loop" << std::endl;
+    return(0);
+}
+
+
+
 //         ///////////////////////////////////////////////////////////////////
 //         // Get shit from server
 //         ///////////////////////////////////////////////////////////////////
@@ -273,110 +279,464 @@ int main(int argc, char **argv)
             
 // //            parse_player_data(from_server);
 // 		}
-        
-//         // int t1 = SDL_GetTicks();
-// //         std::cout << "After server stuff: " << t1 - t << std::endl;
-        
-//         if (state == QUITS)
-//             // leave program
-//         {                    
-//             break;
-//         }
-//         else if (state == MAINMENU)
-//         {
-//             if(event.poll())
-//             {        
-//                 if(event.type() == QUIT)
-//                 {
-//         //             std::cout << "in the quit spot" << std::endl;
-//                     break;
-//                     //state = QUITS;
-//                 }
-//                 else
-//                 {
-//                     if(event.type() == MOUSEBUTTONDOWN)
-//                     {
-//                         mouse.update(event);                    
-//                         mousex = mouse.x();
-//                         mousey = mouse.y();                                        
-//                         clicked = true;
-//                     }
-//                     else if(event.type() == MOUSEBUTTONUP)
-//                     {
-//                         mouse.update(event);
-//                         mousex = mouse.x();
-//                         mousey = mouse.y();                                       
-//                         released = true;
-//                     }
-//                 }
-//             }
-            
-//             if(clicked)
-//             {
-//                 if(MainRectClicked(mousex, mousey, exitR))
-//                 {
-//                     std::cout << "quiting" << std::endl;
-//                     state = QUITS;
-//                 }
-//                 else if(MainRectClicked(mousex, mousey, makeR))
-//                 {
-//                     std::cout << "makeing game" << std::endl;
-//                     state = WAITING;
-//                 }
-//                 else if(MainRectClicked(mousex, mousey, joinR))
-//                 {
-//                     std::cout << "joining game" << std::endl;
-//                     state = WAITING;
-//                 }
-//                 else if(MainRectClicked(mousex, mousey, watchR))
-//                 {
-//                     std::cout << "watching game" << std::endl;
-//                     state = WAITING;
-//                 }
-//                 else if(MainRectClicked(mousex, mousey, loadR))
-//                 {
-//                     std::cout << "loading game" << std::endl;
-//                     state = LOADED;
-//                 }
-                
-//                 //reset vars
-//                 clicked = false;
-//                 mousex = -1;
-//                 mousey = -1;
-//             }
-            
-//         //     t1 = SDL_GetTicks();
-// //             std::cout << "After body in main: " << t1 - t << std::endl;
-            
-//             //print all the things!!!
-//             sm.lock();
-//             sm.fill(GRAY);
-//             sm.put_text(welcomes, 100, 0);        
-//             sm.put_image(exitI, exitR);
-//             sm.put_image(makeI, makeR);
-//             sm.put_image(joinI, joinR);
-//             sm.put_image(watchI, watchR);
-//             sm.put_image(loadI, loadR);
-//             sm.flip();
-//             sm.unlock();
-            
-//         //     t1 = SDL_GetTicks();
-//         //     std::cout << "after print in main: " << t1 - t << std::endl;
-//         }
-//         else if (state == PLAYING)
-//         {}
-//         else if (state == WATCHING)
-//         {}
-//         else if (state == WAITING)
-//         {}
-//         else if (state == LOADED)
-//         {}
-        
-//         delay(10);   
-//     }
-    send_message("exit", sock);
-    SDLNet_Quit();
-    SDL_Quit();
+
+
+
+int Make(TCPsocket & sock, SDLNet_SocketSet & set)
+{
+    send_message("make", sock);
     
-    return(0);
+    Surface sm(W, H);
+    Event event;
+    Mouse mouse;
+
+    int mousex = -1, mousey = -1;
+    bool clicked = false,
+        released = false;
+    
+    //images
+    Image searchI = Image("images/SearchForGame.png");
+    Image cancelI = Image("images/Cancel.png");
+    
+    //rects
+    Rect searchR = searchI.getRect();
+    Rect cancelR = cancelI.getRect();
+
+    //set rect locations
+    searchR.x = (W / 2) - (searchR.w / 2);
+    searchR.y = (H / 2) - (searchR.h / 2);
+    
+    bool foundGame = false;
+    while(!foundGame)
+    {
+        int numready = SDLNet_CheckSockets(set, 100);
+        if(numready == -1)
+		{
+			std::cout << "SDLNet_CheckSockets ERROR" << std::endl;
+			break;
+		}
+        
+        std::string from_server = "";
+		if(numready && SDLNet_SocketReady(sock))
+		{
+			from_server = recv_message(sock);
+            if (from_server == "good")
+            {
+                foundGame = true;
+                playerSide = 0;
+            }
+            else
+            {
+                std::cout << "shit: ";
+            }
+            std::cout << from_server << std::endl;// comment out after complete
+            
+//            parse_player_data(from_server);
+		}
+        if(event.poll())
+        {        
+            if(event.type() == QUIT)
+            {
+                send_message("quit", sock);
+                return 0;
+            }
+            else
+            {
+                if(event.type() == MOUSEBUTTONDOWN)
+                {
+                    mouse.update(event);                    
+                    mousex = mouse.x();
+                    mousey = mouse.y();                                        
+                    clicked = true;
+                }
+            }
+        }
+        if(clicked)
+        {
+            if(MainRectClicked(mousex, mousey, cancelR))
+            {
+                send_message("quit", sock);
+                return -1;
+            }            
+
+            //reset vars
+            clicked = false;
+            mousex = -1;
+            mousey = -1;
+        }
+
+    
+        //print all the things!!!
+        sm.lock();
+        sm.fill(GRAY);
+        sm.put_image(searchI, searchR);
+        sm.put_image(cancelI, cancelR);
+        sm.unlock();
+        sm.flip();
+        
+        delay(10);
+    }
+    // call ChessMain here
+    return -1;
 }
+
+int Join(TCPsocket & sock, SDLNet_SocketSet & set)
+{
+    send_message("joinp", sock);
+    Surface sm(W, H);
+    Event event;
+    Mouse mouse;
+
+    int mousex = -1, mousey = -1;
+    bool clicked = false,
+        released = false;
+
+
+    //images
+    Image searchI = Image("images/SearchForGame.png");
+    Image cancelI = Image("images/Cancel.png");
+    
+    
+    
+    //rects
+    Rect searchR = searchI.getRect();
+    Rect cancelR = cancelI.getRect();
+    
+
+    //set rect locations
+    searchR.x = (W / 2) - (searchR.w / 2);
+    searchR.y = (H / 2) - (searchR.h / 2);
+    
+    bool foundGame = false;
+    while(!foundGame)
+    {
+        int numready = SDLNet_CheckSockets(set, 100);
+        if(numready == -1)
+		{
+			std::cout << "SDLNet_CheckSockets ERROR" << std::endl;
+			break;
+		}
+        
+        std::string from_server = "";
+		if(numready && SDLNet_SocketReady(sock))
+		{
+			from_server = recv_message(sock);
+            std::cout << from_server << std::endl;// comment out after complete
+            
+//            parse_player_data(from_server);
+		}
+        if(event.poll())
+        {        
+            if(event.type() == QUIT)
+            {
+                send_message("quit", sock);
+                return 0;
+            }
+            else
+            {
+                if(event.type() == MOUSEBUTTONDOWN)
+                {
+                    mouse.update(event);                    
+                    mousex = mouse.x();
+                    mousey = mouse.y();                                        
+                    clicked = true;
+                }
+            }
+        }
+        
+        
+
+        if(clicked)
+        {
+            if(MainRectClicked(mousex, mousey, cancelR))
+            {
+                send_message("quit", sock);
+                return -1;
+            }            
+
+            //reset vars
+            clicked = false;
+            mousex = -1;
+            mousey = -1;
+        }
+
+    
+        //print all the things!!!
+        sm.lock();
+        sm.fill(GRAY);
+        sm.put_image(searchI, searchR);
+        sm.put_image(cancelI, cancelR);
+        sm.unlock();
+        sm.flip();
+        
+        delay(10);
+    }
+}
+
+
+int Welcome()
+{
+    int ret = -1;
+
+    Surface sm(W, H);
+    Event event;
+    Mouse mouse;
+
+    int mousex = -1, mousey = -1;
+    bool clicked = false,
+        released = false;
+
+
+    TextSurface welcomes = TextSurface(
+        "Chess!!!", "fonts/FreeSerif.ttf", 200, 255, 255, 255);
+
+    //images
+    Image exitI = Image("images/Exit.png");
+    Image makeI = Image("images/Make.png");
+    Image joinI = Image("images/Join.png");
+    Image watchI = Image("images/Watch.png");
+    Image loadI = Image("images/Load.png");
+    
+    
+    //rects
+    Rect exitR = exitI.getRect();
+    Rect makeR = makeI.getRect();
+    Rect joinR = joinI.getRect();
+    Rect watchR = watchI.getRect();
+    Rect loadR = loadI.getRect();
+    
+    
+    //set rect coords
+    exitR.x = 900 - exitR.w;
+    
+    makeR.x = 150;
+    makeR.y = 300;
+    
+    joinR.x = makeR.x;
+    joinR.y = makeR.y + (joinR.h * 1.5);
+
+    watchR.x = makeR.x + (watchR.w * 1.5);
+    watchR.y = makeR.y;
+
+    loadR.x = watchR.x;
+    loadR.y = watchR.y + (loadR.h * 1.5);
+
+    while(1)
+    {
+        if(event.poll())
+        {        
+            if(event.type() == QUIT)
+            {
+                return 0;
+            }
+            else
+            {
+                if(event.type() == MOUSEBUTTONDOWN)
+                {
+                    mouse.update(event);                    
+                    mousex = mouse.x();
+                    mousey = mouse.y();                                        
+                    clicked = true;
+                }
+                else if(event.type() == MOUSEBUTTONUP)
+                {
+                    mouse.update(event);
+                    mousex = mouse.x();
+                    mousey = mouse.y();                                       
+                    released = true;
+                }
+            }
+        }
+
+        
+
+        if(clicked)
+        {
+            if(MainRectClicked(mousex, mousey, exitR))
+            {
+                return 0;
+            }
+            else if(MainRectClicked(mousex, mousey, makeR))
+            {
+                return 1;
+            }
+            else if(MainRectClicked(mousex, mousey, joinR))
+            {
+                return 2;
+            }
+            else if(MainRectClicked(mousex, mousey, watchR))
+            {
+                return 3;
+            }
+            else if(MainRectClicked(mousex, mousey, loadR))
+            {
+                return 4;
+            }
+
+            //reset vars
+            clicked = false;
+            mousex = -1;
+            mousey = -1;
+        }
+
+                       
+        //print all the things!!!
+        sm.lock();
+        sm.fill(GRAY);
+        sm.put_text(welcomes, 100, 0);        
+        sm.put_image(exitI, exitR);
+        sm.put_image(makeI, makeR);
+        sm.put_image(joinI, joinR);
+        sm.put_image(watchI, watchR);
+        sm.put_image(loadI, loadR);
+        sm.unlock();
+        sm.flip();
+        
+        delay(10);
+    }    
+    
+    return ret;
+}
+
+int Load()
+{        
+    Surface sm(W, H);
+    Event event;
+    Mouse mouse;
+    
+    int mousex = -1, mousey = -1, saveindex = -1;
+    bool clicked = false,
+        released = false;
+    
+
+    //images
+    Image exitI = Image("images/Exit.png");
+    
+    
+    
+    //rects
+    Rect exitR = exitI.getRect();
+    
+
+    //set rect locations
+    exitR.x = 900 - exitR.w;
+
+    std::vector< std::string > SaveFiles; //list of all of the save files
+    std::vector< std::string > Contents; //file contents
+    
+       
+
+    getSaves(SaveFiles);
+    
+    while(1)
+    {
+        if(event.poll())
+        {        
+            if(event.type() == QUIT)
+            {
+                return 0;
+            }
+            else
+            {
+                if(event.type() == MOUSEBUTTONDOWN)
+                {
+                    mouse.update(event);                    
+                    mousex = mouse.x();
+                    mousey = mouse.y();                                        
+                    clicked = true;
+                }
+            }
+        }
+        
+        
+
+        if(clicked)
+        {
+            saveindex= -1;
+            
+            if(MainRectClicked(mousex, mousey, exitR))
+            {
+                return 0;
+            }
+
+            for(int i = 0; i < SaveFiles.size(); i++)            
+            {
+                TextSurface ts = TextSurface(
+                    SaveFiles[i].c_str(), "fonts/FreeSans.ttf", 16, 0, 0, 0);
+                
+                Rect tempR =
+                    Rect(20, (i * ts.getHeight()) + 100, ts.getWidth(),
+                         ts.getHeight());
+
+                if(MainRectClicked(mousex, mousey, tempR))
+                {
+                    saveindex = i;
+                }                
+            }
+
+            if(saveindex > -1)
+            {
+                //this is a hack in place of having time to create
+                //a text box in sdl
+                if(system(NULL))
+                {
+                    std::string c = "pluma saves/" + SaveFiles[saveindex];
+                    system(c.c_str());
+                }
+                
+            }
+            
+            //reset vars
+            clicked = false;
+            mousex = -1;
+            mousey = -1;
+        }
+        
+        
+        //print all the things!!!
+        sm.lock();
+        sm.fill(GRAY);
+        //print saves games        
+        for(int i = 0; i < SaveFiles.size(); i++)
+        {            
+            TextSurface ts = TextSurface(
+                SaveFiles[i].c_str(), "fonts/FreeSans.ttf", 16, 0, 0, 0);
+
+            sm.put_rect(20, (i * ts.getHeight()) + 100, ts.getWidth(),
+                        ts.getHeight(), 0, 200, 0);
+            
+            sm.put_text(ts, 20, (i * ts.getHeight()) + 100);
+        }
+        sm.put_image(exitI, exitR);
+        sm.unlock();
+        sm.flip();
+        
+        delay(10);
+    }
+    
+}
+
+
+void getSaves(std::vector<std::string> &s)
+{
+    std::fstream saves("saves/saves.txt", std::fstream::in
+                       | std::fstream::app);
+    
+    if(saves.is_open())
+    {
+        std::string temp;               
+        //saves >> temp;
+        
+        //get list of saved files from saves/saves.txt
+        while (std::getline(saves, temp))
+        {
+            s.push_back(temp);
+                 
+        }        
+    
+        saves.close();        
+    }
+}
+
+
+
