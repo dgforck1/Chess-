@@ -457,8 +457,7 @@ bool rookMove(int r, int f, int nr, int nf, std::string board[][8])
 
 bool bishopMove(int r, int f, int nr, int nf, std::string board[][8])
 {
-    if( ((nr - r) * 1.0) / ((nf - f) * 1.0) == 1
-        || ((nr - r) * 1.0) / ((nf - f) * 1.0) == -1 )
+    if (abs(((nr - r) * 1.0) / ((nf - f) * 1.0)) == 1)
     {
         if(nr - r >= 1 && nf - f >= 1) //both positive
         {
@@ -494,12 +493,6 @@ bool bishopMove(int r, int f, int nr, int nf, std::string board[][8])
         }
         return true;
     }
-    else
-    {
-        return false;
-    }
-            
-             
     /*if (nr - r == 1)
     {
         if (nf - f == 1)

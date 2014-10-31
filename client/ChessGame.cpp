@@ -4,6 +4,7 @@
 #include <ctime>
 #include <sstream>
 #include <fstream>
+#include <cmath>
 
 //custom libraries
 //#include "ChessGame.h"
@@ -28,10 +29,10 @@ int BoardClicked(int mx, int my, Board &b, Rect &br, int pt);
 void BoardReleased(int mx, int my, Board &b, int wpi,
                    Rect &br, int &pt, std::vector< std::string > &Moves,
                    std::vector< std::string > &CapturedWhite,
-                   std::vector< std::string > &CapturedBlack);
+                   std::vector< std::string > &CapturedBlack,
+                   TCPsocket & sock);
     //process board released
 void QuitClicked();
-
 void DrawClicked();
 void ScrollUpClicked();
 void ScrollDownClicked(std::vector< std::string > &Moves);
@@ -41,6 +42,11 @@ void BuildDrawCaptured(std::vector< DrawPiece > &dw,
                        std::vector< std::string > &cw,
                        std::vector< std::string > &cb);
 void SaveGame(std::vector<std::string> &m);
+void moveFromString(std::string & move, Board &b,
+                   Rect &br, int &pt, std::vector< std::string > &Moves,
+                   std::vector< std::string > &CapturedWhite,
+                   std::vector< std::string > &CapturedBlack,
+                   TCPsocket & sock);
 
 int send_messageCM(std::string msg, TCPsocket sock)
 {
@@ -167,6 +173,11 @@ int ChessMain(TCPsocket & sock, SDLNet_SocketSet & set, int player)
 		if(numready && SDLNet_SocketReady(sock))
 		{
 			from_server = recv_messageCM(sock);
+            std::string command = from_server.substr(0, 4);
+            if (command == "move")
+            {
+                
+            }
 //             if (from_server == "draw")
 //             {
 //                 if (draw == true)
@@ -211,96 +222,158 @@ int ChessMain(TCPsocket & sock, SDLNet_SocketSet & set, int player)
                 }
             }
         }
-        
-        //determine what was clicked, if anything
-        if(clicked)
-        {
-            if(RectClicked(mousex, mousey, boardRect))
+
+        if (playerTurn == player)
+        {        
+            //determine what was clicked, if anything
+            if(clicked)
             {
-                std::cout << "    <<<< clicked on the board" << std::endl;
-                option = 0;
-            }
-            else if(RectClicked(mousex, mousey, quitR))
-            {
-                option = 1;
-            }
-            else if(RectClicked(mousex, mousey, exitR))
-            {
-                option = 2;
-            }
+                if(RectClicked(mousex, mousey, boardRect))
+                {
+                    std::cout << "    <<<< clicked on the board" << std::endl;
+                    option = 0;
+                }
+                else if(RectClicked(mousex, mousey, quitR))
+                {
+                    option = 1;
+                }
+                else if(RectClicked(mousex, mousey, exitR))
+                {
+                    option = 2;
+                }
 //             else if(RectClicked(mousex, mousey, drawR))
 //             {
 //                 option = 3;
 //             }
-            else if(RectClicked(mousex, mousey, supRect))
-            {
-                option = 4;
-            }
-            else if(RectClicked(mousex, mousey, sdwRect))
-            {
-                option = 5;
-            }
-        }
-
-
-        //determine what to do with what was clicked
-        switch(option)// CALL SAVE GAME FUNCTION SOMEWHERE IN HERE
-        {
-            case -1: //nothing clicked
-                break;
-            case 0: //game board clicked                                
-                if(clicked)
+                else if(RectClicked(mousex, mousey, supRect))
                 {
-                    
-                    workingPieceIndex =
-                        BoardClicked(mousex, mousey, b, boardRect,
-                                     playerTurn);
-                    std::cout << "    <<<< working piece index: "
-                              << workingPieceIndex << std::endl;
+                    option = 4;
                 }
-                else if(released)
-                {                    
-                    BoardReleased(mousex, mousey, b, workingPieceIndex,
-                                  boardRect, playerTurn, Moves,
-                                  CapturedWhite, CapturedBlack);
-                    released = false;
-                    workingPieceIndex = -1;
-                    
-                    
-                    //only update draw pieces if they may have made a move
-                    //or later if we receive an update from server
-                    BuildDrawPiece(dw, b, boardRect, pieceR);
-                    BuildDrawCaptured(dc, CapturedWhite, CapturedBlack);
+                else if(RectClicked(mousex, mousey, sdwRect))
+                {
+                    option = 5;
                 }
-                
-                break;
-            case 1: //quit button clicked
-                QuitClicked();
-                return -1;
-                break;
-            case 2: //exit button clicked
-                QuitClicked(); //perform whatever cleanup this does
-                return 0;
-                break;
+            }
+            
+            
+            //determine what to do with what was clicked
+            switch(option)// CALL SAVE GAME FUNCTION SOMEWHERE IN HERE
+            {
+                case -1: //nothing clicked
+                    break;
+                case 0: //game board clicked                                
+                    if(clicked)
+                    {
+                        
+                        workingPieceIndex =
+                            BoardClicked(mousex, mousey, b, boardRect,
+                                         playerTurn);
+                        std::cout << "    <<<< working piece index: "
+                                  << workingPieceIndex << std::endl;
+                    }
+                    else if(released)
+                    {                    
+                        BoardReleased(mousex, mousey, b, workingPieceIndex,
+                                      boardRect, playerTurn, Moves,
+                                      CapturedWhite, CapturedBlack, sock);
+                        released = false;
+                        workingPieceIndex = -1;
+                        
+                        
+                        //only update draw pieces if they may have made a move
+                        //or later if we receive an update from server
+                        BuildDrawPiece(dw, b, boardRect, pieceR);
+                        BuildDrawCaptured(dc, CapturedWhite, CapturedBlack);
+                    }
+                    
+                    break;
+                case 1: //quit button clicked
+                    QuitClicked();
+                    return -1;
+                    break;
+                case 2: //exit button clicked
+                    QuitClicked(); //perform whatever cleanup this does
+                    return 0;
+                    break;
 //             case 3: //draw button clicked
 //                 DrawClicked();
 //                 break;
-            case 4: //scroll up clicked
-                if(scroll)
+                case 4: //scroll up clicked
+                    if(scroll)
+                    {
+                        ScrollUpClicked();
+                    }                
+                    break;
+                case 5: //scroll down clicked
+                    if(scroll)
+                    {
+                        ScrollDownClicked(Moves);
+                    }                
+                    break;                
+                default: //heck if i know what was clicked                
+                    break;
+            }      
+        }
+        else
+        {
+            //determine what was clicked, if anything
+            if(clicked)
+            {
+                if(RectClicked(mousex, mousey, quitR))
                 {
-                    ScrollUpClicked();
-                }                
-                break;
-            case 5: //scroll down clicked
-                if(scroll)
+                    option = 1;
+                }
+                else if(RectClicked(mousex, mousey, exitR))
                 {
-                    ScrollDownClicked(Moves);
-                }                
-                break;                
-            default: //heck if i know what was clicked                
-                break;
-        }      
-        
+                    option = 2;
+                }
+//             else if(RectClicked(mousex, mousey, drawR))
+//             {
+//                 option = 3;
+//             }
+                else if(RectClicked(mousex, mousey, supRect))
+                {
+                    option = 4;
+                }
+                else if(RectClicked(mousex, mousey, sdwRect))
+                {
+                    option = 5;
+                }
+            }
+            
+            
+            //determine what to do with what was clicked
+            switch(option)// CALL SAVE GAME FUNCTION SOMEWHERE IN HERE
+            {
+                case -1: //nothing clicked
+                    break;
+                case 1: //quit button clicked
+                    QuitClicked();
+                    return -1;
+                    break;
+                case 2: //exit button clicked
+                    QuitClicked(); //perform whatever cleanup this does
+                    return 0;
+                    break;
+//             case 3: //draw button clicked
+//                 DrawClicked();
+//                 break;
+                case 4: //scroll up clicked
+                    if(scroll)
+                    {
+                        ScrollUpClicked();
+                    }                
+                    break;
+                case 5: //scroll down clicked
+                    if(scroll)
+                    {
+                        ScrollDownClicked(Moves);
+                    }                
+                    break;                
+                default: //heck if i know what was clicked                
+                    break;
+            }
+        }
         
         //draw all the things
         s.lock();
@@ -565,11 +638,13 @@ int BoardClicked(int mx, int my, Board &b, Rect &bR, int pt)
 void BoardReleased(int mx, int my, Board &b, int wpi, Rect &bR, int &pt,
                    std::vector< std::string > &Moves,
                    std::vector< std::string > &CapturedWhite,
-                   std::vector< std::string > &CapturedBlack)
+                   std::vector< std::string > &CapturedBlack,
+                   TCPsocket & sock)
 {    
     //convert mouse coords to board coords (rank and file)
     if(wpi >= 0)
     {
+        std::string temp = "";
         /*int tempx = mx - bR.x;
         int tempy = bR.y - my;
         tempx /= 50;
@@ -634,7 +709,11 @@ void BoardReleased(int mx, int my, Board &b, int wpi, Rect &bR, int &pt,
 
             
             
-            b.movePiece(wpi, tempy, tempx);         
+            b.movePiece(wpi, tempy, tempx);
+
+            std::string message = "move ";
+            message += temp;
+            send_messageCM(message, sock);
             
             if(pt == 0)
             {
@@ -972,5 +1051,115 @@ void SaveGame(std::vector<std::string> &m)
     {
         std::cout << "<<<< couldn't open saves.txt" << std::endl;
     }    
+}
+
+
+
+
+void moveFromString(std::string & move, Board &b, Rect &bR, int &pt,
+                   std::vector< std::string > &Moves,
+                   std::vector< std::string > &CapturedWhite,
+                   std::vector< std::string > &CapturedBlack,
+                   TCPsocket & sock)
+{
+    std::string m = move.substr(4, move.size());
+    std::string pieceType = "";
+    int f = -1;
+    bool captured = false;
+    if (m[0] < 'a')
+    {
+        pieceType = m[0];
+    }
+    else
+    {
+        pieceType = "P";
+    }
+    if (m[1] == 'x')
+    {
+        captured = true;
+        if (pieceType == "P")
+            f = m[0] - 'a';
+    }
+    int file = m[2] - 'a';
+    int rank = m[3] - 'a';
+
+    std::vector<Piece> possibles;
+    for (int i = 0; i < 8; i++)
+    {
+        for (int j = 0; j < 8; j++)
+        {
+            if (b.getPiece(i, j).getType() == pieceType && b.getPiece(i, j).getPlayer == playerTurn)
+                possibles.push_back(b.getPiece(i,j));
+        }
+    }
+    for (int i = 0; i < possibles.size(); i++)
+    {
+        int tr = possibles[i].getRank();
+        int tf = possibles[i].getFile();
+        int tpi = b.getPieceIndex(tr, tf);
+        if (b.checkMove(tpi, rank, file))
+        {
+            // if(b.getPieceIndex(tempy, tempx) >= 0)
+//             {
+//                 int temp = b.getPieceIndex(tempy, tempx);
+//                 Piece tempP = b.getPiece(tempy, tempx);
+                
+//                 Moves.push_back(
+//                     MoveString(true, wp.getType(),
+//                                tempy, tempx, wp.getFile())
+//                     );
+                
+//                 //todo: fix weird capture bug
+//                 if(tempP.getPlayer() == 0)
+//                 {
+//                     CapturedWhite.push_back(
+//                         b.capturePiece(temp)
+//                         );
+//                 }
+//                 else
+//                 {
+//                     CapturedBlack.push_back(               
+//                         b.capturePiece(temp)
+//                         );
+//                 }
+                
+                
+//                 if(temp < wpi)
+//                 {
+//                     wpi--;
+//                 }
+//             }
+//             else
+//             {
+//                 Moves.push_back(
+//                     MoveString(false, wp.getType(),
+//                                tempy, tempx, wp.getFile())
+//                     );
+//             }
+            
+//             if(Moves.size() > 30)
+//             {
+//                 scroll = true;
+//                 scrollstart = Moves.size() - 30 -
+//                     (Moves.size() % 2);
+//                 scrollend = Moves.size() -
+//                     (Moves.size() % 2);                     
+//             }
+            
+            
+            
+//             b.movePiece(wpi, tempy, tempx);
+
+//             if(pt == 0)
+//             {
+//                 pt = 1;
+//             }
+//             else
+//             {
+//                 pt = 0;
+//             }
+//             break;
+        }
+    }
 }
 
