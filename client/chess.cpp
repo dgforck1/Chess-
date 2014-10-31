@@ -67,35 +67,18 @@ std::string Piece::getType() const
 bool Piece::checkMove(int destR, int destF, std::string B[][8],
                       std::vector <Piece> p) const
 {
-//     std::cout << std::endl << *this << std::endl;
-//     std::cout << "in Piece::checkMove " << (player ? "Black" : "White") << std::endl;
-//     std::cout << "move on board?" << std::endl;
-    
     // check if the move is on the board
     if (destR < 0 || destR > 7 || destF < 0 || destF > 7)
     {
-        
-//         std::cout << "\tmove outside bounds of board" << std::endl;
-
         return false;
     }
-    
-//     std::cout << "\tmove on the board" << std::endl;
-//     std::cout << "move off origional square?" << std::endl;
     
     // check if they actually moved the piece
     if (destR == rank && destF == file)
     {
-        
-//         std::cout << "\tyou didnt move the piece to a new square"
-//                   << std::endl; 
-
         return false;
     }
 
-//     std::cout << "\tmove is off origional square" << std::endl;
-//     std::cout << "piece at target location?" << std::endl;
-    
     // figure out if there is a piece at the target location and who's it is
     int targetPieceIndex = -1;
     int targetPiecePlayer = -1;
@@ -105,7 +88,6 @@ bool Piece::checkMove(int destR, int destF, std::string B[][8],
         {
             targetPieceIndex = i;
             targetPiecePlayer = p[i].getPlayer();
-//             std::cout << "\tyes : " << p[i] << std::endl;
             break;
         }
     }
@@ -113,16 +95,9 @@ bool Piece::checkMove(int destR, int destF, std::string B[][8],
     // if there is a piece at the target location...
     if (targetPieceIndex > -1)
     {
-        
-//         std::cout << "\nin the \"there is a target piece\" location" << std::endl;
-//         std::cout << "piece friendly?" << std::endl;
-
         // if the piece at the target location isn't the player's...
         if (player != targetPiecePlayer)
         {
-            
-//             std::cout << "\tthe target is not a friendly piece" << std::endl;
-
             // get a temporary board and list of pieces where the move was made
             // so we can see if that would put the player's king in check
             std::vector<Piece> t1 = p;
@@ -224,13 +199,10 @@ bool Piece::checkMove(int destR, int destF, std::string B[][8],
     }
     else// en passant stuff down here
     {
-//        std::cout << "in the \"no target piece section\"" << std::endl;
         // get a temporary board and list of pieces where the move was made
         // so we can see if that would put the player's king in check
         std::vector<Piece> t1 = p;
-//        std::cout << "f" << std::endl;
         t1[findPiece(rank, file, p)].movePiece(destR, destF);
-//        std::cout << "uc" << std::endl;
         std::string t2 [8][8];
         for (int i = 0; i < 8; i++)
         {
@@ -239,12 +211,10 @@ bool Piece::checkMove(int destR, int destF, std::string B[][8],
                 t2[j][i] = " ";
             }
         }
-//        std::cout << "k" << std::endl;
         for (int i = 0; i < p.size(); i++)
         {
             t2[t1[i].getRank()][t1[i].getFile()] = t1[i].getType();
         }
-//        std::cout << "getting ready to check for check" << std::endl;
         // if the move doesn't put the player's king in check...
         if (!putsKingInCheck(player, t2, t1))
         {
