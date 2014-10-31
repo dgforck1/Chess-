@@ -41,6 +41,14 @@ void BuildDrawCaptured(std::vector< DrawPiece > &dw,
                        std::vector< std::string > &cw,
                        std::vector< std::string > &cb);
 void SaveGame(std::vector<std::string> &m);
+int send_messageCM(std::string msg, TCPsocket sock)
+{
+    char * buff = (char *)msg.c_str();      
+    SDLNet_TCP_Send(sock, buff, MAXLEN);
+
+    return 1;
+}
+
 
 //global vars
 bool scroll = false;
@@ -143,6 +151,7 @@ int ChessMain(TCPsocket & sock, SDLNet_SocketSet & set, int player)
         {        
             if(event.type() == QUIT)
             {
+                send_messageCM("quit", sock);
                 return 0;
             }
             else
@@ -484,10 +493,9 @@ int BoardClicked(int mx, int my, Board &b, Rect &bR, int pt)
     
     //convert mouse coords to board coords (rank and file)
     int tempx = mx - bR.x;
-    int tempy = my - bR.y;
+    int tempy = bR.y - my;
     tempx /= 50;
-    tempy /= 50;                
-    tempy = 7 - tempy;
+    tempy /= 50;         
 
     int workingPieceIndex = -1;
     
@@ -518,10 +526,9 @@ void BoardReleased(int mx, int my, Board &b, int wpi, Rect &bR, int &pt,
     if(wpi >= 0)
     {
         int tempx = mx - bR.x;
-        int tempy = my - bR.y;
+        int tempy = bR.y - my;
         tempx /= 50;
-        tempy /= 50;                
-        tempy = 7 - tempy;
+        tempy /= 50;         
         Piece wp = b.getPiece(wpi);
         
         if(b.checkMove(wpi, tempy, tempx))

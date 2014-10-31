@@ -914,6 +914,12 @@ int main(int argc, char **argv)
 //        std::cout << "ALSO HERE " << std::endl;
 		numready = SDLNet_CheckSockets(set, (Uint32)1000);
         std::cout << "Numready " << numready << std::endl;
+        std::cout << "clients.size()         : " << clients.size() << '\n'
+                  << "games.size()           : " << games.size() << '\n'
+                  << "mainMenu.size()        : " << mainMenu.size() << '\n'
+                  << "reviewing.size()       : " << reviewing.size() << '\n'
+                  << "gamesInProgress.size() : " << gamesInProgress.size() << '\n'
+                  << "gamesWaiting.size()    : " << gamesWaiting.size() << std::endl;
 		if(numready == -1)
 		{
 			std::cout << "SDLNet_CheckSockets ERROR" << std::endl;
@@ -961,7 +967,6 @@ int main(int argc, char **argv)
 //                               << "gamesInProgress.size() : " << gamesInProgress.size() << '\n'
 //                               << "gamesWaiting.size()    : " << gamesWaiting.size() << std::endl;
                     message = recv_message(clients[i]->sock);
-                    std::cout << message << " trolololol" <<  std::endl;
                     if(message > "") 
                     {
                         parse(message, i);
