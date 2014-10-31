@@ -1,7 +1,6 @@
 #include <iostream>
 #include <string>
 #include <cmath>
-#include "Includes.h"
 
 #include "chess.h"
 
@@ -1651,6 +1650,15 @@ bool Board::stalemate(int player) // turn player
 
 
 
+// int main()
+// {
+//     return 0;
+// }
+
+
+
+
+
 Image * DrawPiece::getImage()
 {
     return i;
@@ -1661,19 +1669,6 @@ Rect & DrawPiece::getRect()
 {
     return r;
 }
-
-
-
-
-
-// int main()
-// {
-//     return 0;
-// }
-
-
-
-
 
 
 

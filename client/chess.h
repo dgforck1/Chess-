@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include <vector>
-#include "Includes.h"
 
 class Piece
 {
@@ -102,5 +101,4 @@ private:
     Rect r;
 
 };
-
 #endif

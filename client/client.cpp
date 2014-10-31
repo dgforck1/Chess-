@@ -118,9 +118,9 @@ void recv_player_number(std::string message)
 
 bool MainRectClicked(int mX, int mY, Rect& r)
 {
-    if(mX >= r.x && mX <= r.x + r.w)
+    if(mX >= r.x && mX < r.x + r.w)
     {
-        if(mY >= r.y && mY <= r.y + r.h)
+        if(mY >= r.y && mY < r.y + r.h)
         {
             return true;
         }
@@ -377,6 +377,7 @@ int Make(TCPsocket & sock, SDLNet_SocketSet & set)
         delay(10);
     }
     // call ChessMain here
+    ChessMain(sock, set, playerSide);
     return -1;
 }
 

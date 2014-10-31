@@ -36,7 +36,7 @@ void DrawClicked();
 void ScrollUpClicked();
 void ScrollDownClicked(std::vector< std::string > &Moves);
 void BuildDrawPiece(std::vector< DrawPiece > &dw, Board &b, Rect &boardRect,
-    Rect &pieceR);
+                    Rect &pieceR);
 void BuildDrawCaptured(std::vector< DrawPiece > &dw,
                        std::vector< std::string > &cw,
                        std::vector< std::string > &cb);
@@ -79,7 +79,7 @@ Image exitI = Image("images/Exit.png");
 Image boardI = Image("images/Board.png");
 
 
-int ChessMain(int player)
+int ChessMain(TCPsocket & sock, SDLNet_SocketSet & set, int player)
 {       
     Surface s(W, H);
     Event event;
@@ -100,7 +100,6 @@ int ChessMain(int player)
 
 
     Rect boardRect = boardI.getRect(),
-        blackRect = Rect(0, 0, 50, 50),
         capRect = Rect(25, 150, 200, 400),
         movRect = Rect(675, 150, 200, 400),
         supRect = Rect(850, 150, 25, 25),
@@ -152,7 +151,8 @@ int ChessMain(int player)
                 {                                        
                     mouse.update(event);                    
                     mousex = mouse.x();
-                    mousey = mouse.y();    
+                    mousey = mouse.y();
+                    std::cout << mousex << '\t' << mousey << std::endl;
                     clicked = true;
                 }
                 else if(event.type() == MOUSEBUTTONUP)
@@ -360,9 +360,9 @@ int ChessMain(int player)
 
 bool RectClicked(int mX, int mY, Rect& r)
 {
-    if(mX >= r.x && mX <= r.x + r.w)
+    if(mX >= r.x && mX < r.x + r.w)
     {
-        if(mY >= r.y && mY <= r.y + r.h)
+        if(mY >= r.y && mY < r.y + r.h)
         {
             return true;
         }
@@ -626,7 +626,7 @@ void ScrollDownClicked(std::vector< std::string > &Moves)
 
 
 void BuildDrawPiece(std::vector< DrawPiece > &dw, Board &b, Rect &boardRect,
-    Rect &pieceR)
+                    Rect &pieceR)
 {        
     //remove existing pieces
     if(dw.size() > 0)
