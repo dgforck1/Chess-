@@ -665,30 +665,39 @@ void quitGame(int s)
                 if (gamesWaiting[i]->isPlayerN(sender))
                 {
                     std::cout << "\t\t\t\tIn if #1" << std::endl;
-                    if (gamesWaiting[i]->isPlayerN(sender))
+                    std::vector<Client*> temp = gamesWaiting[i]->getSpectators();
+                    std::cout << "\t\t\t\tnum_Spectators: " << temp.size() << std::endl;
+                    int tempIndex = -1;
+                    for (int j = 0; j < games.size(); j++)
                     {
-                        std::cout << "\t\t\t\t\tIn if #1.1" << std::endl;
-                        std::vector<Client*> temp = gamesWaiting[i]->getSpectators();
-                        for (int j = 0; j < temp.size(); j++)
+                        if (games[j] == gamesWaiting[i])
                         {
-                            temp[j]->location = 0;
-                            gamesWaiting[i]->removeFromGame(temp[j]->name);
-                            mainMenu.push_back(temp[j]);
+                            tempIndex = j;
+                            break;
                         }
-                        clients[s]->location = 0;
-                        gamesWaiting[i]->removeFromGame(sender);
-                        mainMenu.push_back(clients[s]);
-                        delete gamesWaiting[i];
-                        gamesWaiting.erase(gamesWaiting.begin() + i);
                     }
-                    else
+                    for (int j = 0; j < temp.size(); j++)
                     {
-                        clients[s]->location = 0;
-                        gamesInProgress[i]->removeFromGame(sender);
-                        mainMenu.push_back(clients[s]);
+                        temp[j]->location = 0;
+                        gamesWaiting[i]->removeFromGame(temp[j]->name);
+                        mainMenu.push_back(temp[j]);
                     }
-                    break;
+                    std::cout << "\t\t\t\tgw size " << gamesWaiting.size() << std::endl;
+                    clients[s]->location = 0;
+                    gamesWaiting[i]->removeFromGame(sender);
+                    mainMenu.push_back(clients[s]);
+                    delete gamesWaiting[i];
+                    gamesWaiting.erase(gamesWaiting.begin() + i);
+                    games.erase(games.begin() + tempIndex);
+                    std::cout << "\t\t\t\tgw size " << gamesWaiting.size() << std::endl;
                 }
+                else
+                {
+                    clients[s]->location = 0;
+                    gamesInProgress[i]->removeFromGame(sender);
+                    mainMenu.push_back(clients[s]);
+                }
+                break;
             }
             break;
         case 4:
@@ -772,6 +781,7 @@ void joinPlay(int c)
                 mainMenu.erase(mainMenu.begin() + i);
                 std::string message = "good";
                 gamesInProgress[gamesInProgress.size() - 1]->sendMove(message, sender);
+                send_client(c, message);
                 break;
             }
         }
