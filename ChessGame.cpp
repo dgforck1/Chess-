@@ -541,7 +541,6 @@ void BoardReleased(int mx, int my, Board &b, int wpi, Rect &bR, int &pt,
                                tempy, tempx, wp.getFile())
                     );
                 
-                //todo: fix weird capture bug
                 if(tempP.getPlayer() == 0)
                 {
                     CapturedWhite.push_back(
@@ -555,6 +554,7 @@ void BoardReleased(int mx, int my, Board &b, int wpi, Rect &bR, int &pt,
                         );
                 }
 
+                //need to move wpi if the removed piece had a lower index
                 if(temp < wpi)
                 {
                     wpi--;
