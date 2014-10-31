@@ -558,7 +558,12 @@ void BoardReleased(int mx, int my, Board &b, int wpi, Rect &bR, int &pt,
                         b.capturePiece(temp)
                         );
                 }
+
                 
+                if(temp < wpi)
+                {
+                    wpi--;
+                }
             }
             else
             {
@@ -576,6 +581,8 @@ void BoardReleased(int mx, int my, Board &b, int wpi, Rect &bR, int &pt,
                 scrollend = Moves.size() -
                     (Moves.size() % 2);                     
             }
+
+            
             
             b.movePiece(wpi, tempy, tempx);         
             
