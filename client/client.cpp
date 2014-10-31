@@ -48,7 +48,6 @@
 int player_number = -1;
 int state = -1;
 int playerSide = -1;
-bool draw = false;
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -421,6 +420,11 @@ int Join(TCPsocket & sock, SDLNet_SocketSet & set)
 		if(numready && SDLNet_SocketReady(sock))
 		{
 			from_server = recv_message(sock);
+            if (from_server == "good")
+            {
+                foundGame = true;
+                playerSide = 1;
+            }
             std::cout << from_server << std::endl;// comment out after complete
             
 //            parse_player_data(from_server);
@@ -471,6 +475,8 @@ int Join(TCPsocket & sock, SDLNet_SocketSet & set)
         
         delay(10);
     }
+    ChessMain(sock, set, playerSide);
+    return -1;
 }
 
 

@@ -41,6 +41,7 @@ void BuildDrawCaptured(std::vector< DrawPiece > &dw,
                        std::vector< std::string > &cw,
                        std::vector< std::string > &cb);
 void SaveGame(std::vector<std::string> &m);
+
 int send_messageCM(std::string msg, TCPsocket sock)
 {
     char * buff = (char *)msg.c_str();      
@@ -48,12 +49,29 @@ int send_messageCM(std::string msg, TCPsocket sock)
 
     return 1;
 }
+std::string recv_messageCM(TCPsocket sock)
+{
+    char buff[MAXLEN] = {' '};
+    SDLNet_TCP_Recv(sock, buff, MAXLEN);
+
+    if (buff == NULL)
+    {
+        std::string ret = "";
+        return ret;
+    }
+    
+    std::string ret(buff, strlen(buff));
+    return ret;
+}
 
 
 //global vars
 bool scroll = false;
 int scrollstart = 2,
     scrollend = 31;
+bool draw = false;
+
+
 
 Image WP = Image("images/WhitePawn.png");
 Image WR = Image("images/WhiteRook.png");
@@ -116,16 +134,11 @@ int ChessMain(TCPsocket & sock, SDLNet_SocketSet & set, int player)
         drawR = drawI.getRect(),
         exitR = exitI.getRect(),
         pieceR = Rect(0, 0, 50, 50);
-
-
-    
     
     std::vector< std::string > CapturedWhite;
     std::vector< std::string > CapturedBlack;
     std::vector< std::string > Moves;
     std::vector< DrawPiece > dw, dc;
-
-
 
     //set rect coords
     exitR.x = W - exitR.w;
@@ -137,15 +150,36 @@ int ChessMain(TCPsocket & sock, SDLNet_SocketSet & set, int player)
     boardRect.x = 250;
     boardRect.y = 150;
 
-
     //initialize draw pieces            
     BuildDrawPiece(dw, b, boardRect, pieceR);
-    
-
-
-    
+   
     while(1)
     {
+        //get server input
+        int numready = SDLNet_CheckSockets(set, 100);
+        if(numready == -1)
+		{
+			std::cout << "SDLNet_CheckSockets ERROR" << std::endl;
+			break;
+		}
+        
+        std::string from_server = "";
+		if(numready && SDLNet_SocketReady(sock))
+		{
+			from_server = recv_messageCM(sock);
+//             if (from_server == "draw")
+//             {
+//                 if (draw == true)
+//                 {
+                    
+//                 }
+//                 // mini while?
+//             }
+            std::cout << from_server << std::endl;// comment out after complete
+            
+//            parse_player_data(from_server);
+		}
+        
         //get user input
         if(event.poll())
         {        
@@ -194,10 +228,10 @@ int ChessMain(TCPsocket & sock, SDLNet_SocketSet & set, int player)
             {
                 option = 2;
             }
-            else if(RectClicked(mousex, mousey, drawR))
-            {
-                option = 3;
-            }
+//             else if(RectClicked(mousex, mousey, drawR))
+//             {
+//                 option = 3;
+//             }
             else if(RectClicked(mousex, mousey, supRect))
             {
                 option = 4;
@@ -248,9 +282,9 @@ int ChessMain(TCPsocket & sock, SDLNet_SocketSet & set, int player)
                 QuitClicked(); //perform whatever cleanup this does
                 return 0;
                 break;
-            case 3: //draw button clicked
-                DrawClicked();
-                break;
+//             case 3: //draw button clicked
+//                 DrawClicked();
+//                 break;
             case 4: //scroll up clicked
                 if(scroll)
                 {
@@ -266,8 +300,6 @@ int ChessMain(TCPsocket & sock, SDLNet_SocketSet & set, int player)
             default: //heck if i know what was clicked                
                 break;
         }      
-        
-
         
         
         //draw all the things
@@ -349,7 +381,7 @@ int ChessMain(TCPsocket & sock, SDLNet_SocketSet & set, int player)
             }
         }
         s.put_image(quitI, quitR);
-        s.put_image(drawI, drawR);
+//         s.put_image(drawI, drawR);
         s.put_image(exitI, exitR);
         s.unlock();
         s.flip();
@@ -622,7 +654,7 @@ void BoardReleased(int mx, int my, Board &b, int wpi, Rect &bR, int &pt,
 void QuitClicked()
 {
     //std::cout << "<<<< quick clicked" << std::endl;
-
+    
 }
 
 
@@ -632,6 +664,8 @@ void QuitClicked()
 void DrawClicked()
 {
     //std::cout << "<<<< draw clicked" << std::endl;
+//     send_messageCH("draw", sock);
+//     draw = true;
 }
 
 
