@@ -411,8 +411,6 @@ bool rookMove(int r, int f, int nr, int nf, std::string board[][8])
                 {
                     if (board[i][f] != " ")
                     {
-                        std::cout << "<<<< the rook can't move!"
-                                  << std::endl;
                         return false;
                     }                    
                 }
@@ -423,8 +421,6 @@ bool rookMove(int r, int f, int nr, int nf, std::string board[][8])
                 {
                     if (board[i][f] != " ")
                     {
-                        std::cout << "<<<< the rook can't move #2!"
-                                  << std::endl;
                         return false;
                     }
                 }
@@ -461,7 +457,49 @@ bool rookMove(int r, int f, int nr, int nf, std::string board[][8])
 
 bool bishopMove(int r, int f, int nr, int nf, std::string board[][8])
 {
-    
+    if( ((nr - r) * 1.0) / ((nf - f) * 1.0) == 1
+        || ((nr - r) * 1.0) / ((nf - f) * 1.0) == -1 )
+    {
+        if(nr - r >= 1 && nf - f >= 1) //both positive
+        {
+            for(int i = r + 1; i < nr; i++)
+            {
+                if(board[r + i][f + i] != " ")
+                    return false;
+            }
+        }
+        else if(nr - r >= 1 && nf - f <= -1) //r positive, f negative
+        {
+            for(int i = r + 1; i < nr; i++)
+            {
+                if(board[r + i][f - i] != " ")
+                    return false;
+            }
+        }
+        else if(nr - r <= -1 && nf - f >= 1) //r negative, f positive
+        {
+            for(int i = nr + 1; i < r; i++)
+            {
+                if(board[r - i][f + i] != " ")
+                    return false;
+            }
+        }        
+        else if(nr - r <= -1 && nf - f <= -1) //both negative
+        {
+            for(int i = nr + 1; i < r; i++)
+            {
+                if(board[r - i][f - i] != " ")
+                    return false;
+            }
+        }
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+            
+             
     /*if (nr - r == 1)
     {
         if (nf - f == 1)
